@@ -54,12 +54,10 @@
                            template="ricento/dashboard/news.phtml"/>
                 </block>
                 <block type="core/text_list" name="ricento_dashboard_right" as="ricento.dashboard.right">
-                    <block type="diglin_ricento/adminhtml_dashboard_lifetime" name="ricento_dashboard_lifetime"
-                           as="ricento.dashboard.lifetime"
-                           template="ricento/dashboard/lifeturnover.phtml"/>
-                    <block type="adminhtml/template" name="ricento_dashboard_turnover" as="ricento.dashboard.turnover"
-                           template="ricento/dashboard/turnover.phtml">
-                        <block type="diglin_ricento/adminhtml_dashboard_turnover" name="ricento_dashboard_turnover_graph" as="ricento.dashboard.turnover.graph" />
+                    <block type="core/template" name="plp_banner" as="plp.banner" template="ricento/dashboard/banner.phtml" />
+                    <block type="diglin_ricento/adminhtml_dashboard_lifetime" name="ricento_dashboard_lifetime" as="ricento.dashboard.lifetime" template="ricento/dashboard/lifeturnover.phtml"/>
+                    <block type="adminhtml/template" name="ricento_dashboard_turnover" as="ricento.dashboard.turnover" template="ricento/dashboard/turnover.phtml">
+                        <block type="diglin_ricento/adminhtml_dashboard_turnover" name="ricento_dashboard_turnover_graph" as="ricento.dashboard.turnover.graph"/>
                     </block>
                     <block type="core/template" name="ricento_dashboard_bestsellers" as="ricento.dashboard.bestsellers"
                            template="ricento/dashboard/bestsellers.phtml">
@@ -91,7 +89,7 @@
             <block type="diglin_ricento/adminhtml_products_listing_edit_tabs" name="products_listing_edit_tabs" />
         </reference>
     </ricento_products_listing_edit>
-    
+
     <ricento_products_listing_addproductspopup>
         <update handle="overlay_popup" />
         <remove name="footer" />
@@ -140,7 +138,7 @@
     <adminhtml_catalog_category_edit>
         <update handle="ricento_scripts" />
     </adminhtml_catalog_category_edit>
-    
+
     <ricento_products_category_showcategoriestree>
         <update handle="overlay_popup" />
         <remove name="footer" />
