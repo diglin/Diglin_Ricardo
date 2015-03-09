@@ -57,9 +57,6 @@ input[type="radio"] {
     font-weight: bold;
     color: red;
 }
-#sales_options_price_change_type {
-    width: auto;
-}
 #diglin_ricento_price_change {
     width: 30px;
 }
@@ -164,7 +161,9 @@ input[type="radio"] {
 .ricento-products-listing-item-configure .form-list {
 }
 .ricento-products-listing-edit .form-list td.value,
-.ricento-products-listing-item-configure .form-list td.value {
+.ricento-products-listing-item-configure .form-list td.value,
+.ricento-products-listing-edit .form-list  .product-listing-select,
+.ricento-products-listing-item-configure .product-listing-select {
     width: auto !important;
 }
 

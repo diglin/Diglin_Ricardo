@@ -88,6 +88,12 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const ORDER_STATUS_CANCEL       = 'canceled_ricento';
 
     /**
+     * Stock Management
+     */
+    const INVENTORY_QTY_TYPE_FIX        = 'fix';
+    const INVENTORY_QTY_TYPE_PERCENT    = 'percent';
+
+    /**
      * @var Mage_Directory_Model_Currency
      */
     protected $_oldCurrency;

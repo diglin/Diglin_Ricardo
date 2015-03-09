@@ -125,7 +125,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             'after_element_html' => ' &nbsp;',
             'no_span' => true,
             'values' => Mage::getSingleton('diglin_ricento/config_source_sales_price_method')->getAllOptions(),
-            'class'  => 'required-if-visible',
+            'class'  => 'required-if-visible product-listing-select',
         ));
         $fieldsetPriceChange->addField('price_change', 'text', array(
             'name' => 'sales_options[price_change]',
@@ -269,7 +269,8 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
 
         $fieldsetStock = $form->addFieldset('fieldset_stock', array('legend' => $this->__('Stock Management')));
         $fieldsetStock->addType('radios_extensible', Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_form_element_radios_extensible'));
-        $fieldsetStock->addField('stock_management_use_inventory', 'radios_extensible', array(
+
+        $stockManagementUseInventory = $fieldsetStock->addField('stock_management_use_inventory', 'radios_extensible', array(
             'name' => 'sales_options[stock_management_use_inventory]',
             'label' => $this->__('Stock Management'),
             'note' => $this->__('Range 1...999. If you use the product inventory option, the amount of items will be taken from the field "Qty" defined in the product inventory and limited to 999 if you have a quantity above this value.'),
@@ -282,6 +283,18 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
                     )
                 ))
             )
+        ));
+
+        $stockManagement = $stockManagementUseInventory->getElements()->searchById('stock_management');
+        $stockManagement->addField('stock_management_qty_type', 'select', array(
+            'name' => 'sales_options[stock_management_qty_type]',
+            'after_element_html' => ' &nbsp;',
+            'no_span' => true,
+            'class'  => 'product-listing-select',
+            'values' => array(
+                array('label' => $this->__('Fix'), 'value' => Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_FIX),
+                array('label' => $this->__('Percent'), 'value' => Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT)
+            ),
         ));
 
         /**
@@ -384,6 +397,13 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         }
 
         /**
+         * Set the default values of the radio button for the "stock management quantity type"
+         */
+        if ($this->getSalesOptions()->getStockManagementQtyType()) {
+            $derivedValues['stock_management_qty_type'] = $this->getSalesOptions()->getStockManagementQtyType();
+        }
+
+        /**
          * Set the default values of the radio button for the "Starting Date"
          */
         if ($this->getSalesOptions()->getScheduleDateStart() == null) {
@@ -422,6 +442,10 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             $this->getForm()->getElement('promotion_start_page')->setChecked(true);
         }
 
+        /* @var $stockManagement Varien_Data_Form_Element_Select */
+        $this->getForm()
+            ->getElement('stock_management')
+            ->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
 
         $this->getForm()->addValues($derivedValues);
         return parent::_initFormValues();
