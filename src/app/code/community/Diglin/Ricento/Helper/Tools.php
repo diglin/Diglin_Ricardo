@@ -15,6 +15,7 @@
 class Diglin_Ricento_Helper_Tools extends Mage_Core_Helper_Abstract
 {
     const XML_PATH_EMAIL_NOTIFICATION_TEMPLATE = 'system/messages/notification_email_template';
+    const XML_PATH_TOKEN_EXPIRATION_TEMPLATE = 'system/messages/token_expiration_email_template';
     const XML_PATH_PM_EMAIL_TEMPLATE = 'system/messages/pm_email_template';
 
     /**
@@ -56,6 +57,20 @@ class Diglin_Ricento_Helper_Tools extends Mage_Core_Helper_Abstract
             Mage::getStoreConfig(self::XML_PATH_PM_EMAIL_TEMPLATE),
             $variables,
             $storeId
+        );
+    }
+
+    /**
+     * @param array $variables
+     */
+    public static function sendMerchantAuthorizationNotification(array $variables)
+    {
+        self::sendNotification(
+            Mage::getStoreConfig('contacts/email/sender_email_identity'), //  e.g. 'general'
+            'support',
+            Mage::getStoreConfig(self::XML_PATH_TOKEN_EXPIRATION_TEMPLATE),
+            $variables,
+            Mage::app()->getStore()->getId()
         );
     }
 

@@ -34,6 +34,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_RICARDO_PARTNERKEY            = 'ricento/api_config/partner_key_';
     const CFG_RICARDO_PARTNERPASS           = 'ricento/api_config/partner_pass_';
     const CFG_EXPIRATION_NOTIFICATION_DELAY = 'ricento/api_config/expiration_notification_delay'; // in day
+    const CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY = 'ricento/api_config/expiration_notification_validation_delay'; // in day
     const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification'; // in day
 
     const CFG_SUPPORTED_LANG                = 'ricento/api_config/lang';
@@ -419,6 +420,17 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function getExpirationNotificationDelay($store = 0)
     {
         return Mage::getStoreConfig(self::CFG_EXPIRATION_NOTIFICATION_DELAY, $store);
+    }
+
+    /**
+     * Get the delay in days to notify the owner that the API authorisation must be triggered
+     *
+     * @param int $store
+     * @return mixed
+     */
+    public function getExpirationNotificationValidationDelay($store = 0)
+    {
+        return Mage::getStoreConfig(self::CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY, $store);
     }
 
     /**

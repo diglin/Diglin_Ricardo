@@ -31,19 +31,15 @@ class Diglin_Ricento_Model_Cron
      */
     public function process()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled()) {
+        if (!Mage::helper('diglin_ricento')->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
         ini_set('memory_limit', '512M');
 
-        //** Launch Pending Jobs
-
-        // @todo check that the API token is not expired or that an error may occur, in this case send only once an email to the admin
-
         try {
             foreach ($this->_syncProcess as $jobType) {
-                $this->dispatch($jobType);
+                $this->_dispatch($jobType);
             }
         } catch (Exception $e) {
             Mage::logException($e);
@@ -55,7 +51,7 @@ class Diglin_Ricento_Model_Cron
      */
     public function async()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled()) {
+        if (!Mage::helper('diglin_ricento')->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
@@ -63,13 +59,11 @@ class Diglin_Ricento_Model_Cron
 
         try {
             foreach ($this->_asyncProcess as $jobType) {
-                $this->dispatch($jobType);
+                $this->_dispatch($jobType);
             }
         } catch (Exception $e) {
             Mage::logException($e);
         }
-
-        //** Cleanup
 
         $this->_processCleanupJobs();
     }
@@ -104,7 +98,7 @@ class Diglin_Ricento_Model_Cron
     /**
      * @return Diglin_Ricento_Model_Dispatcher
      */
-    protected function _getDisptacher()
+    private function _getDisptacher()
     {
         return Mage::getSingleton('diglin_ricento/dispatcher');
     }
@@ -113,8 +107,40 @@ class Diglin_Ricento_Model_Cron
      * @param int $type
      * @return $this
      */
-    protected function dispatch($type)
+    private function _dispatch($type)
     {
         return $this->_getDisptacher()->dispatch($type)->proceed();
+    }
+
+    /**
+     * @return bool
+     */
+    private function _isTokenExpired()
+    {
+        $helper = Mage::helper('diglin_ricento/api');
+
+        // @todo in case of real multi website support, add website parameter
+
+        if ($helper->apiTokenCredentialValidation() && !$helper->isMerchantNotifiedApiAuthorization()) {
+            $helperTools = Mage::helper('diglin_ricento/tools');
+            $helperTools->sendMerchantAuthorizationNotification(array(
+                'shop_url' => Mage::helper('adminhtml')->getUrl('adminhtml')
+            ));
+
+            $token = Mage::getModel('diglin_ricento/api_token')
+                ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
+
+            if ($token->getId()) {
+                $token
+                    ->setMerchantNotified(1)
+                    ->save();
+            }
+        }
+
+        if ($helper->apiExpired()) {
+            return true;
+        }
+
+        return false;
     }
 }

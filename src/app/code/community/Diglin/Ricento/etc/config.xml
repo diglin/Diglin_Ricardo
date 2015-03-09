@@ -13,7 +13,7 @@
 <config>
     <modules>
         <Diglin_Ricento>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </Diglin_Ricento>
     </modules>
 
@@ -22,6 +22,7 @@
             <messages>
                 <notification_email_template>system_admin_notification_email_template</notification_email_template>
                 <pm_email_template>customer_private_message_email_template</pm_email_template>
+                <token_expiration_email_template>token_expiration_email_template</token_expiration_email_template>
             </messages>
         </system>
 
@@ -43,7 +44,8 @@
                 <simulate_authorization>0</simulate_authorization>
                 <email_notification>1</email_notification>
                 <!-- it's only possible one day before to renew the API token -->
-                <expiration_notification_delay>1</expiration_notification_delay>
+                <expiration_notification_delay>7</expiration_notification_delay>
+                <expiration_notification_validation_delay>1</expiration_notification_validation_delay>
                 <host>ws.ricardo.ch</host>
                 <host_dev>ws.betaqxl.com</host_dev>
                 <lang>de,fr</lang>
@@ -269,6 +271,11 @@
                     <file>ricento/private_message.html</file>
                     <type>html</type>
                 </customer_private_message_email_template>
+                <token_expiration_email_template translate="label" module="diglin_ricento">
+                    <label>Admin Email Notification</label>
+                    <file>ricento/token_expiration.html</file>
+                    <type>text</type>
+                </token_expiration_email_template>
             </email>
         </template>
 

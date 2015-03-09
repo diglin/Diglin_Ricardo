@@ -22,7 +22,7 @@ $website = Mage::app()->getWebsite();
 <?php if ($this->getApiReady()): ?>
 <div class="notification-global">
     <?php if ($this->isApiCredentialTokenExist($website)): ?>
-    <strong><?php echo $this->__('Your ricardo.ch API token credentials are going to expire in %s days for the website "%s".', $this->getExpirationNotificationDelay(), $website->getName());?></strong>
+    <strong><?php echo $this->__('Your ricardo.ch API token credentials are going to expire in %s days for the website "%s".', $this->getDelayExpirationDays($website->getId()), $website->getName());?></strong>
     <?php else: ?>
     <strong><?php echo $this->__('No ricardo.ch API Authorization have been found for the website "%s".', $website->getName());?></strong>
     <?php endif; ?>
@@ -30,9 +30,11 @@ $website = Mage::app()->getWebsite();
         $validationUrl = $this->getValidationUrl($website);
         if (empty($validationUrl)) {
             echo Mage::helper('diglin_ricento')->__('Security error occurred with the ricardo API. Please, check your log files and your <a href="%s">API configuration</a>.', Mage::helper('diglin_ricento')->getConfigurationUrl($website));
-        } else {
+        } else if ($this->canApiAuthorizationBeTriggered($website)) {
             echo $this->__('You have to authorize your account to get access to the ricardo.ch API thanks to the <a href="%s">ricardo.ch Authorization Page</a>. If you don\'t do it, your ricardo.ch extension and all related transactions with ricardo.ch will be blocked.',
             $validationUrl); ?>
+        <?php } else {
+            echo $this->__('The authorization of the ricardo.ch API Token can be done only %s before the expiration. You will receive automatically an email when it will be possible.', $this->getExpirationNotificationValidationDelay($website->getDefaultStore()->getId())); ?>
         <?php } ?>
     <?php echo $this->__('To hide this message, you have to <a href="%s">disable the extension</a>.', Mage::helper('diglin_ricento')->getConfigurationUrl($website)); ?>
 </div>

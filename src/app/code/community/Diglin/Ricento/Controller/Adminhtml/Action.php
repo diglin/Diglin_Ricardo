@@ -57,7 +57,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
         $helperApi = Mage::helper('diglin_ricento/api');
         $websiteId = $this->_initListing()->getWebsiteId();
 
-        return $helper->isEnabled($websiteId) && $helper->isConfigured($websiteId) && !$helperApi->isApiTokenCredentialGoingToExpire($websiteId);
+        return $helper->isEnabled($websiteId) && $helper->isConfigured($websiteId) && !$helperApi->apiTokenCredentialGoingToExpire($websiteId);
     }
 
     /**
