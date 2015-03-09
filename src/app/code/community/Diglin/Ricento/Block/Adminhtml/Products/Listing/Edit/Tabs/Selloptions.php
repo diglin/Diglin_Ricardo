@@ -445,6 +445,10 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         /* @var $stockManagement Varien_Data_Form_Element_Select */
         $stockManagement = $this->getForm()->getElement('stock_management');
         $stockManagement->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
+        
+        if ($this->getSalesOptions()->getSalesAuctionIncrement() <= 0) {
+            $derivedValues['sales_auction_increment'] = 1;
+        }
 
         $this->getForm()->addValues($derivedValues);
         return parent::_initFormValues();
