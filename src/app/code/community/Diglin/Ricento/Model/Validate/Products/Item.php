@@ -61,10 +61,30 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
         }
 
         $item->setLoadFallbackOptions(true);
-        $helper = Mage::helper('diglin_ricento');
 
-        // Validate product content for each available store
+        $this->_validateProductStores($item, $stores);
+        $this->_validateCustomOptions($item);
+        $this->_validateStockManagement($item);
+        $this->_validateCurrency($item);
+        $this->_validateCategory($item);
+        $this->_validatePaymentShippingRules($item);
+        $this->_validateBuyNow($item);
+        $this->_validateEndingDate($item);
+        $this->_validatePicture($item);
 
+        if (count($this->_errors)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     * @param $stores
+     */
+    private function _validateProductStores(Diglin_Ricento_Model_Products_Listing_Item $item, array $stores)
+    {
         foreach ($stores as $store) {
 
             $item->setStoreId($store);
@@ -76,7 +96,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
             $strLen = new Zend_Validate_StringLength(array('min' => 1, 'max' => self::LENGTH_PRODUCT_TITLE));
             if (!$strLen->isValid($item->getProductTitle(false))) {
                 // warning - content will be cut when exporting to ricardo
-                $this->_warnings[] = $helper->__('Product Title will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_TITLE, $storeCode);
+                $this->_warnings[] = $this->getHelper()->__('Product Title will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_TITLE, $storeCode);
             }
 
             // Validate subtitle
@@ -84,7 +104,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
             $strLen = new Zend_Validate_StringLength(array('max' => self::LENGTH_PRODUCT_SUBTITLE));
             if (!$strLen->isValid($item->getProductSubtitle(false))) {
                 // warning - content will be cut when exporting to ricardo
-                $this->_warnings[] = $helper->__('Product Subtitle will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_SUBTITLE, $storeCode);
+                $this->_warnings[] = $this->getHelper()->__('Product Subtitle will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_SUBTITLE, $storeCode);
             }
 
             // Validate description
@@ -92,25 +112,38 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
             $strLen = new Zend_Validate_StringLength(array('min' => 1, 'max' => self::LENGTH_PRODUCT_DESCRIPTION));
             if (!$strLen->isValid($item->getProductDescription(false))) {
                 // warning - content will be cut when exporting to ricardo
-                $this->_warnings[] = $helper->__('Product Description will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_DESCRIPTION, $storeCode);
+                $this->_warnings[] = $this->getHelper()->__('Product Description will be cut after %s characters when published on ricardo.ch for store "%s"', self::LENGTH_PRODUCT_DESCRIPTION, $storeCode);
             }
         }
 
         // Reinit the product to default store
-
         $item->getProduct()->setStoreId(Mage_Core_Model_App::ADMIN_STORE_ID);
 
-        // Validate custom options
+        return;
+    }
 
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateCustomOptions(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         if ($item->getProduct()->getHasOptions()) {
             // warning - no option will be send to ricardo.ch
-            $this->_warnings[] = $helper->__('Custom Options are not supported. Those won\'t be synchronized into ricardo.ch.', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+            $this->_warnings[] = $this->getHelper()->__('Custom Options are not supported. Those won\'t be synchronized into ricardo.ch.', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
         }
 
-        // Validate Inventory - In Stock or not? Enough Qty or not?
+        return;
+    }
 
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateStockManagement(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
+        // Validate Inventory - In Stock or not? Enough Qty or not?
         $salesOptionsStockManagement = $item->getSalesOptions()->getStockManagement();
         $stockItem = $item->getProduct()->getStockItem();
+        $type = null;
 
         if ($stockItem->getManageStock()) {
             if ($salesOptionsStockManagement == -1) {
@@ -119,34 +152,52 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
                 // if stock not managed => ok (default qty will be set to 1)
             } else {
                 $qty = $salesOptionsStockManagement;
+                $type = $item->getSalesOptions()->getStockManagementQtyType();
                 // if stock managed, check there is enough quantity compared to $salesOptionsStockManagement
                 // if stock is not managed => ok (default qty will be set to 1)
             }
 
-            if (!$item->getProduct()->checkQty($qty) || !$stockItem->getIsInStock()) {
+            if (!$item->getProduct()->checkQty($qty, $type) || !$stockItem->getIsInStock()) {
                 // Error - Qty not available or not in stock
-                $this->_errors[] = $helper->__('The product or its associated products is/are not in stock or doesn\'t have enough quantity in stock.');
+                $this->_errors[] = $this->getHelper()->__('The product or its associated products is/are not in stock or doesn\'t have enough quantity in stock.');
             }
         }
 
-        // Validate the currency
+        return;
+    }
 
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateCurrency(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $currencyCode = Mage::app()->getWebsite($item->getProductsListing()->getWebsiteId())->getBaseCurrencyCode();
         if ($currencyCode != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
             // Warning - Ricardo supports only CHF currency
-            $this->_warnings[] = $helper->__('Only %s currency is supported. No conversion will be done.', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+            $this->_warnings[] = $this->getHelper()->__('Only %s currency is supported. No conversion will be done.', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
         }
+        return;
+    }
 
-        // Validate Category exists
-
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateCategory(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $category = $item->getCategory();
         if (!$category) {
             // error - category cannot be empty
-            $this->_errors[] = $helper->__('You MUST define a ricardo category for this product. Check that you set it at products listing level or at Magento category level.');
+            $this->_errors[] = $this->getHelper()->__('You MUST define a ricardo category for this product. Check that you set it at products listing level or at Magento category level.');
         }
 
-        // Validate Payment and Shipping Rule
+        return;
+    }
 
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validatePaymentShippingRules(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $methodValidator = new Diglin_Ricento_Model_Validate_Rules_Methods();
         $rules = $item->getShippingPaymentRule();
         $methods = array(
@@ -156,11 +207,19 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
 
         if (!$methodValidator->isValid($methods)) {
             // Error - combination respect mandatory
-            $this->_errors[] = $helper->__('Payment and/or Shipping combination are not correct.') . '<br>' . print_r($methodValidator->getMessages(), true);
+            $this->_errors[] = $this->getHelper()->__('Payment and/or Shipping combination are not correct.') . '<br>' . print_r($methodValidator->getMessages(), true);
         }
 
-        // Validate price against buy now price > 0.05 or 0.1
+        return;
+    }
 
+    /**
+     * Validate price against buy now price > 0.05 or 0.1
+     *
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateBuyNow(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $salesOptions = $item->getSalesOptions();
         $productPrice = $item->getProductPrice();
 
@@ -172,12 +231,12 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
 
             if (!$greatherThanValidator->isValid($productPrice)) {
                 // Error - Price not allowed
-                $this->_errors[] = $helper->__('You cannot have a starting price for an auction of %2$s when you set a direct sales with a product price of %1$s.', $productPrice, $minPrice);
+                $this->_errors[] = $this->getHelper()->__('You cannot have a starting price for an auction of %2$s when you set a direct sales with a product price of %1$s.', $productPrice, $minPrice);
             }
         }
 
         if (($salesOptions->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW || $salesOptions->getSalesAuctionDirectBuy())
-            && in_array(PaymentMethods::TYPE_CREDIT_CARD, $rules->getPaymentMethods())
+            && in_array(PaymentMethods::TYPE_CREDIT_CARD, $item->getShippingPaymentRule()->getPaymentMethods())
         ) {
             $betweenValidator  = new Zend_Validate_Between(
                 array(
@@ -189,14 +248,19 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
 
             if (!$betweenValidator->isValid($productPrice)) {
                 // Error - Price not allowed
-                $this->_errors[] = $helper->__('Product Price of %s CHF is incorrect for a direct sales with credit card. Price must be between %s and %s.', $productPrice, self::BUYNOW_MINPRICE_FIXPRICE, self::BUYNOW_MAXPRICE_FIXPRICE);
+                $this->_errors[] = $this->getHelper()->__('Product Price of %s CHF is incorrect for a direct sales with credit card. Price must be between %s and %s.', $productPrice, self::BUYNOW_MINPRICE_FIXPRICE, self::BUYNOW_MAXPRICE_FIXPRICE);
             }
         } else if ($productPrice < self::BUYNOW_MINPRICE_FIXPRICE) {
-            $this->_errors[] = $helper->__('Product Price of %s CHF is incorrect. Minimum price is %s.', self::BUYNOW_MINPRICE_FIXPRICE);
+            $this->_errors[] = $this->getHelper()->__('Product Price of %s CHF is incorrect. Minimum price is %s.', self::BUYNOW_MINPRICE_FIXPRICE);
         }
+        return;
+    }
 
-        // Validate Ending Date
-
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateEndingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $period = (int) $item->getSalesOptions()->getSchedulePeriodDays();
         $betweenValidator  = new Zend_Validate_Between(
             array(
@@ -208,22 +272,32 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
 
         if (!$betweenValidator->isValid($period)) {
             // Error - Period too long or too short
-            $this->_errors[] = $helper->__('The ending date is too early or too late. Minimum period allowed: %s days - Maximum period allowed: %s days', self::PERIOD_DAYS_MIN, self::PERIOD_DAYS_MAX);
+            $this->_errors[] = $this->getHelper()->__('The ending date is too early or too late. Minimum period allowed: %s days - Maximum period allowed: %s days', self::PERIOD_DAYS_MIN, self::PERIOD_DAYS_MAX);
         }
+        return;
+    }
 
-        // Validate picture - warning if promotions exists but no picture
-
+    /**
+     * Validate picture - warning if promotions exists but no picture
+     *
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validatePicture(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
         $assignedImages = $item->getProduct()->getImages();
-        if (empty($assignedImages) && ($salesOptions->getPromotionSpace() || $salesOptions->getPromotionStartPage())) {
+        if (empty($assignedImages) && ($item->getSalesOptions()->getPromotionSpace() || $item->getSalesOptions()->getPromotionStartPage())) {
             // Warning - No promotion possible if no image in the product
-            $this->_warnings[] = $helper->__('You cannot use the privilege spaces as you do not have any pictures for this product.');
+            $this->_warnings[] = $this->getHelper()->__('You cannot use the privilege spaces as you do not have any pictures for this product.');
         }
+        return;
+    }
 
-        if (count($this->_errors)) {
-            return false;
-        }
-
-        return true;
+    /**
+     * @return Diglin_Ricento_Helper_Data
+     */
+    public function getHelper()
+    {
+        return Mage::helper('diglin_ricento');
     }
 
     /**
