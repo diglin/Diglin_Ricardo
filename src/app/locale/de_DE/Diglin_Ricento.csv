@@ -663,3 +663,5 @@
 "Following error(s) appeared:","Following error(s) appeared:"
 "<strong>Attention:</strong> you cannot use the option ""Until sold"" if you select the Sales Type ""Auction""","<strong>Attention:</strong> you cannot use the option ""Until sold"" if you select the Sales Type ""Auction"""
 "The authorization of the ricardo.ch API Token can be done only %s before the expiration. You will receive automatically an email when it will be possible.","The authorization of the ricardo.ch API Token can be done only %s before the expiration. You will receive automatically an email when it will be possible."
+"Merge Descriptions","Merge Descriptions"
+"Merge short and normal descriptions as one content for ricardo product description. The short description will be the first part and the normal description will be the second part of the ricardo article description.","Merge short and normal descriptions as one content for ricardo product description. The short description will be the first part and the normal description will be the second part of the ricardo article description."

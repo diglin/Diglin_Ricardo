@@ -51,6 +51,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_ORDER_CREATION_EMAIL          = 'ricento/global/email_order_creation';
     const CFG_MERGE_ORDER                   = 'ricento/global/merge_order';
     const CFG_DECREASE_INVENTORY            = 'ricento/global/decrease_inventory';
+    const CFG_MERGE_DESCRIPTIONS            = 'ricento/global/merge_descriptions';
 
     /**
      * Cleanup Job config
@@ -729,5 +730,14 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             $imageInfo['bits'] = 8;
         }
         return round(($imageInfo[0] * $imageInfo[1] * $imageInfo['bits'] * $imageInfo['channels'] / 8 + Pow(2, 16)) * 1.65);
+    }
+
+    /**
+     * @param int $storeId
+     * @return mixed
+     */
+    public function canMergeDescriptions($storeId = 0)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_MERGE_DESCRIPTIONS, $storeId);
     }
 }

@@ -98,6 +98,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </email_order_creation>
+                        <merge_descriptions>
+                            <label>Merge Descriptions</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Merge short and normal descriptions as one content for ricardo product description. The short description will be the first part and the normal description will be the second part of the ricardo article description.]]></comment>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </merge_descriptions>
                     </fields>
                 </global>
 

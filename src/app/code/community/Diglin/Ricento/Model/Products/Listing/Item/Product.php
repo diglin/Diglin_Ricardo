@@ -414,19 +414,30 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             'short_description'
         );
 
+        $canMergeDescriptions = Mage::helper('diglin_ricento')->canMergeDescriptions($storeId);
         $returnedDescription = null;
+        $mergedDescriptions = array();
+        $skip = false;
 
         foreach ($this->getStoresList($storeId) as $id) {
             if (is_null($id)) {
                 continue;
             }
+
             foreach ($descriptions as $description) {
                 $returnedDescription = $this->_getProductText($description, $productId, $id);
-                if ($returnedDescription) {
+                if ($returnedDescription && !$canMergeDescriptions || $returnedDescription && $description == 'ricardo_description') {
+                    $skip = true;
                     break;
                 }
+                $mergedDescriptions[$description] = $returnedDescription;
             }
-            if ($returnedDescription) {
+
+            if ($canMergeDescriptions && count($mergedDescriptions) && !$skip) {
+                $returnedDescription = $mergedDescriptions['short_description'] . '<br>' . $mergedDescriptions['description'];
+            }
+
+            if ($skip) {
                 break;
             }
         }
