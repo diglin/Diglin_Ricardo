@@ -608,13 +608,25 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     }
 
     /**
+     * @param int $productStockQty
+     * @param int $qtyTargeted
+     * @param $type
+     * @return float
+     */
+    public function getPercentQty($productStockQty, $qtyTargeted, $type)
+    {
+        return ($type == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) ? ($productStockQty * $qtyTargeted / 100) : $qtyTargeted;
+    }
+
+    /**
      * Check quantity
      *
      * @param   float $qty
+     * @param   string $type
      * @exception Mage_Core_Exception
      * @return  bool
      */
-    public function checkQty($qty)
+    public function checkQty($qty, $type = Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_FIX)
     {
         $stockItem = $this->getStockItem();
 
@@ -639,7 +651,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             foreach ($usedProductIds as $id) {
                 $stockItem->unsetData(); // cleanup before to proceed, we may also use the method reset but it's not relevant here
                 $stockItemProd = $stockItem->loadByProduct($id);
-                if ($stockItemProd->getQty() - $stockItemProd->getMinQty() - $qty < 0) {
+                if ($stockItemProd->getQty() - $stockItemProd->getMinQty() - $this->getPercentQty($stockItemProd->getQty(), $qty, $type) < 0) {
                     switch ($stockItemProd->getBackorders()) {
                         case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NONOTIFY:
                         case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY:
@@ -651,7 +663,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 }
             }
         } else {
-            if ($stockItem->getQty() - $stockItem->getMinQty() - $qty < 0) {
+            if ($stockItem->getQty() - $stockItem->getMinQty() - $this->getPercentQty($stockItem->getQty(), $qty, $type) < 0) {
                 switch ($stockItem->getBackorders()) {
                     case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NONOTIFY:
                     case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY:

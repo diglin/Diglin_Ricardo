@@ -241,7 +241,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
         }
 
-        return (int) $ricardoCategoryId;
+        return (int)$ricardoCategoryId;
     }
 
     /**
@@ -331,13 +331,21 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     public function getProductQty()
     {
-        if ($this->getSalesOptions()->getStockManagement() == -1) {
+        if ($this->getSalesOptions()->getStockManagement() == -1
+            || $this->getSalesOptions()->getStockManagementQtyType() == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) {
+
             // In case a product belongs to a configurable product
             if ($this->getParentProductId()) {
-                return $this->getAdditionalData()->getStockQty();
+                $qty = $this->getAdditionalData()->getStockQty();
+            } else {
+                $qty = $this->getProduct()->getQty();
             }
 
-            return $this->getProduct()->getQty();
+            if ($this->getSalesOptions()->getStockManagement() == -1) {
+                return $qty;
+            }
+
+            return $this->getProduct()->getPercentQty($qty, $this->getSalesOptions()->getStockManagement(), Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT);
         } else {
             return $this->getSalesOptions()->getStockManagement();
         }
@@ -432,13 +440,15 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         //** Article Images
 
         $helper = Mage::helper('diglin_ricento');
-        $images = (array) $this->getProduct()->getImages($this->getBaseProductId());
+        $images = (array)$this->getProduct()->getImages($this->getBaseProductId());
         $i = 0;
         $hash = array();
 
         foreach ($images as $image) {
 
-            if ($i >= 8) { break; }; // Do not set more than 9 pictures
+            if ($i >= 8) {
+                break;
+            }; // Do not set more than 9 pictures
 
             $hashImage = md5($image['filepath']);
             if (isset($image['filepath']) && file_exists($image['filepath']) && !isset($hash[$hashImage])) {
@@ -528,7 +538,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         $promotionIds = array();
         $paymentConditions = array();
 
-        $paymentMethods = (array) $this->_shippingPaymentRule->getPaymentMethods();
+        $paymentMethods = (array)$this->_shippingPaymentRule->getPaymentMethods();
         $salesType = $this->_salesOptions->getSalesType();
 
         foreach ($paymentMethods as $paymentMethod) {
@@ -541,7 +551,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             $startDate = $this->_salesOptions->getScheduleDateStart();
         }
 
-        $untilSoldOut = ((int) $this->_salesOptions->getScheduleReactivation() === Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT);
+        $untilSoldOut = ((int)$this->_salesOptions->getScheduleReactivation() === Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT);
 
         $customTemplate = ($this->_salesOptions->getCustomizationTemplate() >= 0) ? $this->_salesOptions->getCustomizationTemplate() : null;
 
@@ -549,7 +559,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         $articleInformation
             // required
             ->setArticleConditionId($this->getProductCondition())
-            ->setArticleDuration(($this->_salesOptions->getSchedulePeriodDays() * 24 * 60)) // In minutes
+            ->setArticleDuration(($this->_salesOptions->getSchedulePeriodDays() * 24 * 60))// In minutes
             ->setAvailabilityId($this->_shippingPaymentRule->getShippingAvailability())
             ->setCategoryId($this->getCategory())
             ->setInitialQuantity($this->getProductQty())
@@ -571,8 +581,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             $startDate = strtotime($startDate);
 
             // ricardo.ch constrains, starting date must be in 1 hour after now
-            if ($startDate < (time() + 60*60)) {
-                $startDate = time() + 60*60;
+            if ($startDate < (time() + 60 * 60)) {
+                $startDate = time() + 60 * 60;
             }
 
             $articleInformation->setStartDate(Mage::helper('diglin_ricento')->getJsonDate($startDate));
@@ -600,12 +610,12 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         $space = $this->_salesOptions->getPromotionSpace();
         if ($space) {
-            $promotionIds[] = (int) $space;
+            $promotionIds[] = (int)$space;
         }
 
         $startSpace = $this->_salesOptions->getPromotionStartPage();
         if ($startSpace) {
-            $promotionIds[] = (int) $startSpace;
+            $promotionIds[] = (int)$startSpace;
         }
 
         // required
@@ -645,13 +655,13 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     protected function _getPaymentConditionId($paymentMethod)
     {
         $system = Mage::getSingleton('diglin_ricento/api_services_system');
-        $conditions = (array) $system->getPaymentConditionsAndMethods();
+        $conditions = (array)$system->getPaymentConditionsAndMethods();
 
         foreach ($conditions as $condition) {
             if (isset($condition['PaymentMethods']) && !empty($condition['PaymentMethods'])) {
                 foreach ($condition['PaymentMethods'] as $method) {
-                    if (isset($method['PaymentMethodId']) && $method['PaymentMethodId'] == (int) $paymentMethod) {
-                        return (int) $condition['PaymentConditionId'];
+                    if (isset($method['PaymentMethodId']) && $method['PaymentMethodId'] == (int)$paymentMethod) {
+                        return (int)$condition['PaymentConditionId'];
                     }
                 }
             }
