@@ -88,7 +88,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         $fieldsetTypeAuction->addField('sales_auction_increment', 'text', array(
             'name' => 'sales_options[sales_auction_increment]',
             'label' => $this->__('Increment'),
-            'class' => 'validate-number required-if-visible validate-startprice-increment',
+            'class' => 'validate-number required-if-visible validate-startprice-increment'
         ));
         $fieldsetTypeAuction->addField('auction_currency', 'label', array(
             'name' => 'sales_options[auction_currency]',
@@ -443,9 +443,8 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         }
 
         /* @var $stockManagement Varien_Data_Form_Element_Select */
-        $this->getForm()
-            ->getElement('stock_management')
-            ->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
+        $stockManagement = $this->getForm()->getElement('stock_management');
+        $stockManagement->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
 
         $this->getForm()->addValues($derivedValues);
         return parent::_initFormValues();
