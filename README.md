@@ -178,7 +178,7 @@ DROP TABLE MYPREFIX_sync_job_listing;
 DELETE FROM MYPREFIX_sales_order_status WHERE status = 'ricardo_payment_canceled';
 DELETE FROM MYPREFIX_sales_order_status WHERE status = 'ricardo_payment_pending';
 
-DELETE FROM MYPREFIX_core_resource WHERE code = ‘ricento_setup';
+DELETE FROM MYPREFIX_core_resource WHERE code = 'ricento_setup';
 ```
 
 ## Known Issues
