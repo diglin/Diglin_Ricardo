@@ -1,0 +1,33 @@
+<?php
+/**
+ * Diglin GmbH - Switzerland
+ *
+ * @author      Sylvain Rayé <sylvain.raye at diglin.com>
+ * @category    Ricento
+ * @package     Ricento
+ * @copyright   Copyright (c) 2011-2014 Diglin (http://www.diglin.com)
+ */
+?>
+<table>
+    <thead>
+    <tr>
+        <th><?php echo $this->__('Product listing & options fees'); ?></th>
+        <th><?php echo $this->__('Qty'); ?></th>
+        <th><?php echo $this->__('Unit Price'); ?></th>
+        <th><?php echo $this->__('Total price'); ?></th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<div class="terms">
+    <h3><?php echo $this->__('Important'); ?></h3>
+    <ul>
+        <li><?php echo $this->__('Sales Fee (following the <a href="%s">fees rules from 01.07.2014</a>)', $this->getFeesRulesUrl()); ?></li>
+        <li><?php echo $this->__('With the confirmation of the publication, you accept the <a href="%s">terms and conditions</a> and <a href="%s">privacy policy</a>)', $this->getTermsUrl(), $this->getPrivacyUrl()); ?></li>
+    </ul>
+</div>
+<input type="submit" name="submit" value="<?php echo $this->__('Confirm and List') ?>" class="" />

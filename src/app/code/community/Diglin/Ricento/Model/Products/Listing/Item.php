@@ -22,6 +22,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\ArticlePictureParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\InsertArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticleParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
 
 /**
  * Products_Listing_Item Model
@@ -535,38 +536,35 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _getArticleInformationParameter()
     {
-        $promotionIds = array();
         $paymentConditions = array();
-
         $paymentMethods = (array)$this->_shippingPaymentRule->getPaymentMethods();
-        $salesType = $this->_salesOptions->getSalesType();
+        $salesType = $this->getSalesOptions()->getSalesType();
 
         foreach ($paymentMethods as $paymentMethod) {
             $paymentConditions[] = $this->_getPaymentConditionId($paymentMethod);
         }
 
-        if ($this->_salesOptions->getScheduleOverwriteProductDateStart()) {
+        if ($this->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
             $startDate = $this->getProductsListing()->getSalesOptions()->getScheduleDateStart();
         } else {
-            $startDate = $this->_salesOptions->getScheduleDateStart();
+            $startDate = $this->getSalesOptions()->getScheduleDateStart();
         }
 
-        $untilSoldOut = ((int)$this->_salesOptions->getScheduleReactivation() === Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT);
-
-        $customTemplate = ($this->_salesOptions->getCustomizationTemplate() >= 0) ? $this->_salesOptions->getCustomizationTemplate() : null;
+        $untilSoldOut = ((int)$this->getSalesOptions()->getScheduleReactivation() === Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT);
+        $customTemplate = ($this->getSalesOptions()->getCustomizationTemplate() >= 0) ? $this->getSalesOptions()->getCustomizationTemplate() : null;
 
         $articleInformation = new ArticleInformationParameter();
         $articleInformation
             // required
             ->setArticleConditionId($this->getProductCondition())
-            ->setArticleDuration(($this->_salesOptions->getSchedulePeriodDays() * 24 * 60))// In minutes
+            ->setArticleDuration(($this->getSalesOptions()->getSchedulePeriodDays() * 24 * 60))// In minutes
             ->setAvailabilityId($this->_shippingPaymentRule->getShippingAvailability())
             ->setCategoryId($this->getCategory())
             ->setInitialQuantity($this->getProductQty())
             ->setIsCustomerTemplate(((!is_null($customTemplate)) ? true : false))
             ->setMainPictureId(1)
-            ->setMaxRelistCount((!$untilSoldOut) ? $this->_salesOptions->getScheduleReactivation() : 0)
-            ->setWarrantyId($this->_salesOptions->getProductWarranty())
+            ->setMaxRelistCount((!$untilSoldOut) ? $this->getSalesOptions()->getScheduleReactivation() : 0)
+            ->setWarrantyId($this->getSalesOptions()->getProductWarranty())
             ->setDeliveries($this->_getArticleDeliveryParameter())
             // optional
             ->setInternalReferences($this->_getInternalReferencesParameter())
@@ -590,15 +588,13 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
             $articleInformation
-                ->setIncrement($this->_salesOptions->getSalesAuctionIncrement())
-                ->setStartPrice($this->_salesOptions->getSalesAuctionStartPrice());
-
-            if ($this->_salesOptions->getSalesAuctionDirectBuy()) {
-                $promotionIds[] = PromotionCode::BUYNOW;
-            }
+                ->setIncrement($this->getSalesOptions()->getSalesAuctionIncrement())
+                ->setStartPrice($this->getSalesOptions()->getSalesAuctionStartPrice());
         }
 
-        if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW || $this->_salesOptions->getSalesAuctionDirectBuy()) {
+        if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW
+            || $this->getSalesOptions()->getSalesAuctionDirectBuy()
+        ) {
             $articleInformation->setBuyNowPrice($this->getProductPrice());
         }
 
@@ -606,22 +602,36 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             $articleInformation->setIsRelistSoldOut($untilSoldOut);
         }
 
-        //** Promotions
-
-        $space = $this->_salesOptions->getPromotionSpace();
-        if ($space) {
-            $promotionIds[] = (int)$space;
-        }
-
-        $startSpace = $this->_salesOptions->getPromotionStartPage();
-        if ($startSpace) {
-            $promotionIds[] = (int)$startSpace;
-        }
-
         // required
-        $articleInformation->setPromotionIds($promotionIds);
+        $articleInformation->setPromotionIds($this->getPromotionIds());
 
         return $articleInformation;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPromotionIds()
+    {
+        $promotionIds = array();
+
+        if ($this->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION
+            && $this->getSalesOptions()->getSalesAuctionDirectBuy()
+        ) {
+            $promotionIds[] = PromotionCode::BUYNOW;
+        }
+
+        $space = $this->getSalesOptions()->getPromotionSpace();
+        if ($space) {
+            $promotionIds[] = (int) $space;
+        }
+
+        $startSpace = $this->getSalesOptions()->getPromotionStartPage();
+        if ($startSpace) {
+            $promotionIds[] = (int) $startSpace;
+        }
+
+        return $promotionIds;
     }
 
     /**
@@ -654,8 +664,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _getPaymentConditionId($paymentMethod)
     {
-        $system = Mage::getSingleton('diglin_ricento/api_services_system');
-        $conditions = (array)$system->getPaymentConditionsAndMethods();
+        $conditions = (array) Mage::getSingleton('diglin_ricento/api_services_system')
+            ->getPaymentConditionsAndMethods();
 
         foreach ($conditions as $condition) {
             if (isset($condition['PaymentMethods']) && !empty($condition['PaymentMethods'])) {
@@ -727,5 +737,25 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             return new Varien_Object(Mage::helper('core')->jsonDecode($data));
         }
         return array();
+    }
+
+    public function getArticleFeeDetails()
+    {
+        $articleFeeParameter = new GetArticleFeeParameter();
+        $articleFeeParameter
+            ->setArticleCondition($this->getProductCondition())
+            ->setCategoryId($this->getCategory())
+            ->setExcludeListingFees(true)
+            ->setInitialQuantity($this->getProductQty())
+            ->setPictureCount(0) // @todo check if it is really relevant to send this information, there is no influence on final price
+            ->setPromotionIds($this->getSalesOptions()->getPromotionSpace())
+            ->setStartDate(Helper::getJsonDate(time() + 60 * 60))
+            ->setStartPrice(230);
+
+        if ($this->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW
+            || $this->getSalesOptions()->getSalesAuctionDirectBuy()
+        ) {
+            $articleFeeParameter->setBuyNowPrice($this->getProductPrice());
+        }
     }
 }
