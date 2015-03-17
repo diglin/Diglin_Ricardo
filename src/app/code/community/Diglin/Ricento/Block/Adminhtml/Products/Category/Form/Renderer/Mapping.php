@@ -27,8 +27,9 @@ class Diglin_Ricento_Block_Adminhtml_Products_Category_Form_Renderer_Mapping
         }
 
         $this->addClass('button');
+
         $html = '<span id="'.$this->getHtmlId().'_title" class="ricardo_categories_title">' . $text . '</span>';
-        $html .= '<button type="button"' . $this->serialize($this->getHtmlAttributes())
+        $html .= '<button type="button" ' . $this->serialize($this->getHtmlAttributes())
             . ' onclick="Ricento.categoryMappingPopup(\''
             . Mage::helper('adminhtml')->getUrl('ricento/products_category/mapping', array('id' => '#ID#'))
             . '\', $(\''. $this->getHtmlId() .'\'),  $(\''. $this->getHtmlId() .'_title\'))"'

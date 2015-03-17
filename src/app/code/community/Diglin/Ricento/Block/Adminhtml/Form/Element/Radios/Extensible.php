@@ -41,7 +41,7 @@ class Diglin_Ricento_Block_Adminhtml_Form_Element_Radios_Extensible extends Vari
 
     public function getElementHtml()
     {
-        $html = '<ul ' . $this->serialize(array('list_class', 'list_id')) . '>';
+        $html = '<ul>';
         $html .= parent::getElementHtml();
         $html .= '</ul>';
         return $html;
@@ -53,6 +53,11 @@ class Diglin_Ricento_Block_Adminhtml_Form_Element_Radios_Extensible extends Vari
             $field = $this->getField($option['field']);
             if (strpos($option['label'], '%s') !== false) {
                 $html = parent::_optionToHtml($option, $selected);
+
+                // fix small issue with white spaces btw. attributes
+                $html = str_replace('"value=', '" value=', $html);
+                $html = str_replace('"radio"', '"radio" ', $html);
+
                 return '<li>' . preg_replace_callback('#(<label [^>]*for="\w+"[^>]*>)(.*)</label>#', function ($matches) use ($field) {
                     $labelTag = $matches[1];
                     $labelText = $matches[2];
