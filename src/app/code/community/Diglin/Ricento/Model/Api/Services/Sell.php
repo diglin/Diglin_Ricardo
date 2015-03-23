@@ -171,10 +171,27 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
     }
 
 
-    public function getFees(Diglin_Ricento_Model_Products_Listing_Item $item)
+    /**
+     * @param array $articlesDetails of Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter
+     * @return bool | array
+     * @throws Diglin_Ricento_Exception
+     * @throws Exception
+     */
+    public function getArticlesFee(array $articlesDetails)
     {
         try {
-            return $this->getArticlesFee(new GetArticlesFeeParameter($item->getArticleFeeDetails()));
+            if (empty($articlesDetails)) {
+                return false;
+            }
+
+            $articlesFeeParameter = new GetArticlesFeeParameter();
+
+            /* @var $articlesDetail Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter */
+            foreach ($articlesDetails as $articlesDetail) {
+                $articlesFeeParameter->setArticlesDetails($articlesDetail);
+            }
+
+            return parent::getArticlesFee($articlesFeeParameter);
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
             $this->_updateCredentialToken();
             Mage::logException($e);
