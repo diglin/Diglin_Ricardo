@@ -330,7 +330,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
     {
         $productListing = $this->_getListing();
 
-        if (!$this->isApiReady()) {
+        if (!$this->_isApiReady()) {
             $this->_getSession()->addError($this->__('The API token and configuration are not ready to allow this action. Please, check that your token is enabled and not going to expire.'));
             $this->_redirectUrl($this->_getRefererUrl());
             return;
