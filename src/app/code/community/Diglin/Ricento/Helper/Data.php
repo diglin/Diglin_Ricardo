@@ -71,8 +71,15 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
 
     const LOG_FILE          = 'ricento.log';
 
-    const RICARDO_URL       = 'http://www.ricardo.ch';
-    const RICARDO_URL_HELP_PROMOTION = 'http://www.ricardo.ch/ueber-uns/gebühren/einstelloptionen'; //@todo make it for french too
+    const RICARDO_URL                      = 'http://www.ricardo.ch';
+    const RICARDO_URL_HELP_PROMOTION_DE    = 'http://www.ricardo.ch/ueber-uns/gebühren/einstelloptionen';
+    const RICARDO_URL_HELP_PROMOTION_FR    = 'http://www.fr.ricardo.ch/ueber-uns/fr-fr/frais/optionsdepublication';
+    const RICARDO_URL_TERMS_DE             = 'http://www.ricardo.ch/ueber-uns/de-ch/reglemente.aspx';
+    const RICARDO_URL_TERMS_FR             = 'http://www.fr.ricardo.ch/ueber-uns/fr-fr/règlements';
+    const RICARDO_URL_PRIVACY_DE           = self::RICARDO_URL_TERMS_DE;
+    const RICARDO_URL_PRIVACY_FR           = self::RICARDO_URL_TERMS_FR;
+    const RICARDO_URL_FEES_DE              = self::RICARDO_URL_TERMS_DE;
+    const RICARDO_URL_FEES_FR              = self::RICARDO_URL_TERMS_FR;
 
     const NODE_DISPATCHER_TYPES     = 'global/ricento/dispatcher/types';
     const NODE_PRODUCT_TYPES        = 'global/ricento/allow_product_types';
@@ -511,7 +518,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             foreach ($supportedLang as $lang) {
 
                 // Prevent to have the default language twice
-
                 if (strtolower($lang) == strtolower($defaultLang)) {
                     continue;
                 }
@@ -739,5 +745,52 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function canMergeDescriptions($storeId = 0)
     {
         return Mage::getStoreConfigFlag(self::CFG_MERGE_DESCRIPTIONS, $storeId);
+    }
+    /**
+     * @return string
+     */
+    public function getFeesRulesUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_FEES_FR;
+        } else {
+            return self::RICARDO_URL_FEES_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTermsUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_TERMS_FR;
+        } else {
+            return self::RICARDO_URL_TERMS_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivacyUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_PRIVACY_FR;
+        } else {
+            return self::RICARDO_URL_PRIVACY_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelpPromotion()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_HELP_PROMOTION_FR;
+        } else {
+            return self::RICARDO_URL_HELP_PROMOTION_DE;
+        }
     }
 }
