@@ -415,11 +415,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        if ($productListing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
-            $this->_redirect('*/*/edit', array('id' => $productListing->getId()));
-            return;
-        }
-
         $countPendingItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countPendingItems($productListing->getId());
 
         if ($countPendingItems == 0) {
@@ -548,5 +543,179 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         $this->_redirect('*/*/index');
+    }
+
+    /**
+     * Display the confirmation window before to check and list
+     */
+    public function confirmationAction()
+    {
+        $listing = $this->_initListing();
+        if (!$listing) {
+            $this->_getSession()->addError($this->__('Products Listing not found.'));
+            $this->_redirect('*/*/edit');
+            return;
+        }
+
+        if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
+            $this->_getSession()->addError($this->__('Product Listing not saved!'));
+            $this->_redirect('*/*/edit');
+            return;
+        }
+
+        $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
+
+        try {
+            $this->_prepareConfigurableProduct();
+
+            $articleDetails = array();
+            $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+            $itemsCollection
+                ->addFieldToFilter('products_listing_id', $listing->getId())
+                ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
+
+            /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
+            foreach ($itemsCollection->getItems() as $item) {
+                if ($item->getProduct()->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+                    continue;
+                } else {
+
+                    $articleDetails[] = $item->getArticleFeeDetails();
+                }
+            }
+
+            $sell = Mage::getModel('diglin_ricento/api_services_sell');
+            $fees = $sell->getArticlesFee($articleDetails);
+
+            if ($fees) {
+                $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
+                echo $block->toHtml();
+                return;
+            } else {
+                $this->_getSession()->addError($this->__('Nothing found'));
+                $this->_redirect('*/*/edit');
+                return;
+            }
+
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->_getSession()->addError($e->__toString());
+            $this->_redirect('*/*/edit');
+            return;
+        }
+    }
+
+    /**
+     * Create products listing items for configurable product
+     *
+     * @return $this
+     */
+    protected function _prepareConfigurableProduct()
+    {
+        $productListingId = $this->_initListing()->getId();
+
+        /**
+         * Get children products of configurable product
+         */
+        $collectionListingItemBis = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $collectionListingItemBis
+            ->addFieldToFilter('parent_product_id', array('notnull' => 1))
+            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('products_listing_id', $productListingId)
+            ->getSelect()
+            ->group('parent_product_id');
+
+        $parentProductIds = $collectionListingItemBis->getColumnValues('parent_product_id');
+
+        /**
+         * Get the list of configurable products
+         */
+        $collectionListingItem = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $collectionListingItem
+            ->addFieldToFilter('products_listing_id', $productListingId)
+            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->getConfigurableProducts();
+
+        if (count($parentProductIds)) {
+            $collectionListingItem->addFieldToFilter('product_id', array('nin' => $parentProductIds));
+        }
+
+        /**
+         * Get all products of configurable products for a list
+         *
+         * @var $item Diglin_Ricento_Model_Products_Listing_Item
+         */
+        foreach ($collectionListingItem->getItems() as $item) {
+            /**
+             * Get all children products
+             */
+            $collection = Mage::getResourceModel('catalog/product_collection')
+                ->addAttributeToSelect('sku')
+                ->addFilterByRequiredOptions()
+                ->addFieldToFilter('entity_id', array('in' => $item->getProduct()->getUsedProductIds()));
+
+            $attributes = $item->getProduct()->getConfigurableAttributes();
+
+            foreach ($attributes as $attribute) {
+                $collection->addAttributeToSelect($attribute->getProductAttribute()->getAttributeCode());
+                $collection->addAttributeToFilter($attribute->getProductAttribute()->getAttributeCode(), array('notnull' => 1));
+            }
+
+            foreach ($collection->getItems() as $childProduct) {
+
+                $configurableChild = array();
+
+                foreach ($attributes as $attribute) {
+
+                    $productAttribute = $attribute->getProductAttribute();
+                    $attributeValueId = $childProduct->getData($productAttribute->getAttributeCode());
+                    if ($attributeValueId) {
+
+                        $priceVariation = array();
+                        $subtitle = $productAttribute->getFrontendLabel() . ': ';
+
+                        /**
+                         * Get price variation
+                         */
+                        $prices = $attribute->getData('prices');
+                        foreach ($prices as $price) {
+                            if ($price['pricing_value'] != 0 && $price['value_index'] == $attributeValueId) {
+                                $priceVariation = array('pricing_value' => $price['pricing_value'], 'is_percent' => $price['is_percent']);
+                                break;
+                            }
+                        }
+
+                        /**
+                         * Get attribute label to be used as subtitle
+                         */
+                        foreach ($productAttribute->getSource()->getAllOptions() as $option) {
+                            if ($attributeValueId == $option['value']) {
+                                $subtitle .= $option['label'];
+                            }
+                        }
+
+                        $configurableChild['options'][$attributeValueId] = array_merge(array('subtitle' => $subtitle), $priceVariation);
+                    }
+                }
+
+                $configurableChild['stock_qty'] = Mage::getModel('cataloginventory/stock_item')->loadByProduct($childProduct->getId())->getQty();
+
+                /**
+                 * Save as new products listing item
+                 */
+                $itemChild = clone $item;
+                $itemChild
+                    ->setId(null)
+                    ->setCreatedAt(Mage::getSingleton('core/date')->gmtDate())
+                    ->setUpdatedAt(null)
+                    ->setProductId($childProduct->getId())
+                    ->setAdditionalData(Mage::helper('core')->jsonEncode($configurableChild))
+                    ->setParentItemId($item->getId())
+                    ->setParentProductId($item->getProductId())
+                    ->save();
+            }
+        }
+
+        return $this;
     }
 }

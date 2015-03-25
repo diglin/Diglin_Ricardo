@@ -739,23 +739,34 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         return array();
     }
 
-    public function getArticleFeeDetails()
+    /**
+     * @return GetArticleFeeParameter
+     */
+    public function getArticleFeeDetails($excludeListingFees = false)
     {
+        $helper = Mage::helper('diglin_ricento');
+
+        $this->setLoadFallbackOptions(true);
+        $salesType = $this->getSalesOptions()->getSalesType();
+
         $articleFeeParameter = new GetArticleFeeParameter();
         $articleFeeParameter
             ->setArticleCondition($this->getProductCondition())
             ->setCategoryId($this->getCategory())
-            ->setExcludeListingFees(true)
+            ->setExcludeListingFees($excludeListingFees)
             ->setInitialQuantity($this->getProductQty())
-            ->setPictureCount(0) // @todo check if it is really relevant to send this information, there is no influence on final price
+            ->setPictureCount(0) //@todo check if it is really relevant to send this information as we save some compute, there is no influence on final price
             ->setPromotionIds($this->getSalesOptions()->getPromotionSpace())
-            ->setStartDate(Helper::getJsonDate(time() + 60 * 60))
-            ->setStartPrice(230);
+            ->setStartDate(Helper::getJsonDate($helper->getStartingDate($this)));
 
-        if ($this->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW
-            || $this->getSalesOptions()->getSalesAuctionDirectBuy()
-        ) {
+        if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
+            $articleFeeParameter->setStartPrice($this->getSalesOptions()->getSalesAuctionStartPrice());
+        }
+
+        if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW || $this->getSalesOptions()->getSalesAuctionDirectBuy()) {
             $articleFeeParameter->setBuyNowPrice($this->getProductPrice());
         }
+
+        return $articleFeeParameter;
     }
 }

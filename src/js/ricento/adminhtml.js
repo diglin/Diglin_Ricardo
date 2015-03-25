@@ -182,6 +182,36 @@ Ricento.progressPopup = function(url) {
         }
     });
 };
+Ricento.confirmationPopup = function(url) {
+    if ($('ricento_popup') && typeof(Windows) != 'undefined') {
+        Windows.focus('ricento_popup');
+        return;
+    }
+
+    var parameters = $('edit_form').serialize(true);
+
+    Dialog.info({url:url, options: {parameters: parameters}}, {
+        closable:true,
+        resizable:true,
+        maximizable: true,
+        draggable:true,
+        className:'magento',
+        windowClassName:'confirmation-popup-window',
+        title: Translator.translate('List the products on ricardo.ch'),
+        top:50,
+        width:640,
+        height:480,
+        zIndex:1000,
+        recenterAuto:false,
+        hideEffect:Element.hide,
+        showEffect:Element.show,
+        id:'ricento_popup_confirmation',
+        showProgress:true,
+        onShow:function(dialog) {
+            dialog.element.innerHTML.evalScripts();
+        }
+    });
+};
 Ricento.closePopup = function() {
     Windows.close('ricento_popup');
 };

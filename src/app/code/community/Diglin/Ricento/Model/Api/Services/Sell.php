@@ -159,7 +159,11 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
                 $articlesFeeParameter->setArticlesDetails($articlesDetail);
             }
 
-            return parent::getArticlesFee($articlesFeeParameter);
+            $this->setCanUseCache(false);
+            $fees = parent::getArticlesFee($articlesFeeParameter);
+            $this->setCanUseCache(true);
+
+            return $fees;
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
             $this->_updateCredentialToken();
             Mage::logException($e);
