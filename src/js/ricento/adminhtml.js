@@ -392,15 +392,18 @@ Ricento.salesOptionsForm.prototype = {
             warrantyDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'product_warranty_description_' + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             warrantyDescription.disabled = !required;
@@ -458,15 +461,18 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             paymentDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'payment_description_' + this.langs[i] + ']')[0];
 
             required = field.checked;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             paymentDescription.disabled = !required;
@@ -479,16 +485,19 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             shippingDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'shipping_description_'  + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
+
 
             shippingDescription.disabled = !required;
             this.toggleRequired(shippingDescription, required, shippingDescriptionLabel);
