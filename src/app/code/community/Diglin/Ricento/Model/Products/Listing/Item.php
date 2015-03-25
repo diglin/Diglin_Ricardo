@@ -536,18 +536,13 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _getArticleInformationParameter()
     {
+        $helper = Mage::helper('diglin_ricento');
         $paymentConditions = array();
         $paymentMethods = (array)$this->_shippingPaymentRule->getPaymentMethods();
         $salesType = $this->getSalesOptions()->getSalesType();
 
         foreach ($paymentMethods as $paymentMethod) {
             $paymentConditions[] = $this->_getPaymentConditionId($paymentMethod);
-        }
-
-        if ($this->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
-            $startDate = $this->getProductsListing()->getSalesOptions()->getScheduleDateStart();
-        } else {
-            $startDate = $this->getSalesOptions()->getScheduleDateStart();
         }
 
         $untilSoldOut = ((int)$this->getSalesOptions()->getScheduleReactivation() === Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT);
@@ -557,7 +552,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         $articleInformation
             // required
             ->setArticleConditionId($this->getProductCondition())
-            ->setArticleDuration(($this->getSalesOptions()->getSchedulePeriodDays() * 24 * 60))// In minutes
+            ->setArticleDuration(($this->getSalesOptions()->getSchedulePeriodDays() * 24 * 60)) // In minutes
             ->setAvailabilityId($this->_shippingPaymentRule->getShippingAvailability())
             ->setCategoryId($this->getCategory())
             ->setInitialQuantity($this->getProductQty())
@@ -575,16 +570,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         /**
          * Start Date is mandatory for auction but optional for buy now sales type
          */
-        if (!is_null($startDate) || $salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
-            $startDate = strtotime($startDate);
-
-            // ricardo.ch constrains, starting date must be in 1 hour after now
-            if ($startDate < (time() + 60 * 60)) {
-                $startDate = time() + 60 * 60;
-            }
-
-            $articleInformation->setStartDate(Mage::helper('diglin_ricento')->getJsonDate($startDate));
-        }
+        $articleInformation->setStartDate($helper->getJsonDate($helper->getStartingDate($this)));
 
         if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
             $articleInformation

@@ -746,6 +746,33 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfigFlag(self::CFG_MERGE_DESCRIPTIONS, $storeId);
     }
+
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     * @return int|string
+     */
+    public function getStartingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
+        if ($item->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
+            $startDate = $item->getProductsListing()->getSalesOptions()->getScheduleDateStart();
+        } else {
+            $startDate = $item->getSalesOptions()->getScheduleDateStart();
+        }
+
+        if (!is_null($startDate)) {
+            $startDate = strtotime($startDate);
+        } elseif (is_null($startDate)) {
+            $startDate = time();
+        }
+
+        // ricardo.ch constrains, starting date must be in 1 hour in future
+        if ($startDate < (time() + 3600)) {
+            $startDate = time() + 3600;
+        }
+
+        return $startDate;
+    }
+
     /**
      * @return string
      */

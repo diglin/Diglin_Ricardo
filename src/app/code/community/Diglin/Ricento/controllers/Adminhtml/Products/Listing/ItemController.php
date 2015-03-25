@@ -31,10 +31,12 @@ class Diglin_Ricento_Adminhtml_Products_Listing_ItemController extends Diglin_Ri
         }
 
         if ($this->_itemIds) {
-            $itemCollection->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
+            $itemCollection
+                ->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
                 ->addFieldToFilter('item_id', array('in' => $this->_itemIds));
         } else {
-            $itemCollection->addFieldToFilter('item_id', array('in' => explode(',', $this->getRequest()->getPost('item_ids'))));
+            $itemCollection
+                ->addFieldToFilter('item_id', array('in' => explode(',', $this->getRequest()->getPost('item_ids'))));
             $this->_itemIds = $itemCollection->getColumnValues('item_id');
         }
 
