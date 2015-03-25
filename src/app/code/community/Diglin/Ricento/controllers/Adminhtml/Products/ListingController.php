@@ -192,6 +192,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             try {
                 $listing->save();
                 if ($this->saveConfiguration($data)) {
+                    $this->_prepareConfigurableProduct();
                     $this->_getSession()->addSuccess($this->__('The listing has been saved.'));
                 } else {
                     $error = true;
@@ -288,6 +289,9 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 ++$productsAdded;
             }
         }
+
+        $this->_prepareConfigurableProduct();
+
         $this->_getSession()->addSuccess($this->__('%d product(s) added to the listing', $productsAdded));
         $this->_redirect('*/*/edit', array('id' => $this->_getListing()->getId()));
     }
@@ -434,7 +438,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
     {
         $return = true;
         try {
-
             Mage::getSingleton('diglin_ricento/dispatcher')
                 ->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST)
                 ->proceed();
@@ -566,8 +569,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
 
         try {
-            $this->_prepareConfigurableProduct();
-
             $articleDetails = array();
             $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
             $itemsCollection
@@ -576,10 +577,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
             /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
             foreach ($itemsCollection->getItems() as $item) {
-                if ($item->getProduct()->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-                    continue;
-                } else {
-
+                if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
                     $articleDetails[] = $item->getArticleFeeDetails();
                 }
             }
@@ -606,7 +604,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
     }
 
     /**
-     * Create products listing items for configurable product
+     * Create products listing items children for configurable product
      *
      * @return $this
      */
@@ -621,11 +619,9 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         $collectionListingItemBis
             ->addFieldToFilter('parent_product_id', array('notnull' => 1))
             ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->addFieldToFilter('products_listing_id', $productListingId)
-            ->getSelect()
-            ->group('parent_product_id');
+            ->addFieldToFilter('products_listing_id', $productListingId);
 
-        $parentProductIds = $collectionListingItemBis->getColumnValues('parent_product_id');
+        $collectionListingItemBis->walk('delete');
 
         /**
          * Get the list of configurable products
@@ -633,12 +629,8 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         $collectionListingItem = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
         $collectionListingItem
             ->addFieldToFilter('products_listing_id', $productListingId)
-            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->getConfigurableProducts();
-
-        if (count($parentProductIds)) {
-            $collectionListingItem->addFieldToFilter('product_id', array('nin' => $parentProductIds));
-        }
+            ->addFieldToFilter('type', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
+            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
 
         /**
          * Get all products of configurable products for a list
@@ -698,8 +690,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                     }
                 }
 
-                $configurableChild['stock_qty'] = Mage::getModel('cataloginventory/stock_item')->loadByProduct($childProduct->getId())->getQty();
-
                 /**
                  * Save as new products listing item
                  */
@@ -712,6 +702,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                     ->setAdditionalData(Mage::helper('core')->jsonEncode($configurableChild))
                     ->setParentItemId($item->getId())
                     ->setParentProductId($item->getProductId())
+                    ->setType(Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
                     ->save();
             }
         }

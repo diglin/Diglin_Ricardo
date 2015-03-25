@@ -160,7 +160,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         $itemCollection
             ->addFieldToFilter('status', array('in' => $statuses))
             ->addFieldToFilter('products_listing_id', array('eq' => $this->_productsListingId))
-            ->addFieldToFilter('item_id', array('gt' => (int) $lastItemId));
+            ->addFieldToFilter('item_id', array('gt' => (int) $lastItemId))
+            ->addFieldToFilter('type', array('nin' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
 
         if ($this->_limit) {
             $itemCollection->setPageSize($this->_limit);

@@ -62,7 +62,7 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
             ->where('pl.entity_id = :id')
             ->joinLeft(
                 array('pli' => $this->getTable('diglin_ricento/products_listing_item')),
-                'pli.products_listing_id = pl.entity_id AND pl.status = "listed"',
+                'pli.products_listing_id = pl.entity_id AND pl.status = "'. Diglin_Ricento_Helper_Data::STATUS_LISTED .'"',
                 array('item_status' => 'pli.status')
             );
 

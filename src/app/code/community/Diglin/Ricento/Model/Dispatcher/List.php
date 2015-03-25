@@ -57,13 +57,13 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
                 $isPlanned = false;
 
                 // We skip insert article with configurable product as we push its associated products
-                if ($item->getProduct()->isConfigurableType()) {
-                    $jobListing->saveCurrentJob(array(
-                        'total_proceed' => ++$this->_totalProceed,
-                        'last_item_id' => $item->getId()
-                    ));
-                    continue;
-                }
+//                if ($item->getProduct()->isConfigurableType()) {
+//                    $jobListing->saveCurrentJob(array(
+//                        'total_proceed' => ++$this->_totalProceed,
+//                        'last_item_id' => $item->getId()
+//                    ));
+//                    continue;
+//                }
 
                 if (!$item->getRicardoArticleId()) {
                     $insertedArticle = $sell->insertArticle($item);

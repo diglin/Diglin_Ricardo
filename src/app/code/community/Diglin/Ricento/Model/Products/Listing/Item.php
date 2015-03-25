@@ -28,6 +28,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
  * Products_Listing_Item Model
  *
  * @method int    getProductId()
+ * @method string getType()
  * @method int    getParentItemId()
  * @method int    getParentProductId()
  * @method int    getRicardoArticleId()
@@ -44,6 +45,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
  * @method int    getDefaultStoreId()
  * @method bool   getLoadFallbackOptions()
  * @method Diglin_Ricento_Model_Products_Listing_Item setProductId(int $productId)
+ * @method Diglin_Ricento_Model_Products_Listing_Item setType(string $type)
  * @method Diglin_Ricento_Model_Products_Listing_Item setParentItemId(int $parentItemId)
  * @method Diglin_Ricento_Model_Products_Listing_Item setParentProductId(int $parentProductId)
  * @method Diglin_Ricento_Model_Products_Listing_Item setRicardoArticleId(int $ricardoArticleId)
@@ -114,27 +116,46 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         parent::_beforeSave();
 
         if ($this->hasDataChanges() && $this->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
-            if (!$this->getParentProductId()) {
-                $this->setStatus(Diglin_Ricento_Helper_Data::STATUS_PENDING);
 
-                if ($this->getId()) {
-                    // Delete configurable product children, will be recreated when the check list process is done
-                    $this->getCollection()
-                        ->addFieldToFilter('products_listing_id', $this->getProductsListingId())
-                        ->addFieldToFilter('parent_item_id', $this->getId())
-                        ->addFieldToFilter('ricardo_article_id', array('null' => 1))
-                        ->walk('delete');
-                }
+            $this->setStatus(Diglin_Ricento_Helper_Data::STATUS_PENDING);
+
+            if ($this->getType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+                $this->setStatus('');
             }
         }
 
-        $this->setUpdatedAt(Mage::getSingleton('core/date')->gmtDate());
+        $gmtDate = Mage::getSingleton('core/date')->gmtDate();
+        $this->setUpdatedAt($gmtDate);
 
         if ($this->isObjectNew()) {
-            $this->setCreatedAt(Mage::getSingleton('core/date')->gmtDate());
+            $this->setCreatedAt($gmtDate);
         }
 
         return $this;
+    }
+
+    /**
+     * @return Mage_Core_Model_Abstract
+     * @throws Exception
+     */
+    protected function _afterSave()
+    {
+        if ($this->hasDataChanges() && $this->getType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            $childCollection = $this->getCollection()
+                ->addFieldToFilter('products_listing_id', $this->getProductsListingId())
+                ->addFieldToFilter('parent_item_id', $this->getId())
+                ->addFieldToFilter('ricardo_article_id', array('null' => 1));
+
+            /* @var $child Diglin_Ricento_Model_Products_Listing_Item */
+            foreach ($childCollection->getItems() as $child) {
+                $child
+                    ->setRuleId($this->getRuleId())
+                    ->setSalesOptionsId($this->getSalesOptionsId())
+                    ->save();
+            }
+        }
+
+        return parent::_afterSave();
     }
 
     /**
@@ -315,7 +336,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             ->setStoreId($this->getDefaultStoreId())
             ->getPrice();
 
-        // if child of configurable add the product variation depending on the options (options are ordered by position normally)
+        // If child of configurable add the product variation depending on the options (options are ordered by position normally)
         if ($this->getParentProductId()) {
             foreach ($this->getAdditionalData()->getOptions() as $option) {
                 if (isset($option['pricing_value'])) {
@@ -335,11 +356,10 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         if ($this->getSalesOptions()->getStockManagement() == -1
             || $this->getSalesOptions()->getStockManagementQtyType() == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) {
 
-            // In case a product belongs to a configurable product
-            if ($this->getParentProductId()) {
-                $qty = $this->getAdditionalData()->getStockQty();
-            } else {
-                $qty = $this->getProduct()->getQty();
+            $qty = $this->getProduct()->getQty();
+
+            if ($qty <= 0) {
+                return 0;
             }
 
             if ($this->getSalesOptions()->getStockManagement() == -1) {

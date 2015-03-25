@@ -78,11 +78,25 @@ class Diglin_Ricento_Model_Resource_Products_Listing_Item extends Mage_Core_Mode
     {
         $readerConnection = $this->_getReadAdapter();
 
+        /* Exclude Parent Products from calculation */
+        $select = $readerConnection->select()
+            ->from($this->getTable('diglin_ricento/products_listing_item'), 'parent_item_id')
+            ->where('products_listing_id = :id')
+            ->where('parent_item_id > 0')
+            ->group('parent_item_id');
+        $binds  = array('id' => $productsListingId);
+
+        $itemIds = $readerConnection->fetchCol($select, $binds);
+
         $select = $readerConnection->select()
             ->from($this->getTable('diglin_ricento/products_listing_item'), 'product_id')
             ->where('products_listing_id = :id')
             ->where($whereClause);
         $binds  = array('id' => $productsListingId);
+
+        if (count($itemIds)) {
+            $select->where('item_id NOT IN ('. implode(",", $itemIds) .')');
+        }
 
         return count($readerConnection->fetchAll($select, $binds));
     }
@@ -118,45 +132,5 @@ class Diglin_Ricento_Model_Resource_Products_Listing_Item extends Mage_Core_Mode
             $this->getMainTable(),
             $bind,
             array($this->getIdFieldName() . ' = ?' => $itemId));
-    }
-
-    /**
-     * Stop parent product item if all children products are stopped
-     * Probably deprecated because the parent configurable product should not have a changing status
-     *
-     * @param $productsListingId
-     * @return $this
-     */
-    public function setParentStatusStop($productsListingId)
-    {
-        $readerConnection = $this->_getReadAdapter();
-
-        $select = $readerConnection->select()
-            ->from(array('pli' => $this->getTable('diglin_ricento/products_listing_item')), array( 'parent_id' => 'pli.parent_item_id', 'item_status' => 'pli.status'))
-            ->where('pli.products_listing_id = :id')
-            ->where('pli.parent_item_id IS NOT NULL')
-            ->joinLeft(array('plib' => $this->getTable('diglin_ricento/products_listing_item')), 'plib.item_id = pli.parent_item_id AND plib.status = "listed"');
-
-        $binds  = array('id' => $productsListingId);
-
-        $items = $readerConnection->fetchAll($select, $binds);
-        $parents = array();
-
-        foreach ($items as $item) {
-            if ($item['item_status'] == Diglin_Ricento_Helper_Data::STATUS_STOPPED) {
-                $parents[$item['parent_id']]['stopped'] = true;
-            }
-            if ($item['item_status'] == Diglin_Ricento_Helper_Data::STATUS_LISTED) {
-                $parents[$item['parent_id']]['listed'] = true;
-            }
-        }
-
-        foreach ($parents as $key => $parent) {
-            if (!isset($parents[$key]['listed']) && isset($parents[$key]['stopped'])) {
-                $this->saveCurrentItem($key, array('status' => Diglin_Ricento_Helper_Data::STATUS_STOPPED));
-            }
-        }
-
-        return $this;
     }
 }

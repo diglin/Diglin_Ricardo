@@ -29,7 +29,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
     public function render(Varien_Object $row)
     {
         $value = $this->_getValue($row);
-        if ($row->getTypeId() == Mage_Catalog_Model_Product_Type_Configurable::TYPE_CODE) {
+        if ($row->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
             $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
             $itemCollection->addFieldToFilter('parent_item_id', $row->getItemId());
 
