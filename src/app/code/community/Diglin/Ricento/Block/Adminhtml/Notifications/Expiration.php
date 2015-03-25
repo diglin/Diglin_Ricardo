@@ -72,8 +72,6 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
         return (int) $this->getRicentoHelper()->getExpirationNotificationValidationDelay($storeId);
     }
     
-    
-
     /**
      * @return array
      */

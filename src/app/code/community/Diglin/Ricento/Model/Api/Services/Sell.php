@@ -83,38 +83,6 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
         return $articleResult;
     }
 
-    public function updateArticle(Diglin_Ricento_Model_Products_Listing_Item $item)
-    {
-        // @todo when needed
-        return $this;
-    }
-
-    /**
-     * Not used
-     *
-     * @param Diglin_Ricento_Model_Products_Listing_Item $item
-     * @return array|bool
-     */
-    public function relistArticle(Diglin_Ricento_Model_Products_Listing_Item $item)
-    {
-        $relistArticleResult = array();
-
-        if (!$item->getRicardoArticleId() || $item->getIsPlanned()) {
-            return false;
-        }
-
-        try {
-            $relistArticleResult = parent::relistArticle($item->getRicardoArticleId());
-
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
-            $this->_updateCredentialToken();
-            Mage::logException($e);
-            $this->_handleSecurityException($e);
-        }
-
-        return $relistArticleResult;
-    }
-
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @return array|bool

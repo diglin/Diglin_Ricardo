@@ -294,7 +294,6 @@ Ricento.salesOptionsForm.prototype = {
         Countable.live($(this.htmlIdPrefix + 'product_warranty_description_fr'), function (counter){
             $(self.htmlIdPrefix + 'product_warranty_description_fr_result__all').update(counter.characters);
         });
-
     },
     toggleRequired : function(field, required, label) {
         field = $(field);

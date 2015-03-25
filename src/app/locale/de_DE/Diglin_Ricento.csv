@@ -396,9 +396,9 @@
 "Price","Preis"
 "Your ricardo.ch API Token","Ihre ricardo.ch API Token"
 
-"PREMIUMCATEGORYBRONZE"," Klein"
-"PREMIUMCATEGORYSILVER"," "Medium"
-"PREMIUMCATEGORYGOLD"," "Groß"
+"PREMIUMCATEGORYBRONZE","Klein"
+"PREMIUMCATEGORYSILVER","Medium"
+"PREMIUMCATEGORYGOLD","Groß"
 
 "TYPE_BANK_TRANSFER","Banküberweisung"
 "TYPE_CASH","Bar"

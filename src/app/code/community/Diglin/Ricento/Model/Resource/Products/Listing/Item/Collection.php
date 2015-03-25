@@ -78,7 +78,7 @@ class Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection extends Mag
     }
 
     /**
-     * Get only items collection being a configurable product
+     * Get only items collection NOT being a configurable product
      *
      * @return $this
      */

@@ -360,8 +360,9 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 return;
             }
 
-            // Create a job to prepare the sync to Ricardo.ch
-
+            /**
+             * Create a job to prepare the sync to Ricardo.ch
+             */
             $job = Mage::getModel('diglin_ricento/sync_job');
             $job
                 ->setJobType($jobType)
@@ -431,6 +432,9 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST, $countPendingItems);
     }
 
+    /**
+     * Start to check list after the display of the job progress
+     */
     public function checkAjaxAction()
     {
         $return = true;
@@ -477,32 +481,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             . '<br>'
             . $this->__('You can check the progression below.');
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_LIST, $countReadyToList);
-    }
-
-    /**
-     * Start to list the product listing on ricardo platform if those was already listed and sold
-     *
-     * @deprecated since 18.09.2014
-     */
-    public function relistAction()
-    {
-        $productListing = $this->_initListing();
-
-        if (!$productListing) {
-            $this->_getSession()->addError('Products Listing not found.');
-            $this->_redirectUrl($this->_getRefererUrl());
-            return;
-        }
-
-        $countSoldItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countSoldItems($productListing->getId());
-
-        if ($countSoldItems == 0) {
-            $this->_getSession()->addError($this->__('There is no item to relist. Only products who have been sold on ricardo.ch can be relisted for the products listing %d.', $productListing->getId()));
-            $this->_redirect('*/*/index');
-            return;
-        }
-        $this->_successMessage = $this->_getSuccessMesageList();
-        $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_RELIST, $countSoldItems);
     }
 
     /**
