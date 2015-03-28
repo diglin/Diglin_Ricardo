@@ -1,3 +1,15 @@
+## Version 1.1
+- NEW: display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
+- ENHANCEMENT: links of the user interface depending on his language are correctly defined (french or german)
+- ENHANCEMENT: related products of configurable products are displayed in the products grid of a list after a product is added or after the products listing is saved instead to wait that the product listing is checked
+- ENHANCEMENT: cleanup, factorize and perform code related to configurable products
+- ENHANCEMENT: set auto increment value of auction sales type to 1 per default
+- ENHANCEMENT: the inventory column in the products grid of the products listing has several meaning: 1) if the product is already listed, the value displayed is the quantity of product sent to ricardo, 2) if the product is not yet listed, the quantity displayed is calculated based on the configuration at the product list or the product level, it will be automatically refreshed if the stock of the product changed before it is listed.
+- FIX: issue with order synchronization on Magento 1.7 and the ricardo payment method
+- FIX: issue with Internet Explorer when configuring a product and using defaults values are not expected
+- FIX: some translations strings
+- FIX: issue with shipping description while editing the configuration at product level
+
 ## Version 1.0.15
 - 8cc97f0 [ENHANCE] Delete old jobs in the SQL way (no collection), speed up the delete and may prevent mysql error
 - 571d315 Open new window for a link located into the product list and jumping into ricardo.ch website
