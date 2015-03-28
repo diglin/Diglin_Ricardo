@@ -289,6 +289,9 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
             // Warning - No promotion possible if no image in the product
             $this->_warnings[] = $this->getHelper()->__('You cannot use the privilege spaces as you do not have any pictures for this product.');
         }
+        if (count($assignedImages) > 10) {
+            $this->_warnings[] = $this->getHelper()->__('Only 10 pictures maximum allowed.');
+        }
         return;
     }
 
