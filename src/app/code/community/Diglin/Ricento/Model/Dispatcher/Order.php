@@ -32,7 +32,6 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     public function proceed()
     {
         $productsListingResource = Mage::getResourceModel('diglin_ricento/products_listing');
-
         $readListingConnection = $productsListingResource->getReadConnection();
         $select = $readListingConnection
                     ->select()
@@ -46,7 +45,8 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             $readConnection = $itemResource->getReadConnection();
             $select = $readConnection
                 ->select()
-                ->from($itemResource->getTable('diglin_ricento/products_listing_item'), 'item_id')
+                ->from(array('pli' => $itemResource->getTable('diglin_ricento/products_listing_item')), 'item_id')
+                ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
                 ->where('products_listing_id = :id AND status = :status AND is_planned = 0');
 
             $binds = array('id' => $listingId, 'status' => Diglin_Ricento_Helper_Data::STATUS_LISTED);
@@ -459,8 +459,8 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             /**
              * Set the status to stop of products having parent and when all other children are stopped
              */
-            $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
-            $itemResource->setParentStatusStop($this->_productsListingId);
+//            $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
+//            $itemResource->setParentStatusStop($this->_productsListingId);
 
             /**
              * Stop the list if all products listing items are stopped

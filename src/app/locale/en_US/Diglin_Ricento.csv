@@ -391,9 +391,9 @@
 "No progress","No progress"
 "The product list has been stopped.","The product list has been stopped."
 
-"PREMIUMCATEGORYBRONZE", "Small"
-"PREMIUMCATEGORYSILVER", "Medium"
-"PREMIUMCATEGORYGOLD", "Big"
+"PREMIUMCATEGORYBRONZE","Small"
+"PREMIUMCATEGORYSILVER","Medium"
+"PREMIUMCATEGORYGOLD","Big"
 
 "TYPE_BANK_TRANSFER", "Bank transfer"
 "TYPE_CASH", "Cash"

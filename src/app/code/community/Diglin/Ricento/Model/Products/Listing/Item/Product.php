@@ -77,7 +77,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      *
      * @var array
      */
-    protected $_configurable_attributes = array();
+    protected $_configurableAttributes = array();
 
     protected $_title;
     protected $_subtitle;
@@ -604,8 +604,8 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getQty()
     {
-        if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-        || $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        if ($this->isConfigurableType()
+        || $this->isGroupedType()) {
             return false;
         }
 
@@ -648,11 +648,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         $composite = false;
         $usedProductIds = array();
 
-        if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+        if ($this->isConfigurableType()) {
             /* @var $instance Mage_Catalog_Model_Product_Type_Configurable */
             $usedProductIds = $this->getTypeInstance(true)->getUsedProductIds($this->getMagentoProduct());
             $composite = true;
-        } else if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        } else if ($this->isGroupedType()) {
             /* @var $instance Mage_Catalog_Model_Product_Type_Grouped */
             $usedProductIds = $this->getAssociatedProductIds();
             $composite = true;
@@ -931,13 +931,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return null;
         }
 
-        if (empty($this->_configurable_attributes)) {
-            $this->_configurable_attributes = Mage::getResourceModel('catalog/product_type_configurable_attribute_collection')
+        if (empty($this->_configurableAttributes)) {
+            $this->_configurableAttributes = Mage::getResourceModel('catalog/product_type_configurable_attribute_collection')
                 ->orderByPosition()
                 ->setProductFilter($this->getMagentoProduct());
         }
 
-        return $this->_configurable_attributes;
+        return $this->_configurableAttributes;
     }
 
     /**
@@ -1076,7 +1076,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isSimpleType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE);
     }
 
     /**
@@ -1084,7 +1084,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isConfigurableType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
     }
 
     /**
@@ -1092,6 +1092,6 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isGroupedType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED);
     }
 }

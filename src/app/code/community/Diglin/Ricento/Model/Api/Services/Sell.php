@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use Diglin\Ricardo\Managers\Sell\Parameter\GetArticlesFeeParameter;
+
 /**
  * Class Diglin_Ricento_Model_Api_Services_Sell
  */
@@ -81,38 +83,6 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
         return $articleResult;
     }
 
-    public function updateArticle(Diglin_Ricento_Model_Products_Listing_Item $item)
-    {
-        // @todo when needed
-        return $this;
-    }
-
-    /**
-     * Not used
-     *
-     * @param Diglin_Ricento_Model_Products_Listing_Item $item
-     * @return array|bool
-     */
-    public function relistArticle(Diglin_Ricento_Model_Products_Listing_Item $item)
-    {
-        $relistArticleResult = array();
-
-        if (!$item->getRicardoArticleId() || $item->getIsPlanned()) {
-            return false;
-        }
-
-        try {
-            $relistArticleResult = parent::relistArticle($item->getRicardoArticleId());
-
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
-            $this->_updateCredentialToken();
-            Mage::logException($e);
-            $this->_handleSecurityException($e);
-        }
-
-        return $relistArticleResult;
-    }
-
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @return array|bool
@@ -165,6 +135,40 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             }
         }
 
+        return false;
+    }
+
+
+    /**
+     * @param array $articlesDetails of Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter
+     * @return bool | array
+     * @throws Diglin_Ricento_Exception
+     * @throws Exception
+     */
+    public function getArticlesFee(array $articlesDetails)
+    {
+        try {
+            if (empty($articlesDetails)) {
+                return false;
+            }
+
+            $articlesFeeParameter = new GetArticlesFeeParameter();
+
+            /* @var $articlesDetail Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter */
+            foreach ($articlesDetails as $articlesDetail) {
+                $articlesFeeParameter->setArticlesDetails($articlesDetail);
+            }
+
+            $this->setCanUseCache(false);
+            $fees = parent::getArticlesFee($articlesFeeParameter);
+            $this->setCanUseCache(true);
+
+            return $fees;
+        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+            $this->_updateCredentialToken();
+            Mage::logException($e);
+            $this->_handleSecurityException($e);
+        }
         return false;
     }
 }

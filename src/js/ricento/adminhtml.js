@@ -182,6 +182,36 @@ Ricento.progressPopup = function(url) {
         }
     });
 };
+Ricento.confirmationPopup = function(url) {
+    if ($('ricento_popup') && typeof(Windows) != 'undefined') {
+        Windows.focus('ricento_popup');
+        return;
+    }
+
+    var parameters = $('edit_form').serialize(true);
+
+    Dialog.info({url:url, options: {parameters: parameters}}, {
+        closable:true,
+        resizable:true,
+        maximizable: true,
+        draggable:true,
+        className:'magento',
+        windowClassName:'confirmation-popup-window',
+        title: Translator.translate('List the products on ricardo.ch'),
+        top:50,
+        width:640,
+        height:480,
+        zIndex:1000,
+        recenterAuto:false,
+        hideEffect:Element.hide,
+        showEffect:Element.show,
+        id:'ricento_popup_confirmation',
+        showProgress:true,
+        onShow:function(dialog) {
+            dialog.element.innerHTML.evalScripts();
+        }
+    });
+};
 Ricento.closePopup = function() {
     Windows.close('ricento_popup');
 };
@@ -294,7 +324,6 @@ Ricento.salesOptionsForm.prototype = {
         Countable.live($(this.htmlIdPrefix + 'product_warranty_description_fr'), function (counter){
             $(self.htmlIdPrefix + 'product_warranty_description_fr_result__all').update(counter.characters);
         });
-
     },
     toggleRequired : function(field, required, label) {
         field = $(field);
@@ -363,15 +392,18 @@ Ricento.salesOptionsForm.prototype = {
             warrantyDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'product_warranty_description_' + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             warrantyDescription.disabled = !required;
@@ -429,15 +461,18 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             paymentDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'payment_description_' + this.langs[i] + ']')[0];
 
             required = field.checked;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             paymentDescription.disabled = !required;
@@ -450,16 +485,19 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             shippingDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'shipping_description_'  + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
+
 
             shippingDescription.disabled = !required;
             this.toggleRequired(shippingDescription, required, shippingDescriptionLabel);

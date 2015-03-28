@@ -539,6 +539,7 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
 }
 .ricento_news_description img {width:30%}
 
+/*********** Product Page ***********/
 .ricardo-support div img{
     width: 31%;
     margin: 1%;
@@ -565,3 +566,32 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
 .ricardo-diglin .ricardo-imprint, .ricardo-diglin .diglin-imprint {width: 200px; height: 150px;}
 .ricardo-diglin .ricardo-imprint {float: left; margin-right: 50px}
 .ricardo-diglin .diglin-imprint {margin-left: 200px}
+
+
+/*********** Confirmation Popup ***********/
+
+#ricento_popup_confirmation_content table {
+    width: 100%;
+    padding: 5px;
+}
+
+#ricento_popup_confirmation_content table thead tr {
+    background-color: #f1f1f1;
+}
+#ricento_popup_confirmation_content table th,
+#ricento_popup_confirmation_content table td {
+    padding: 5px;
+}
+
+#ricento_popup_confirmation_content table tfoot td {
+    font-weight: bold;
+}
+
+#ricento_popup_confirmation_content .terms {
+    padding: 10px;
+    margin-bottom: 15px;
+}
+#ricento_popup_confirmation_content button {
+    float: right;
+    margin-right: 20px;
+}

@@ -84,13 +84,6 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
 
             // Be aware doing that doesn't trigger Magento events but it's faster
             $this->getProductsListingItemCollection()->updateStatusToAll(Diglin_Ricento_Helper_Data::STATUS_PENDING);
-
-            // Delete configurable product children, will be recreated when the check list process is done
-            Mage::getResourceModel('diglin_ricento/products_listing_item_collection')
-                ->addFieldToFilter('products_listing_id', $this->getId())
-                ->addFieldToFilter('parent_item_id', array('notnull' => 1))
-                ->addFieldToFilter('ricardo_article_id', array('null' => 1))
-                ->walk('delete');
         }
 
         $this->setUpdatedAt(Mage::getSingleton('core/date')->gmtDate());
@@ -109,7 +102,7 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
     {
         parent::_beforeDelete();
 
-        // We must not use the FK constrains cause of deletion of other values at item level
+        // We must not use the FK constrains cause of the need to delete other values at item level
         $this->getProductsListingItemCollection()->walk('delete');
         return $this;
     }
@@ -163,10 +156,22 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
      */
     public function addProduct($productId)
     {
-        if (Mage::getResourceModel('catalog/product_collection')->addFieldToFilter('entity_id', $productId)->getSize()) {
+        $readConnection = $this->getResource()->getReadConnection();
+        $select = $readConnection
+            ->select()
+            ->from($this->getResource()->getTable('catalog/product'), array('entity_id', 'type_id'))
+            ->where('entity_id = ?', $productId);
+
+        $productTable = $readConnection->fetchRow($select);
+
+        if (count($productTable)) {
             /** @var $productListingItem Diglin_Ricento_Model_Products_Listing_Item */
             $productListingItem = Mage::getModel('diglin_ricento/products_listing_item');
-            $productListingItem->setProductsListingId($this->getId())->setProductId($productId)->save();
+            $productListingItem
+                ->setProductsListingId($this->getId())
+                ->setProductId($productId)
+                ->setType($productTable['type_id'])
+                ->save();
             return true;
         }
         return false;

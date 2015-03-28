@@ -1,0 +1,63 @@
+<?php
+/**
+ * Diglin GmbH - Switzerland
+ *
+ * @author      Sylvain Rayé <sylvain.raye at diglin.com>
+ * @category    Ricento
+ * @package     Ricento
+ * @copyright   Copyright (c) 2011-2014 Diglin (http://www.diglin.com)
+ */
+
+/**
+ * @var $this Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation
+ */
+
+$articleFees = $this->getArticleFees();
+$listingFees = $this->getListingFees();
+?>
+<div id="messages">
+    <?php echo $this->getMessagesBlock()->getGroupedHtml(); ?>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th><?php echo $this->__('Product listing & promotion'); ?></th>
+            <th><?php echo $this->__('Qty'); ?></th>
+            <th><?php echo $this->__('Unit Price'); ?></th>
+            <th><?php echo $this->__('Total price'); ?></th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($articleFees as $articleFee): ?>
+        <tr>
+            <td><?php echo $articleFee['label'] ?></td>
+            <td><?php echo $articleFee['qty'] ?></td>
+            <td><?php echo $this->formatPrice($articleFee['unit_price']) ?></td>
+            <td><?php echo $this->formatPrice($articleFee['total_price']) ?></td>
+        </tr>
+    <?php endforeach; ?>
+        <tr>
+            <td><?php echo $this->__('Listing Fees') ?></td>
+            <td><?php echo $listingFees['qty'] ?></td>
+            <td><?php echo $this->formatPrice($listingFees['unit_price']) ?></td>
+            <td><?php echo $this->formatPrice($listingFees['total_price']) ?></td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3"><?php echo $this->__('Total') ?></td>
+            <td><?php echo $this->getTotalFee() ?></td>
+        </tr>
+    </tfoot>
+</table>
+<div class="terms">
+    <h3><?php echo $this->__('Important'); ?></h3>
+    <ul>
+        <li><?php echo $this->__('Sales Fee (following the <a href="%s" target="_blank">fees rules from 01.07.2014</a>)', $this->getFeesRulesUrl()); ?></li>
+        <li><?php echo $this->__('With the confirmation of the publication, you accept the <a href="%s" target="_blank">terms and conditions</a> and <a href="%s" target="_blank">privacy policy</a>)', $this->getTermsUrl(), $this->getPrivacyUrl()); ?></li>
+    </ul>
+</div>
+<form id="confirmation_fee" name="confirmation_fee" enctype="application/x-www-form-urlencoded" action="<?php echo $this->getFormUrl(); ?>">
+    <input type="hidden" name="id" id="id" value="<?php echo $this->getProductsListingId(); ?>" />
+    <button class="scalable save"><span><span><?php echo $this->__('Confirm, check and List') ?></span></span></button>
+</form>

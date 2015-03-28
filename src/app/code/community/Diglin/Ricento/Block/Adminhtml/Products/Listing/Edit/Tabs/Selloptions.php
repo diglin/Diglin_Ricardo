@@ -318,14 +318,14 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         $fieldsetPromotion->addField('promotion_space', 'radios_extensible', array(
             'name' => 'sales_options[promotion_space]',
             'label' => $this->__('Privilege Space'),
-            'note' => $this->__("Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Diglin_Ricento_Helper_Data::RICARDO_URL_HELP_PROMOTION),
+            'note' => $this->__("Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Mage::helper('diglin_ricento')->getHelpPromotion()),
             'values' => Mage::getSingleton('diglin_ricento/config_source_sales_promotion')->getAllOptions()
         ));
 
         $fieldsetPromotion->addField('promotion_start_page', 'checkbox', array(
             'name' => 'sales_options[promotion_start_page]',
             'label' => $this->__('Home Privilege Space'),
-            'note' => $this->__("Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Diglin_Ricento_Helper_Data::RICARDO_URL_HELP_PROMOTION),
+            'note' => $this->__("Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Mage::helper('diglin_ricento')->getHelpPromotion()),
             'after_element_html' => $this->__('Home Space') . ' - ' .  $this->_getPromotionHomeFee()
         ));
 
@@ -445,7 +445,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         /* @var $stockManagement Varien_Data_Form_Element_Select */
         $stockManagement = $this->getForm()->getElement('stock_management');
         $stockManagement->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
-        
+
         if ($this->getSalesOptions()->getSalesAuctionIncrement() <= 0) {
             $derivedValues['sales_auction_increment'] = 1;
         }

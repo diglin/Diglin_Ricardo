@@ -51,7 +51,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
      */
     public function getExpirationNotificationDelay($storeId = 0)
     {
-        return (int) $this->getHelper()->getExpirationNotificationDelay($storeId);
+        return (int) $this->getRicentoHelper()->getExpirationNotificationDelay($storeId);
     }
 
     /**
@@ -69,11 +69,9 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
      */
     public function getExpirationNotificationValidationDelay($storeId = 0)
     {
-        return (int) $this->getHelper()->getExpirationNotificationValidationDelay($storeId);
+        return (int) $this->getRicentoHelper()->getExpirationNotificationValidationDelay($storeId);
     }
     
-    
-
     /**
      * @return array
      */
@@ -135,7 +133,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
     /**
      * @return Diglin_Ricento_Helper_Data
      */
-    public function getHelper()
+    public function getRicentoHelper()
     {
         return Mage::helper('diglin_ricento');
     }
