@@ -10,6 +10,7 @@
  */
 
 use Diglin\Ricardo\Managers\Sell\Parameter\GetArticlesFeeParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\InsertArticlesParameter;
 
 /**
  * Class Diglin_Ricento_Model_Api_Services_Sell
@@ -67,20 +68,51 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
                 Mage::log('Time to insert article ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
-            $this->_updateCredentialToken();
-            Mage::logException($e);
-
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 $insertArticle->setPictures(null, true); // remove picture otherwise log is extremely long
                 Mage::log($insertArticle->getDataProperties(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
-
+            Mage::logException($e);
+            $this->_updateCredentialToken();
             $this->_handleSecurityException($e);
         }
 
         unset($insertArticle);
 
         return $articleResult;
+    }
+
+    /**
+     * @param InsertArticlesParameter $insertArticlesParameter
+     * @return array
+     * @throws Diglin_Ricento_Exception
+     * @throws Exception
+     */
+    public function insertArticles(InsertArticlesParameter $insertArticlesParameter)
+    {
+        $articlesResult = array();
+
+        try {
+            $start = microtime(true);
+
+            if (!$insertArticlesParameter->getAntiforgeryToken()) {
+                $insertArticlesParameter->setAntiforgeryToken($this->getServiceManager()->getSecurityManager()->getAntiforgeryToken());
+            }
+
+            $articlesResult = parent::insertArticles($insertArticlesParameter);
+
+            if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
+                Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+            }
+        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+            Mage::logException($e);
+            $this->_updateCredentialToken();
+            $this->_handleSecurityException($e);
+        }
+
+        unset($insertArticlesParameter);
+
+        return $articlesResult;
     }
 
     /**
@@ -118,8 +150,8 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
                 return true;
             }
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
-            $this->_updateCredentialToken();
             Mage::logException($e);
+            $this->_updateCredentialToken();
 
             try {
                 $this->_handleSecurityException($e);
@@ -165,8 +197,8 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
 
             return $fees;
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
-            $this->_updateCredentialToken();
             Mage::logException($e);
+            $this->_updateCredentialToken();
             $this->_handleSecurityException($e);
         }
         return false;
