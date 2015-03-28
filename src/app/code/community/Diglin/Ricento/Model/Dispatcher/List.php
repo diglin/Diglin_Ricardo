@@ -56,15 +56,6 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
                 $articleId = null;
                 $isPlanned = false;
 
-                // We skip insert article with configurable product as we push its associated products
-//                if ($item->getProduct()->isConfigurableType()) {
-//                    $jobListing->saveCurrentJob(array(
-//                        'total_proceed' => ++$this->_totalProceed,
-//                        'last_item_id' => $item->getId()
-//                    ));
-//                    continue;
-//                }
-
                 if (!$item->getRicardoArticleId()) {
                     $insertedArticle = $sell->insertArticle($item);
                 }
@@ -156,37 +147,4 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
     {
         return Mage::helper('diglin_ricento')->__('Report: %d success, %d error(s)', $this->_totalSuccess, $this->_totalError);
     }
-
-    /**
-     * @return $this
-     */
-//    protected function _proceedAfter()
-//    {
-//        /**
-//         * Get the children of product listing item to set the correct status of the parent
-//         */
-//        $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-//        $itemCollection
-//            ->addFieldToFilter('status', array('in' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-//            ->addFieldToFilter('parent_item_id', array('notnull' => 1))
-//            ->addFieldToFilter('products_listing_id', array('eq' => $this->_productsListingId))
-//            ->getSelect()->group('parent_item_id');
-//
-//        $hash = array();
-//        foreach ($itemCollection->getItems() as $item) {
-//            if (empty($hash[$item->getParentItemId()])) {
-//                Mage::getModel('diglin_ricento/products_listing_item')
-//                    ->load($item->getParentItemId())
-//                    ->setStatus(Diglin_Ricento_Helper_Data::STATUS_LISTED)
-//                    ->save();
-//
-//                $hash[$item->getParentItemId()] = true;
-//            }
-//        }
-//
-//        unset($itemCollection);
-//        unset($hash);
-//
-//        return parent::_proceedAfter();
-//    }
 }
