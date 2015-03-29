@@ -401,10 +401,10 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
      */
     protected function _handleException(Exception $e, $lastService = null)
     {
-        Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE);
+        Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
 
         if ($lastService instanceof Diglin_Ricento_Model_Api_Services_Abstract) {
-            Mage::log($lastService->getLastApiDebug(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+            Mage::log($lastService->getLastApiDebug(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
         }
 
         $message = $this->_getHelper()->__($e->getMessage());

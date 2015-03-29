@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use \Diglin\Ricardo\Enums\Article\PromotionCode;
+
 /**
  * Sales_Options Model
  *
@@ -129,5 +131,31 @@ class Diglin_Ricento_Model_Sales_Options extends Mage_Core_Model_Abstract
             return $this->$method();
         }
         return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getPromotionIds()
+    {
+        $promotionIds = array();
+
+        if ($this->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION
+            && $this->getSalesAuctionDirectBuy()
+        ) {
+            $promotionIds[] = PromotionCode::BUYNOW;
+        }
+
+        $space = $this->getPromotionSpace();
+        if ($space) {
+            $promotionIds[] = (int) $space;
+        }
+
+        $startSpace = $this->getPromotionStartPage();
+        if ($startSpace) {
+            $promotionIds[] = (int) $startSpace;
+        }
+
+        return $promotionIds;
     }
 }
