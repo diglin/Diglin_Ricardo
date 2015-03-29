@@ -95,14 +95,12 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
         try {
             $start = microtime(true);
 
-            if (!$insertArticlesParameter->getAntiforgeryToken()) {
-                $insertArticlesParameter->setAntiforgeryToken($this->getServiceManager()->getSecurityManager()->getAntiforgeryToken());
-            }
-
+            $insertArticlesParameter->setAntiforgeryToken($this->getServiceManager()->getSecurityManager()->getAntiforgeryToken());
             $articlesResult = parent::insertArticles($insertArticlesParameter);
 
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+                Mage::log('Max Memory Usage ' . Mage::helper('diglin_ricento')->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
         } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
             Mage::logException($e);

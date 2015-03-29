@@ -245,6 +245,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
 
                     $this->_currentJobListing
                         ->setLastItemId(null)
+                        ->setTotalError($this->_totalError)
+                        ->setTotalSuccess($this->_totalSuccess)
                         ->setTotalProceed($this->_totalProceed)
                         ->save();
 

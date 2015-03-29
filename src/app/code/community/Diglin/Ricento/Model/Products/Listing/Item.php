@@ -11,7 +11,6 @@
 
 use Diglin\Ricardo\Core\Helper;
 use Diglin\Ricardo\Enums\Article\InternalReferenceType;
-use Diglin\Ricardo\Enums\Article\PromotionCode;
 use Diglin\Ricardo\Enums\PictureExtension;
 use Diglin\Ricardo\Enums\System\CategoryBrandingFilter;
 use Diglin\Ricardo\Managers\Sell\Parameter\ArticleDeliveryParameter;
@@ -23,6 +22,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\InsertArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\BaseInsertArticleWithTrackingParameter;
 
 /**
  * Products_Listing_Item Model
@@ -440,6 +440,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     /**
      * Prepare the InsertArticle Parameter
      *
+     * @deprecated
      * @return InsertArticleParameter
      */
     public function getInsertArticleParameter()
@@ -460,6 +461,55 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         //** Article Images
 
+        $this->_setInsertArticlePictures($insertArticleParameter);
+
+        $insertArticleParameter
+            ->setAntiforgeryToken($this->_getAntiforgeryToken())
+            ->setArticleInformation($this->_getArticleInformationParameter())
+            ->setIsUpdateArticle(false);
+
+        return $insertArticleParameter;
+    }
+
+    /**
+     * Prepare the InsertArticle Parameter
+     *
+     * @return BaseInsertArticleWithTrackingParameter
+     */
+    public function getBaseInsertArticleWithTracking()
+    {
+        $baseInsert = new BaseInsertArticleWithTrackingParameter();
+
+        $this->setLoadFallbackOptions(true);
+
+        $this->_shippingPaymentRule = $this->getShippingPaymentRule();
+        $this->_salesOptions = $this->getSalesOptions();
+
+        //** Article Description
+
+        foreach ($this->_prepareStoresLanguage() as $language => $storeId) {
+            $this->setStoreId($storeId);
+            $baseInsert->setDescriptions($this->_getArticleDescriptionsParameter($language));
+        }
+
+        //** Article Images
+
+        $this->_setInsertArticlePictures($baseInsert);
+
+        $baseInsert
+            ->setArticleInformation($this->_getArticleInformationParameter())
+            ->setIsUpdateArticle(false)
+            ->setCorrelationKey(Helper::guid());
+
+        return $baseInsert;
+    }
+
+    /**
+     * @param InsertArticleParameter $insertArticleParameter
+     * @return $this
+     */
+    protected function _setInsertArticlePictures(InsertArticleParameter $insertArticleParameter)
+    {
         $helper = Mage::helper('diglin_ricento');
         $images = (array)$this->getProduct()->getImages($this->getBaseProductId());
         $i = 0;
@@ -498,12 +548,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
         }
 
-        $insertArticleParameter
-            ->setAntiforgeryToken($this->_getAntiforgeryToken())
-            ->setArticleInformation($this->_getArticleInformationParameter())
-            ->setIsUpdateArticle(false);
-
-        return $insertArticleParameter;
+        return $this;
     }
 
     /**
@@ -609,36 +654,12 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         }
 
         // required
-        $articleInformation->setPromotionIds($this->getPromotionIds());
+        $articleInformation->setPromotionIds($this->getSalesOptions()->getPromotionIds());
 
         return $articleInformation;
     }
 
-    /**
-     * @return array
-     */
-    public function getPromotionIds()
-    {
-        $promotionIds = array();
 
-        if ($this->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION
-            && $this->getSalesOptions()->getSalesAuctionDirectBuy()
-        ) {
-            $promotionIds[] = PromotionCode::BUYNOW;
-        }
-
-        $space = $this->getSalesOptions()->getPromotionSpace();
-        if ($space) {
-            $promotionIds[] = (int) $space;
-        }
-
-        $startSpace = $this->getSalesOptions()->getPromotionStartPage();
-        if ($startSpace) {
-            $promotionIds[] = (int) $startSpace;
-        }
-
-        return $promotionIds;
-    }
 
     /**
      * Prepare Article Description Parameter
