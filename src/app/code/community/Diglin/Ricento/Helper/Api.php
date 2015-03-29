@@ -168,4 +168,16 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
 
         return false;
     }
+
+    /**
+     * @param int $website
+     * @return string
+     */
+    public function getAntiforgeryToken($website = 0)
+    {
+        return Mage::getSingleton('diglin_ricento/api_services_security')
+            ->setCurrentWebsite($website)
+            ->getServiceModel()
+            ->getAntiforgeryToken();
+    }
 }

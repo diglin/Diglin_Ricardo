@@ -41,6 +41,7 @@ class Diglin_Ricento_Model_Sync_Job_Listing extends Diglin_Ricento_Model_Sync_Ab
 {
     /**
      * Prefix of model events names
+     *
      * @var string
      */
     protected $_eventPrefix = 'sync_job_listing';
