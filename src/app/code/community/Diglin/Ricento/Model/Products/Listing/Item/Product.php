@@ -626,7 +626,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getPercentQty($productStockQty, $qtyTargeted, $type)
     {
-        return ($type == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) ? ($productStockQty * $qtyTargeted / 100) : $qtyTargeted;
+        if ($type == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) {
+            $qty = round($productStockQty * $qtyTargeted / 100, 0, PHP_ROUND_HALF_DOWN);
+        } else {
+            $qty = $qtyTargeted;
+        }
+
+        return ($qty) ? $qty : 1;
     }
 
     /**
