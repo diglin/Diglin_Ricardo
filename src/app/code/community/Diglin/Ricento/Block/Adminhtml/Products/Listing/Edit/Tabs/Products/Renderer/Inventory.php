@@ -28,7 +28,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
      */
     public function render(Varien_Object $row)
     {
-        $value = $this->_getValue($row);
+//        $value = $this->_getValue($row);
         if ($row->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
             $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
             $itemCollection->addFieldToFilter('parent_item_id', $row->getItemId());
@@ -55,10 +55,12 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
             $item->setLoadFallbackOptions(true);
             if ($item->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
                 $value = $item->getProductQty();
+            } else {
+                $value = $item->getQtyInventory();
             }
         }
 
-        return $value;
+        return round($value, 0);
     }
 
 }
