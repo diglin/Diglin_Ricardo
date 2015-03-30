@@ -34,7 +34,7 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
 
         $stoppedArticle = null;
         $articleId = null;
-        $hasSuccess = false;
+        $plannedArticles = $insertedArticles = $closedArticles = array();
 
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countListedItems
@@ -52,34 +52,67 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
 
         /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
         foreach ($itemCollection->getItems() as $item) {
+            if ($item->getIsPlanned()) {
+                $plannedArticles[] = $item->getRicardoArticleId();
+            } else {
+                $insertedArticles[] = $item->getRicardoArticleId();
+            }
+        }
 
-            try {
-                $stoppedArticle = $sell->stopArticle($item);
+        try {
+            $closedArticles = $sell->stopArticles(array('planned' => $plannedArticles, 'live' => $insertedArticles));
+        } catch (Exception $e) {
+            $this->_handleException($e);
+            $e = null;
+            // keep going for the next item - no break
+        }
 
-                if ($stoppedArticle) {
-                    $this->_itemStatus = Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS;
-                    $this->_itemMessage = array('success' => $this->_getHelper()->__('The product has been removed from ricardo.ch'));
-                    $hasSuccess = true;
-                    ++$this->_totalSuccess;
-                    $item->getResource()->saveCurrentItem($item->getId(), array('ricardo_article_id' => null, 'is_planned' => null, 'qty_inventory' => null, 'status' => Diglin_Ricento_Helper_Data::STATUS_STOPPED));
-                } else {
-                    ++$this->_totalError;
-                    $this->_jobHasError = true;
-                    $this->_itemStatus = Diglin_Ricento_Model_Products_Listing_Log::STATUS_ERROR;
-                    $this->_itemMessage = array('errors' => $this->_getHelper()->__('The product has not been removed from ricardo.ch. Probably because someone bid the product or bought it.'));
-                    // do not change the status of the item itself, the problem can be that the auction is still running and the article cannot be stopped
+        $this->_saveCurrentStatus($itemCollection, $closedArticles);
+
+        return $this;
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection $itemCollection
+     * @param $stoppedArticles
+     * @return $this
+     * @throws Exception
+     */
+    protected function _saveCurrentStatus(Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection $itemCollection, $stoppedArticles)
+    {
+        $hasSuccess = false;
+        $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
+
+        /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
+        foreach ($itemCollection->getItems() as $item) {
+
+            $stoppedArticle = false;
+            foreach ($stoppedArticles as $stoppedArticle) {
+                if (isset($stoppedArticle['PlannedArticleId']) || isset($stoppedArticle['ArticleNr'])) {
+                    break;
                 }
-            } catch (Exception $e) {
-                $this->_handleException($e);
-                $e = null;
-                // keep going for the next item - no break
+                $stoppedArticle = false;
+            }
+
+            if ($stoppedArticle) {
+                $this->_itemStatus = Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS;
+                $this->_itemMessage = array('success' => $this->_getHelper()->__('The product has been removed from ricardo.ch'));
+                $hasSuccess = true;
+                ++$this->_totalSuccess;
+                $itemResource->saveCurrentItem($item->getId(), array('ricardo_article_id' => null, 'is_planned' => null, 'qty_inventory' => null, 'status' => Diglin_Ricento_Helper_Data::STATUS_STOPPED));
+            } else {
+                ++$this->_totalError;
+                $this->_jobHasError = true;
+                $this->_itemStatus = Diglin_Ricento_Model_Products_Listing_Log::STATUS_ERROR;
+                $this->_itemMessage = array('errors' => $this->_getHelper()->__('The product has not been removed from ricardo.ch. Probably because someone bid the product or bought it.'));
+                // do not change the status of the item itself, the problem can be that the auction is still running and the article cannot be stopped
             }
 
             /**
              * Save item information and eventual error messages
              */
             $this->_getListingLog()->saveLog(array(
-                'job_id' => $job->getId(),
+                'job_id' => $this->_currentJob->getId(),
                 'product_title' => $item->getProductTitle(),
                 'products_listing_id' => $this->_productsListingId,
                 'product_id' => $item->getProductId(),
@@ -92,10 +125,10 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
             /**
              * Save the current information of the process to allow live display via ajax call
              */
-            $jobListing->saveCurrentJob(array(
+            $this->_currentJobListing->saveCurrentJob(array(
                 'total_proceed' => ++$this->_totalProceed,
-                'total_success' => ($jobListing->getTotalSuccess() + $this->_totalSuccess),
-                'total_error' => ($jobListing->getTotalError() + $this->_totalError),
+                'total_success' => ($this->_totalSuccess),
+                'total_error' => ($this->_totalError),
                 'last_item_id' => $item->getId()
             ));
 

@@ -11,6 +11,15 @@
 
 use Diglin\Ricardo\Managers\Sell\Parameter\GetArticlesFeeParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\InsertArticlesParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticlesParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\ClosePlannedArticleParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticlesParameter;
+
+use Diglin\Ricardo\Exceptions\ExceptionAbstract;
+use Diglin\Ricardo\Exceptions\GeneralException;
+use Diglin\Ricardo\Enums\GeneralErrors;
+
+
 
 /**
  * Class Diglin_Ricento_Model_Api_Services_Sell
@@ -67,7 +76,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 Mage::log('Time to insert article ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+        } catch (ExceptionAbstract $e) {
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 $insertArticle->setPictures(null, true); // remove picture otherwise log is extremely long
                 Mage::log($insertArticle->getDataProperties(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
@@ -102,7 +111,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
                 Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
                 Mage::log('Max Memory Usage ' . Mage::helper('diglin_ricento')->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+        } catch (ExceptionAbstract $e) {
             Mage::logException($e);
             $this->_updateCredentialToken();
             $this->_handleSecurityException($e);
@@ -141,22 +150,22 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
 
             /**
              * Ricardo API is special here - if article is closed, returned values may be empty !!!
-             * If it's closed/deleted or an error occurred, an exception is triggered
+             * If it's not closed/deleted or an error occurred, an exception is triggered
              */
             if (isset($result['IsClosed'])) {
                 unset($parameter);
                 return true;
             }
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+        } catch (ExceptionAbstract $e) {
             Mage::logException($e);
             $this->_updateCredentialToken();
 
             try {
                 $this->_handleSecurityException($e);
-            } catch (\Diglin\Ricardo\Exceptions\GeneralException $e) {
+            } catch (GeneralException $e) {
                 switch ($e->getCode()) {
-                    case \Diglin\Ricardo\Enums\GeneralErrors::DELETEPLANNEDFAILED:
-                    case \Diglin\Ricardo\Enums\GeneralErrors::CLOSEAUCTIONFAILED:
+                    case GeneralErrors::DELETEPLANNEDFAILED:
+                    case GeneralErrors::CLOSEAUCTIONFAILED:
                         return false;
                     default:
                         break;
@@ -168,6 +177,83 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
         return false;
     }
 
+    /**
+     * @param array $articles
+     * @param int $websiteId
+     * @return array|bool
+     * @throws Diglin_Ricento_Exception
+     * @throws Exception
+     * @throws \Diglin\Ricardo\Exceptions\GeneralException
+     */
+    public function stopArticles(array $articles, $websiteId = 0)
+    {
+        $helperApi = Mage::helper('diglin_ricento/api');
+        $results = array();
+
+        if (isset($articles['planned']) && count($articles['planned'])) {
+            $deletePlannedArticlesParameter = new DeletePlannedArticlesParameter();
+            $deletePlannedArticlesParameter
+                ->setAntiforgeryToken($helperApi->getAntiforgeryToken($websiteId));
+
+            foreach ($articles['planned'] as $article) {
+                $closePlanned = new ClosePlannedArticleParameter();
+                $closePlanned->setPlannedArticleId($article);
+                $deletePlannedArticlesParameter->setArticles($closePlanned);
+            }
+
+            try {
+                $results = parent::deletePlannedArticles($deletePlannedArticlesParameter);
+            } catch (ExceptionAbstract $e) {
+                Mage::logException($e);
+                $this->_updateCredentialToken();
+
+                try {
+                    $this->_handleSecurityException($e);
+                } catch (GeneralException $e) {
+                    switch ($e->getCode()) {
+                        case GeneralErrors::DELETEPLANNEDFAILED:
+                        case GeneralErrors::CLOSEAUCTIONFAILED:
+                            return false;
+                        default:
+                            break;
+                    }
+                    throw $e;
+                }
+            }
+        }
+
+        if (isset($articles['live']) && count($articles['live'])) {
+            $closesParameter = new CloseArticlesParameter();
+            $closesParameter
+                ->setAntiforgeryToken($helperApi->getAntiforgeryToken($websiteId));
+
+            foreach ($articles['live'] as $article) {
+                $closesParameter->setArticleIds($article);
+            }
+
+            try {
+                $results = array_merge($results, parent::closeArticles($closesParameter));
+            } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+                Mage::logException($e);
+                $this->_updateCredentialToken();
+
+                try {
+                    $this->_handleSecurityException($e);
+                } catch (GeneralException $e) {
+                    switch ($e->getCode()) {
+                        case GeneralErrors::DELETEPLANNEDFAILED:
+                        case GeneralErrors::CLOSEAUCTIONFAILED:
+                            return false;
+                        default:
+                            break;
+                    }
+                    throw $e;
+                }
+            }
+        }
+
+        return $results;
+    }
 
     /**
      * @param array $articlesDetails of Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter
@@ -194,11 +280,12 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             $this->setCanUseCache(true);
 
             return $fees;
-        } catch (\Diglin\Ricardo\Exceptions\ExceptionAbstract $e) {
+        } catch (ExceptionAbstract $e) {
             Mage::logException($e);
             $this->_updateCredentialToken();
             $this->_handleSecurityException($e);
         }
+
         return false;
     }
 }
