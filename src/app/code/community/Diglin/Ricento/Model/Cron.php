@@ -30,11 +30,14 @@ class Diglin_Ricento_Model_Cron
      */
     public function process()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled() || $this->_isTokenExpired()) {
+        $helper = Mage::helper('diglin_ricento');
+        if (!$helper->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
-        ini_set('memory_limit', '512M');
+        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+            ini_set('memory_limit', '512M');
+        }
 
         try {
             foreach ($this->_syncProcess as $jobType) {
@@ -50,11 +53,14 @@ class Diglin_Ricento_Model_Cron
      */
     public function async()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled() || $this->_isTokenExpired()) {
+        $helper = Mage::helper('diglin_ricento');
+        if (!$helper->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
-        ini_set('memory_limit', '512M');
+        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+            ini_set('memory_limit', '512M');
+        }
 
         try {
             foreach ($this->_asyncProcess as $jobType) {

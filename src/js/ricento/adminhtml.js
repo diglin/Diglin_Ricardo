@@ -535,7 +535,7 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             this._changePrice(packageShipping);
             select.addClassName('hidden');
         } else {
-            this._changePrice(0);
+            this._changePrice($(this.htmlIdPrefix + 'shipping_price').value);
             select.addClassName('hidden');
         }
     },

@@ -72,11 +72,14 @@ class Diglin_Ricento_Model_Sales_Method_Payment extends Mage_Payment_Model_Metho
         }
 
         if ($checksBitMask & self::CHECK_IS_RICARDO_ORDER) {
-            if (!$quote->getIsRicardo()) {
-                return false;
+            if ($quote->getIsRicardo()) {
+                return true;
             }
         }
 
-        return parent::isApplicableToQuote($quote, $checksBitMask);
+        if (method_exists('Mage_Payment_Model_Method_Abstract','isApplicableToQuote')) {
+            return parent::isApplicableToQuote($quote, $checksBitMask);
+        }
+        return false;
     }
 }

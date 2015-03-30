@@ -679,13 +679,13 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @return string
+     * @return int
      */
     public function getMemoryLimit()
     {
         $memoryLimit = trim(strtoupper(ini_get('memory_limit')));
 
-        if (!isSet($memoryLimit[0])){
+        if (!isset($memoryLimit[0])){
             $memoryLimit = "128M";
         }
 
@@ -698,7 +698,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
         if (substr($memoryLimit, -1) == 'G') {
             return substr($memoryLimit, 0, -1) * 1024 * 1024 * 1024;
         }
-        return $memoryLimit;
+        return (int) $memoryLimit;
     }
 
     /**
