@@ -32,7 +32,6 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
     protected function _proceed()
     {
         $job = $this->_currentJob;
-        $jobListing = $this->_currentJobListing;
 
         $sell = Mage::getSingleton('diglin_ricento/api_services_sell');
         $sell->setCurrentWebsite($this->_getListing()->getWebsiteId());
@@ -46,7 +45,7 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countReadyTolist
          */
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_READY), $jobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_READY), $this->_currentJobListing->getLastItemId());
         $totalItems = $itemCollection->getSize();
 
         if (!$totalItems) {
@@ -126,7 +125,6 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
     {
         $hasSuccess = false;
         $job = $this->_currentJob;
-        $jobListing = $this->_currentJobListing;
         $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
 
         foreach ($correlationItems as $correlationItem) {
@@ -192,10 +190,10 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
             /**
              * Save the current information of the process to allow live display via ajax call
              */
-            $jobListing->saveCurrentJob(array(
+            $this->_currentJobListing->saveCurrentJob(array(
                 'total_proceed' => ++$this->_totalProceed,
-                'total_success' => $this->_totalSuccess, //@todo update with the previous total_success in case of chunk_running
-                'total_error' => $this->_totalError, //@todo update with the previous total_success in case of chunk_running
+                'total_success' => $this->_totalSuccess,
+                'total_error' => $this->_totalError,
                 'last_item_id' => $correlationItem['item_id']
             ));
 

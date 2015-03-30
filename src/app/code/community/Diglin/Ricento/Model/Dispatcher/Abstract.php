@@ -193,6 +193,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $this->_currentJobListing = Mage::getModel('diglin_ricento/sync_job_listing')->load($this->_currentJob->getId(), 'job_id');
                 $this->_productsListingId = (int) $this->_currentJobListing->getProductsListingId();
                 $this->_totalProceed = (int) $this->_currentJobListing->getTotalProceed();
+                $this->_totalSuccess = (int) $this->_currentJobListing->getTotalSuccess();
+                $this->_totalError = (int) $this->_currentJobListing->getTotalError();
 
                 if (!$this->_productsListingId) {
                     return $this;
