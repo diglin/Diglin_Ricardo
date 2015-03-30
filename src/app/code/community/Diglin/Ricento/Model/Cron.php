@@ -31,11 +31,14 @@ class Diglin_Ricento_Model_Cron
      */
     public function process()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled()) {
+        $helper = Mage::helper('diglin_ricento');
+        if (!$helper->isEnabled()) {
             return;
         }
 
-        ini_set('memory_limit', '512M');
+        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+            ini_set('memory_limit', '512M');
+        }
 
         //** Launch Pending Jobs
 
@@ -55,11 +58,14 @@ class Diglin_Ricento_Model_Cron
      */
     public function async()
     {
-        if (!Mage::helper('diglin_ricento')->isEnabled()) {
+        $helper = Mage::helper('diglin_ricento');
+        if (!$helper->isEnabled()) {
             return;
         }
 
-        ini_set('memory_limit', '512M');
+        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+            ini_set('memory_limit', '512M');
+        }
 
         try {
             foreach ($this->_asyncProcess as $jobType) {
