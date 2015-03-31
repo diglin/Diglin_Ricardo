@@ -330,20 +330,20 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     public function getProductPrice()
     {
-        // We take the price from default store view
-        $productPrice = $this->getProduct()
-            ->setProductId($this->getBaseProductId())
-            ->setStoreId($this->getDefaultStoreId())
-            ->getPrice();
-
-        // If child of configurable add the product variation depending on the options (options are ordered by position normally)
+        $priceOptions = array();
         if ($this->getParentProductId()) {
             foreach ($this->getAdditionalData()->getOptions() as $option) {
                 if (isset($option['pricing_value'])) {
-                    $productPrice += Mage::helper('diglin_ricento/price')->calcSelectionPrice($option, $productPrice);
+                    $priceOptions[] = $option;
                 }
             }
         }
+
+        // We take the price from default store view and parent product if relevant
+        $productPrice = $this->getProduct()
+            ->setStoreId($this->getDefaultStoreId())
+            ->setPriceOptions($priceOptions)
+            ->getPrice();
 
         return $productPrice;
     }
@@ -385,9 +385,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     public function getProductCondition()
     {
-        $salesOptions = $this->getSalesOptions();
-        $sourceCondition = $salesOptions->getProductConditionSourceAttributeCode();
-
+        $sourceCondition = $this->getSalesOptions()->getProductConditionSourceAttributeCode();
         if (!empty($sourceCondition)) {
             $condition = $this->getProduct()->getCondition($this->getBaseProductId());
             if (!empty($condition)) {
@@ -395,7 +393,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
         }
 
-        return $salesOptions->getProductCondition();
+        return $this->getSalesOptions()->getProductCondition();
     }
 
     /**
