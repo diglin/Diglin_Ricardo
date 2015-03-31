@@ -105,11 +105,11 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED), $this->_currentJobListing->getLastItemId());
         $itemCollection->addFieldToFilter('is_planned', 0);
 
-        $ricardoArticles = $itemCollection->getColumnValues('RicardoArticleId');
+        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
         $lastItem = $itemCollection->getLastItem();
 
         try {
-            $soldArticles = $this->getSoldArticles($ricardoArticles);
+            $soldArticles = $this->getSoldArticles($ricardoArticleIds);
         } catch (Exception $e) {
             $this->_handleException($e, Mage::getSingleton('diglin_ricento/api_services_selleraccount'));
             $e = null;
@@ -138,7 +138,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         /**
          * Save the current information of the process to allow live display via ajax call
          */
-        $this->_totalProceed += count($ricardoArticles);
+        $this->_totalProceed += count($ricardoArticleIds);
         $this->_currentJobListing->saveCurrentJob(array(
             'total_proceed' => $this->_totalProceed,
             'last_item_id' => $lastItem->getId()
