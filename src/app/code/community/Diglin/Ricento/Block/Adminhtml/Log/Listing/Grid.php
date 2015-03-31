@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Diglin_Ricento_Block_Adminhtml_Products_Listing_Log_Grid extends Mage_Adminhtml_Block_Widget_Grid
+class Diglin_Ricento_Block_Adminhtml_Log_Listing_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     public function __construct()
     {
@@ -121,7 +121,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Log_Grid extends Mage_Admi
     /**
      * Prepare the mass action drop down menu
      *
-     * @return Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid
+     * @return Diglin_Ricento_Block_Adminhtml_Log_Listing_Grid
      */
     protected function _prepareMassaction()
     {

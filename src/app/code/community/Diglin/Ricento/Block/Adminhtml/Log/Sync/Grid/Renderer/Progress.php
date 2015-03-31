@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid_Renderer_Progress extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
+class Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid_Renderer_Progress extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
     /**
      * @param Varien_Object $row
