@@ -11,6 +11,11 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
 {
     public function indexAction()
     {
+        $this->_redirect('*/*/contact');
+    }
+
+    public function contactAction()
+    {
         $supportLabel = $this->__('Ricento Extension Support');
 
         $block = $this->getLayout()->createBlock('core/template');
@@ -18,7 +23,6 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
         $block
             ->setTemplate('ricento/support.phtml')
             ->setTitle($supportLabel);
-//            ->setIframeUrl(Mage::helper('diglin_ricento')->getRicardoAssistantUrl());
 
         $this->_title($supportLabel);
 
@@ -27,5 +31,10 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
             ->_addBreadcrumb($supportLabel, $supportLabel)
             ->_addContent($block)
             ->renderLayout();
+    }
+
+    public function exportAction()
+    {
+        // @todo
     }
 }

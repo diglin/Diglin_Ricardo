@@ -33,16 +33,16 @@
                     <action>ricento/log</action>
                     <sort_order>30</sort_order>
                     <children>
-                        <listing>
-                            <title>Listing</title>
-                            <action>ricento/log/listing</action>
-                            <sort_order>10</sort_order>
-                        </listing>
                         <sync>
                             <title>Synchronization</title>
                             <action>ricento/log/sync</action>
-                            <sort_order>20</sort_order>
+                            <sort_order>10</sort_order>
                         </sync>
+                        <listing>
+                            <title>Listing</title>
+                            <action>ricento/log/listing</action>
+                            <sort_order>20</sort_order>
+                        </listing>
                     </children>
                 </log>
                 <assistant translate="title" module="diglin_ricento">
@@ -59,6 +59,18 @@
                     <title>Support</title>
                     <action>ricento/support</action>
                     <sort_order>200</sort_order>
+                    <children>
+                        <contact>
+                            <title>Contact</title>
+                            <action>ricento/support/contact</action>
+                            <sort_order>10</sort_order>
+                        </contact>
+                        <!--<export>-->
+                            <!--<title>Listing</title>-->
+                            <!--<action>ricento/support/export</action>-->
+                            <!--<sort_order>20</sort_order>-->
+                        <!--</export>-->
+                    </children>
                 </support>
             </children>
         </ricento>
