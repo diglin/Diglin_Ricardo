@@ -58,9 +58,10 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
             } else {
                 $value = $item->getQtyInventory();
             }
+            $value = round($value, 0);
         }
 
-        return round($value, 0);
+        return $value;
     }
 
 }

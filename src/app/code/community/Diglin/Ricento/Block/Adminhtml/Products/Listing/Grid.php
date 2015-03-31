@@ -90,7 +90,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid extends Mage_Adminhtm
         $this->addColumn('status', array(
             'header'   => $this->__('Status') ,
             'align'    => 'left',
-            'width'    => '150px',
+            'width'    => '200px',
             'index'    => 'status',
             'type'     => 'options',
             'options'  => Mage::getSingleton('diglin_ricento/config_source_status')->toOptionHash(),
