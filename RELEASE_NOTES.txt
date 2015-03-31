@@ -1,5 +1,8 @@
 ## Version 1.1
 - NEW: display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
+- NEW: allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that
+- ENHANCEMENT: global improvement of performance with the ricardo API and product pictures (> X MB)
+- ENHANCEMENT: configurable products and their options having price are computed differently
 - ENHANCEMENT: links of the user interface depending on his language are correctly defined (french or german)
 - ENHANCEMENT: related products of configurable products are displayed in the products grid of a list after a product is added or after the products listing is saved instead to wait that the product listing is checked
 - ENHANCEMENT: cleanup, factorize and perform code related to configurable products
@@ -8,7 +11,8 @@
 - FIX: issue with order synchronization on Magento 1.7 and the ricardo payment method
 - FIX: issue with Internet Explorer when configuring a product and using defaults values are not expected
 - FIX: some translations strings
-- FIX: issue with shipping description while editing the configuration at product level
+- FIX: issue with shipping description while editing the configuration at product level into a products listing
+- FIX: memory issue due to pictures too big
 
 ## Version 1.0.15
 - 8cc97f0 [ENHANCE] Delete old jobs in the SQL way (no collection), speed up the delete and may prevent mysql error
