@@ -1,6 +1,7 @@
 ## Version 1.1
 - NEW: display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
 - NEW: allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that
+- ENHANCEMENT: add a new dispatcher to better close articles which are not anymore sold on ricardo
 - ENHANCEMENT: global improvement of performance with the ricardo API and product pictures (> X MB)
 - ENHANCEMENT: configurable products and their options having price are computed differently
 - ENHANCEMENT: links of the user interface depending on his language are correctly defined (french or german)
