@@ -36,6 +36,7 @@ class Diglin_Ricento_Model_Sync_Job extends Diglin_Ricento_Model_Sync_Abstract
     const TYPE_STOP                 = 'stop';
     const TYPE_ORDER                = 'order';
     const TYPE_SYNCLIST             = 'sync_list';
+    const TYPE_CLOSED               = 'closed';
 
     // PROGRESS
     const PROGRESS_PENDING          = 'pending';

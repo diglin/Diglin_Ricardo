@@ -256,6 +256,9 @@
                     <stop>
                         <class>Diglin_Ricento_Model_Dispatcher_Stop</class>
                     </stop>
+                    <closed>
+                        <class>Diglin_Ricento_Model_Dispatcher_Closed</class>
+                    </closed>
                 </types>
             </dispatcher>
         </ricento>
