@@ -14,13 +14,7 @@
 "Merge Order","Merge Order"
 "If a customer order several products in a period of 30 minutes, do you want to merge the ricardo transaction in one order?","If a customer order several products in a period of 30 minutes, do you want to merge the ricardo transaction in one order?"
 "Shipping Calculation","Shipping Calculation"
-"You can decide how do you want to calculate the shipping cost when an order merge several bought products by a customer.<br>
-                            ""Highest Price"": it will find which product has the highest cost for the shipping and will take only this one for the calculation.<br>
-                            ""Cumulative"": it will calculate the shipping cost based on the configuration you did in the products listing for each article and will combine them.
-                            ","You can decide how do you want to calculate the shipping cost when an order merge several bought products by a customer.<br>
-                            ""Highest Price"": it will find which product has the highest cost for the shipping and will take only this one for the calculation.<br>
-                            ""Cumulative"": it will calculate the shipping cost based on the configuration you did in the products listing for each article and will combine them.
-                            "
+"You can decide how do you want to calculate the shipping cost when an order merge several bought products by a customer.<br>""Highest Price"": it will find which product has the highest cost for the shipping and will take only this one for the calculation.<br>""Cumulative"": it will calculate the shipping cost based on the configuration you did in the products listing for each article and will combine them.","You can decide how do you want to calculate the shipping cost when an order merge several bought products by a customer.<br>""Highest Price"": it will find which product has the highest cost for the shipping and will take only this one for the calculation.<br>""Cumulative"": it will calculate the shipping cost based on the configuration you did in the products listing for each article and will combine them."
 "Send Account Creation Confirmation Email","Send Account Creation Confirmation Email"
 "Do you want to send a confirmation email to a customer when his account is created thanks to the ricardo.ch API?","Do you want to send a confirmation email to a customer when his account is created thanks to the ricardo.ch API?"
 "Send Email for new order","Send Email for new order"
@@ -298,6 +292,7 @@
 "To create one go to your <a onclick=""window.open(\'%s\')"">ricardo.ch account</a> into ""My Sales"".","To create one go to your <a onclick=""window.open(\'%s\')"">ricardo.ch account</a> into ""My Sales""."
 "Promotion","Promotion"
 "Privilege Space","Privilege Space"
+"PREMIUMHOMEPAGE","Privilege Space"
 "Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>","Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>"
 "Home Privilege Space","Home Privilege Space"
 "Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>","Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>"

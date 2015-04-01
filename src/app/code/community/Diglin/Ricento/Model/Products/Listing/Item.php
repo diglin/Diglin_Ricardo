@@ -779,7 +779,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             ->setExcludeListingFees($excludeListingFees)
             ->setInitialQuantity($this->getProductQty())
             ->setPictureCount(0) //@todo check if it is really relevant to send this information as we save some compute, there is no influence on final price
-            ->setPromotionIds($this->getSalesOptions()->getPromotionSpace())
+            ->setPromotionIds($this->getSalesOptions()->getPromotionIds())
             ->setStartDate(Helper::getJsonDate($helper->getStartingDate($this)));
 
         if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
