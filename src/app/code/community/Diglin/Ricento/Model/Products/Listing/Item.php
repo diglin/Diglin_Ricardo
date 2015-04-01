@@ -115,13 +115,14 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     {
         parent::_beforeSave();
 
-        if ($this->hasDataChanges() && $this->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
-
+        if ($this->hasDataChanges() && !$this->dataHasChangedFor('status')
+            && $this->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED
+        ) {
             $this->setStatus(Diglin_Ricento_Helper_Data::STATUS_PENDING);
+        }
 
-            if ($this->getType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-                $this->setStatus('');
-            }
+        if ($this->getType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            $this->setStatus('');
         }
 
         $gmtDate = Mage::getSingleton('core/date')->gmtDate();

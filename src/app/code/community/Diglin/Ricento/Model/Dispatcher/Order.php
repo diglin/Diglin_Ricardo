@@ -242,14 +242,10 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 /**
                  * 5. Decrease the quantity at products listing item level and stop it if needed
                  */
-                $productItem->setQtyInventory($productItem->getQtyInventory() - $salesTransaction->getQty());
-
-                if ($productItem->getQtyInventory() <= 0) {
-                    $productItem->setRicardoArticleId(null);
-                    $productItem->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED);
-                }
-
-                $productItem->save();
+                $productItem
+                    ->setQtyInventory($productItem->getQtyInventory() - $salesTransaction->getQty())
+                    ->setStatus(Diglin_Ricento_Helper_Data::STATUS_SOLD)
+                    ->save();
 
                 if (!isset($soldArticlesReturn[$productItem->getId()])) {
                     $soldArticlesReturn[$productItem->getId()] = array(
