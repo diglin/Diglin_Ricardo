@@ -103,4 +103,160 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
             $bind,
             array($this->getIdFieldName() . ' = ?' => $listId));
     }
+
+    /**
+     * Removes items by product id
+     *
+     * @param array $productIds
+     * @param int $itemId
+     * @return int[] Returns two values: [number of removed products, number of not removed listed products]
+     */
+    public function removeProductsByProductIds(array $productIds, $itemId)
+    {
+        /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $items
+            ->addFieldToFilter('product_id', array('in' => $productIds))
+            ->addFieldToFilter('parent_product_id', new Zend_Db_Expr('NULL'))
+            ->addFieldToFilter('type', array('neq' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
+
+        $itemsToRemove = clone $items;
+
+        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $itemId)
+            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->getSize();
+
+        $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $itemId)
+            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->count();
+
+        $this->beginTransaction();
+
+        $productsIdRemoved = array();
+        if ($numberOfItemsToDelete) {
+            $productsIdRemoved = $itemsToRemove->getColumnValues('product_id');
+            $itemsToRemove->walk('delete');
+        }
+
+        $this->commit();
+
+        /**
+         * Configurable Products
+         */
+        $productIds = array_diff($productIds, $productsIdRemoved);
+
+        foreach ($productIds as $productId) {
+            /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+            $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+
+            $childrenCount = $items->addFieldToFilter('products_listing_id', $itemId)
+                ->addFieldToFilter('parent_product_id', $productId)
+                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->getSize();
+
+
+            if (!$childrenCount) {
+                $this->beginTransaction();
+
+                $readConnection = $this->getReadConnection();
+
+                $select = $readConnection
+                    ->select()
+                    ->from(array('pli' => $this->getTable('diglin_ricento/products_listing_item')), 'item_id')
+                    ->where('product_id = ?', $productId)
+                    ->deleteFromSelect('pli');
+
+                if (!empty($select) && !is_numeric($select)) {
+                    $readConnection->query($select);
+                }
+
+                $items->walk('delete');
+
+                $this->commit();
+
+                $numberOfItemsToDelete++;
+            }
+
+            $numberOfListedItems += $childrenCount;
+        }
+
+        return array($numberOfItemsToDelete, $numberOfListedItems);
+    }
+
+    /**
+     * Removes items by item id
+     *
+     * @param array $itemIds
+     * @param int $itemId
+     * @return int[] Returns two values: [number of removed products, number of not removed listed products]
+     */
+    public function removeProductsByItemIds(array $itemIds, $itemId)
+    {
+        /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $items
+            ->addFieldToFilter('item_id', array('in' => $itemIds))
+            ->addFieldToFilter('parent_product_id', new Zend_Db_Expr('NULL'))
+            ->addFieldToFilter('type', array('neq' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
+
+        $itemsToRemove = clone $items;
+
+        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $itemId)
+            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->getSize();
+
+        $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $itemId)
+            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->count();
+
+        $this->beginTransaction();
+
+        $itemsIdRemoved = array();
+        if ($numberOfItemsToDelete) {
+            $itemsIdRemoved = $itemsToRemove->getColumnValues('item_id');
+            $itemsToRemove->walk('delete');
+        }
+
+        $this->commit();
+
+        /**
+         * Configurable Products
+         */
+        $itemIds = array_diff($itemIds, $itemsIdRemoved);
+
+        foreach ($itemIds as $itemId) {
+            /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+            $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+
+            $childrenCount = $items->addFieldToFilter('products_listing_id', $itemId)
+                ->addFieldToFilter('parent_item_id', $itemId)
+                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->getSize();
+
+            if (!$childrenCount) {
+                $this->beginTransaction();
+
+                $readConnection = $this->getReadConnection();
+                $select = $readConnection
+                    ->select()
+                    ->from(array('pli' => $this->getTable('diglin_ricento/products_listing_item')), 'item_id')
+                    ->where('item_id = ?', $itemId)
+                    ->deleteFromSelect('pli');
+
+                if (!empty($select) && !is_numeric($select)) {
+                    $readConnection->query($select);
+                }
+
+                $items->walk('delete');
+
+                $this->commit();
+
+                $numberOfItemsToDelete++;
+            }
+
+            $numberOfListedItems += $childrenCount;
+        }
+
+        return array($numberOfItemsToDelete, $numberOfListedItems);
+    }
 }
