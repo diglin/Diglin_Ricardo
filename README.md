@@ -20,7 +20,7 @@ Some classes and javascript contain a MIT license.
 - Knowledge Base & FAQ: [https://diglin.zendesk.com](https://diglin.zendesk.com)
 - PDF Documentation [https://raw.githubusercontent.com/diglin/ricento/master/doc/Documentation.pdf](https://raw.githubusercontent.com/diglin/ricento/master/doc/Documentation.pdf)
 - Pull Requests: [https://github.com/diglin/ricento/issues](https://github.com/diglin/ricento/issues)
-- Submit tickets - Contact (fee may apply if it's not a bug, we will inform you): support /at/ diglin.com - [read more about it](https://diglin.zendesk.com/hc/en-us/articles/201655882-Is-the-extension-free-)
+- Submit tickets - Contact (fee may apply, we will inform you how): support /at/ diglin.com - [read more about it](https://diglin.zendesk.com/hc/en-us/articles/201655882-Is-the-extension-free-)
 
 ## System requirements
 
@@ -29,12 +29,19 @@ Some classes and javascript contain a MIT license.
 - Magento CE >= 1.6.x to 1.9.x (for EE, please contact us)
 - Minimum memory: 256MB - Highly Recommended: 512MB
 - PHP >= 5.3.2
-- PHP Curl Library
+- PHP Curl, GD Library
 - Cron enabled and configured for Magento (set your cron at server level to a period of 5 min to launch internal task related to the rircardo extension
 */5 * * * * php path/to/my/magento/cron.php)
 - Base currency: CHF / Swiss Franc (currency conversion is not yet supported)
 
 ## Features
+
+#### Version 1.1
+- Get Article Fees Information before to publish on ricardo.ch
+- Refactoring and general performance improvements related to API connection, configurable products, pictures, price calculation
+- Via global extension configuration, allow to merge short and normal description if ricardo description is not defined for publication on ricardo.ch  
+- Support Magento Pictures Watermark
+- Fix several issues related to configurable products, pictures, stop articles, orders  
 
 #### Version 1.0
 
