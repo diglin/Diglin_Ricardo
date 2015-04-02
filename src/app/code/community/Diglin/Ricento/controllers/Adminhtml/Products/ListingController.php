@@ -469,7 +469,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
         $countReadyToList = Mage::getResourceModel('diglin_ricento/products_listing_item')->coundReadyTolist($productListing->getId());
 
-        if ($countReadyToList == 0) {
+        if ($countReadyToList <= 0) {
             $this->_getSession()->addError($this->__('There is no product ready to be listed. Please, add products to your products listing "%s".', $productListing->getTitle()));
             $this->_redirect('*/*/index');
             return;

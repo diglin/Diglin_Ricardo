@@ -33,8 +33,11 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
             foreach ($itemCollection->getItems() as $item) {
                 $output = '';
                 switch ($item->getStatus()) {
+                    case 'stopped':
+                        $output .= '<span class="message_warnings">' . $helper->__('Stopped') . '</span>';
+                        break;
                     case 'error':
-                        $output .= '<span class="message_errors">' . $helper->__('Stopped') . '</span>';
+                        $output .= '<span class="message_errors">' . $helper->__('Error') . '</span>';
                         break;
                     case 'listed':
                         $output .= '<span class="message_success">' . $helper->__('Listed') . '</span>';
@@ -58,12 +61,20 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
         return $value;
     }
 
+    /**
+     * @param $value
+     * @param Varien_Object $row
+     * @return string
+     */
     protected function _decorate($value, Varien_Object $row)
     {
         $output = '';
         $helper = Mage::helper('diglin_ricento');
         $value = htmlspecialchars_decode($value);
         switch ($row->getStatus()) {
+            case 'stopped':
+                $output .= '<div id="message-warnings-' . $row->getId() . '" class="message_warnings">' . $helper->__('Stopped') . '</div>';
+                break;
             case 'error':
                 $output .= '<div id="message-errors-' . $row->getId() . '" class="message_errors">' . $helper->__('Error') . '</div>';
                 break;
