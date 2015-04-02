@@ -187,27 +187,73 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
     {
         /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
         $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $items
+            ->addFieldToFilter('product_id', array('in' => $productIds))
+            ->addFieldToFilter('parent_product_id', new Zend_Db_Expr('NULL'))
+            ->addFieldToFilter('type', array('neq' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
+
+        $itemsToRemove = clone $items;
+
+        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
+            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->getSize();
+
+        $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $this->getId())
+            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->count();
 
         /** @var $itemResource Diglin_Ricento_Model_Resource_Products_Listing_Item */
         $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
         $itemResource->beginTransaction();
 
-        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('product_id', array('in' => $productIds))
-            ->addFieldToFilter('status', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->getSize();
-
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-        $numberOfItemsToDelete = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('product_id', array('in' => $productIds))
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->count();
-
+        $productsIdRemoved = array();
         if ($numberOfItemsToDelete) {
-            $items->walk('delete');
+            $productsIdRemoved = $itemsToRemove->getColumnValues('product_id');
+            $itemsToRemove->walk('delete');
         }
 
         $itemResource->commit();
+
+        /**
+         * Configurable Products
+         */
+        $productIds = array_diff($productIds, $productsIdRemoved);
+
+        foreach ($productIds as $productId) {
+            /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+            $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+
+            $childrenCount = $items->addFieldToFilter('products_listing_id', $this->getId())
+                ->addFieldToFilter('parent_product_id', $productId)
+                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->getSize();
+
+
+            if (!$childrenCount) {
+                $itemResource->beginTransaction();
+
+                $readConnection = $items->getResource()->getReadConnection();
+
+                $select = $readConnection
+                    ->select()
+                    ->from(array('pli' => $items->getResource()->getTable('diglin_ricento/products_listing_item')), 'item_id')
+                    ->where('product_id = ?', $productId)
+                    ->deleteFromSelect('pli');
+
+                if (!empty($select) && !is_numeric($select)) {
+                    $readConnection->query($select);
+                }
+
+                $items->walk('delete');
+                
+                $itemResource->commit();
+
+                $numberOfItemsToDelete++;
+            }
+
+            $numberOfListedItems += $childrenCount;
+        }
+
         return array($numberOfItemsToDelete, $numberOfListedItems);
     }
 
@@ -221,27 +267,71 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
     {
         /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
         $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $items
+            ->addFieldToFilter('item_id', array('in' => $itemIds))
+            ->addFieldToFilter('parent_product_id', new Zend_Db_Expr('NULL'))
+            ->addFieldToFilter('type', array('neq' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
+
+        $itemsToRemove = clone $items;
+
+        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
+            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->getSize();
+
+        $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $this->getId())
+            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->count();
 
         /** @var $itemResource Diglin_Ricento_Model_Resource_Products_Listing_Item */
         $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
         $itemResource->beginTransaction();
 
-        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('item_id', array('in' => $itemIds))
-            ->addFieldToFilter('status', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->getSize();
-
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-        $numberOfItemsToDelete = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('item_id', array('in' => $itemIds))
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->count();
-
+        $itemsIdRemoved = array();
         if ($numberOfItemsToDelete) {
-            $items->walk('delete');
+            $itemsIdRemoved = $itemsToRemove->getColumnValues('item_id');
+            $itemsToRemove->walk('delete');
         }
 
         $itemResource->commit();
+
+        /**
+         * Configurable Products
+         */
+        $itemIds = array_diff($itemIds, $itemsIdRemoved);
+
+        foreach ($itemIds as $itemId) {
+            /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
+            $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+
+            $childrenCount = $items->addFieldToFilter('products_listing_id', $this->getId())
+                ->addFieldToFilter('parent_item_id', $itemId)
+                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->getSize();
+
+            if (!$childrenCount) {
+                $itemResource->beginTransaction();
+
+                $readConnection = $items->getResource()->getReadConnection();
+                $select = $readConnection
+                    ->select()
+                    ->from(array('pli' => $items->getResource()->getTable('diglin_ricento/products_listing_item')), 'item_id')
+                    ->where('item_id = ?', $itemId)
+                    ->deleteFromSelect('pli');
+
+                if (!empty($select) && !is_numeric($select)) {
+                    $readConnection->query($select);
+                }
+
+                $items->walk('delete');
+
+                $itemResource->commit();
+
+                $numberOfItemsToDelete++;
+            }
+
+            $numberOfListedItems += $childrenCount;
+        }
+
         return array($numberOfItemsToDelete, $numberOfListedItems);
     }
 

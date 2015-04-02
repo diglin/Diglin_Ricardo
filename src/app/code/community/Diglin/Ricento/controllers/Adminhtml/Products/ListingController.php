@@ -308,12 +308,12 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         if ($this->getRequest()->isPost()) {
-            $productIds = array_map('intval', (array) $this->getRequest()->getPost('item', array()));
+            $itemIds = array_map('intval', (array) $this->getRequest()->getPost('item', array()));
         } else {
-            $productIds = array_map('intval', (array) $this->getRequest()->getParam('item', array()));
+            $itemIds = array_map('intval', (array) $this->getRequest()->getParam('item', array()));
         }
 
-        list($productsRemoved, $productsNotRemoved) = $this->_getListing()->removeProductsByItemIds($productIds);
+        list($productsRemoved, $productsNotRemoved) = $this->_getListing()->removeProductsByItemIds($itemIds);
 
         if ($productsRemoved) {
             $this->_getSession()->addSuccess($this->__('%d products removed from listing', $productsRemoved));
@@ -321,6 +321,10 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
         if ($productsNotRemoved) {
             $this->_getSession()->addNotice($this->__('%d products are listed and could not be removed', $productsNotRemoved));
+        }
+
+        if (!$productsRemoved && !$productsNotRemoved) {
+            $this->_getSession()->addWarning($this->__('No product found'));
         }
 
         $this->_redirect('*/*/edit', array('id' => $this->_getListing()->getId()));
