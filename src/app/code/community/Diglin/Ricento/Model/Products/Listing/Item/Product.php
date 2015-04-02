@@ -510,26 +510,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getImages($productId = null)
     {
-        if (is_null($productId) && $this->_model && $this->_model->getId()) {
-            $productId = $this->_model->getId();
-        } elseif (is_null($productId) && $this->getProductId()) {
-            $productId = $this->getProductId();
-        }
-
-        if (!is_numeric($productId)) {
-            return false;
-        }
-
-        $mediaConfig = Mage::getSingleton('catalog/product_media_config');
-        $images = $this->getAssignedImages($productId);
-
-        foreach ($images as &$image) {
-            if (isset($image['filepath'])) {
-                $image['filepath'] = $mediaConfig->getMediaPath($image['filepath']);
-            }
-        }
-
-        return $images;
+        return $this->getAssignedImages($productId);
     }
 
     /**
@@ -541,7 +522,15 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getAssignedImages($productId = null)
     {
-        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
+        if (is_null($productId) && $this->_model && $this->_model->getId()) {
+            $productId = $this->_model->getId();
+        } elseif (is_null($productId) && $this->getProductId()) {
+            $productId = $this->getProductId();
+        }
+
+        if (!is_numeric($productId)) {
+            return false;
+        }
 
         $read = $this->_getReadConnection();
         $resource = $this->_getCoreResource();
@@ -588,7 +577,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             ->where('store_id = 0')
             ->where('attribute_code = ?', 'image');
 
-        return array_merge($mediaGallery, $read->fetchAll($select));
+        return array_merge($read->fetchAll($select), $mediaGallery);
     }
 
     /**

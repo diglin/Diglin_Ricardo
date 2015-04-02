@@ -509,33 +509,34 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _setInsertArticlePictures(InsertArticleParameter $insertArticleParameter)
     {
-        $helper = Mage::helper('diglin_ricento');
-        $images = (array)$this->getProduct()->getImages($this->getBaseProductId());
+        $images = (array) $this->getProduct()->getImages($this->getBaseProductId());
         $i = 0;
         $hash = array();
 
         foreach ($images as $image) {
 
-            if ($i >= 8) {
+            if ($i >= 10) {
                 break;
-            }; // Do not set more than 9 pictures
+            }; // Do not set more than 10 pictures
 
             $hashImage = md5($image['filepath']);
-            if (isset($image['filepath']) && file_exists($image['filepath']) && !isset($hash[$hashImage])) {
+            if (isset($image['filepath']) && !isset($hash[$hashImage])) {
 
-                if (!$helper->checkMemory($image['filepath'])) {
-                    Mage::log(Mage::helper('diglin_ricento')->__('Image insertion skipped for memory protection: %s', $image['filepath']), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
-                    break;
-                }
+                $imageHelper = Mage::helper('diglin_ricento/image');
+                $imageHelper
+                    ->init(new Mage_Catalog_Model_Product(), 'image', $image['filepath'])
+                    ->keepAspectRatio(true)
+                    ->keepFrame(false)
+                    ->setQuality(90)
+                    ->resize(600);
 
                 // Prepare picture to set the content as byte array for the webservice
-                $imageExtension = Helper::getPictureExtension($image['filepath']);
-
+                $imageExtension = Helper::getPictureExtension($imageHelper);
                 if ($imageExtension) {
                     $picture = new ArticlePictureParameter();
                     $picture
                         // we encode in Json to minimize memory consumption
-                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($image['filepath'])))))
+                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($imageHelper)))))
                         ->setPictureExtension($imageExtension)
                         ->setPictureIndex(++$i);
 
@@ -778,7 +779,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             ->setCategoryId($this->getCategory())
             ->setExcludeListingFees($excludeListingFees)
             ->setInitialQuantity($this->getProductQty())
-            ->setPictureCount(0) //@todo check if it is really relevant to send this information as we save some compute, there is no influence on final price
+            ->setPictureCount(0) //@todo check if it is really relevant to send this information as we save some computation, there is no influence on final price
             ->setPromotionIds($this->getSalesOptions()->getPromotionIds())
             ->setStartDate(Helper::getJsonDate($helper->getStartingDate($this)));
 
