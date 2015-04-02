@@ -92,7 +92,7 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
                     $message = function_exists('mb_strcut') ? mb_strcut($message, 0, 1024 * 1024) : substr($message, 0, 1024 * 1024);
 
                     foreach ($correlationItems as $key => $correlationItem) {
-                        $correlationItems[$key]['ErrorCode'] = $e->getCode();
+                        $correlationItems[$key]['ErrorCodes'] = $e->getCode();
                         $correlationItems[$key]['ErrorMessage'] = $message;
                     }
 
@@ -163,10 +163,12 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
             } else {
                 ++$this->_totalError;
                 $this->_jobHasError = true;
-                if (isset($correlationItem['ErrorMessage'])) {
+                if (isset($correlationItem['ErrorMessage']) || $correlationItem['ErrorCodes']) {
                     $this->_itemMessage = array('errors' => array(
-                        $this->_getHelper()->__('Error Code: %d', (isset($correlationItem['ErrorCode'])) ? $correlationItem['ErrorCode'] : implode(',', $correlationItem['ErrorCodes'])),
-                        $this->_getHelper()->__($correlationItem['ErrorMessage'])
+                        $this->_getHelper()->__('Error Code: %d', (isset($correlationItem['ErrorCodes'])) ? implode(',', $correlationItem['ErrorCodes']) : ''),
+                        (isset($correlationItem['ErrorMessage']))
+                            ? $this->_getHelper()->__($correlationItem['ErrorMessage'])
+                            : implode(' - ', $this->_handleErrorCodes($correlationItem['ErrorCodesType'], $correlationItem['ErrorCodes']))
                     ));
                 }
                 $this->_itemStatus = Diglin_Ricento_Model_Products_Listing_Log::STATUS_ERROR;

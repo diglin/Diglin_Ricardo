@@ -426,6 +426,26 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
     }
 
     /**
+     * @param $errorType
+     * @param array $errorCodes
+     * @return array
+     */
+    protected function _handleErrorCodes($errorType, array $errorCodes)
+    {
+        $labels = array();
+
+        /* @var $classname Diglin\Ricardo\Enums\AbstractEnums */
+        $classname = '\Diglin\Ricardo\Enums\\' . $errorType;
+        if (class_exists($classname)) {
+            foreach ($errorCodes as $errorCode) {
+                $labels[] = $classname::getLabel($errorCode);
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
      * @param int $productsListingId
      * @return $this
      */
