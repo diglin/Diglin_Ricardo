@@ -69,6 +69,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
         $this->_validateCategory($item);
         $this->_validatePaymentShippingRules($item);
         $this->_validateBuyNow($item);
+        $this->_validateStartingDate($item);
         $this->_validateEndingDate($item);
         $this->_validatePicture($item);
 
@@ -252,6 +253,26 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
             }
         } else if ($productPrice < self::BUYNOW_MINPRICE_FIXPRICE) {
             $this->_errors[] = $this->getHelper()->__('Product Price of %s CHF is incorrect. Minimum price is %s.', self::BUYNOW_MINPRICE_FIXPRICE);
+        }
+        return;
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     */
+    private function _validateStartingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
+        if ($item->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
+            $startDate = $item->getProductsListing()->getSalesOptions()->getScheduleDateStart();
+        } else {
+            $startDate = $item->getSalesOptions()->getScheduleDateStart();
+        }
+
+        $startDate = strtotime($startDate);
+
+        if (!is_null($startDate) && $startDate < (time() + 3600)) {
+            // Warning - starting date must be 1 hour in future
+            $this->_warnings[] = $this->getHelper()->__('The starting date must start one hour in future. It will be automatically updated to list on ricardo.');
         }
         return;
     }
