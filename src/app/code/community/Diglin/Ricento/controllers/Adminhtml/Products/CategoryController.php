@@ -9,6 +9,10 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use \Diglin\Ricardo\Managers\Search\Parameter\GetCategoryBestMatchParameter;
+use \Diglin\Ricardo\Exceptions\SearchException;
+use \Diglin\Ricardo\Enums\SearchErrors;
+
 /**
  * Class Diglin_Ricento_Adminhtml_Products_CategoryController
  */
@@ -17,7 +21,7 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
     public function mappingAction()
     {
         $this->loadLayout();
-        $this->getLayout()->getBlock('category_mapping')
+        $this->getLayout()->getBlock('category_tree')
             ->setCategoryId($this->getRequest()->getParam('id', 1));
         $this->renderLayout();
     }
@@ -29,6 +33,61 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
             ->setCategoryId($this->getRequest()->getParam('id', 1))
             ->setLevel($this->getRequest()->getParam('level', 0));
         $this->renderLayout();
+    }
+
+    public function suggestAction()
+    {
+        $helper = Mage::helper('diglin_ricento');
+        $sentence = (string) $this->getRequest()->getParam('sentence');
+
+        $categoryBestMatchParameter = new GetCategoryBestMatchParameter();
+        $categoryBestMatchParameter
+            ->setNumberMaxOfResult(5)
+            ->setLanguageId($helper->getRicardoLanguageIdFromLocaleCode($helper->getDefaultSupportedLang()))
+            ->setSentence($sentence);
+
+        $categories = array();
+        $response = new Varien_Object();
+
+        try {
+            $searchService = Mage::getSingleton('diglin_ricento/api_services_search');
+            $searchService->setCanUseCache(false);
+            $categories = $searchService->getCategoryBestMatch($categoryBestMatchParameter);
+        } catch (SearchException $e) {
+            $errorMessage = '<li class="error-msg">';
+            $errorMessage .= SearchErrors::getLabel($e->getCode());
+            $errorMessage .= '</li>';
+
+            $response->setError($errorMessage);
+        }
+
+        if (count($categories) > 0) {
+
+            $mapping = Mage::getModel('diglin_ricento/products_category_mapping');
+            $categoryId = $categories[0]['CategoryId'];
+
+            $suggestedCategoriesId = array();
+            foreach ($categories as $category) {
+                $suggestedCategoriesId = array_merge($suggestedCategoriesId, explode('/', $mapping->getCategory($category['CategoryId'])->getPath()));
+            }
+
+            $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_category_mapping_tree');
+            $block
+                ->setCategoryId($categoryId)
+                ->setSuggestedCategoriesId($suggestedCategoriesId);
+
+//            array_shift($categories);
+
+            $response
+                ->setCategoryId($categoryId)
+//                ->setOtherSuggestions($categories)
+                ->setContent($block->toHtml())
+                ->setLevels($block->getLevels()) // must be after $block->toHtml()
+                ->setChildrenUrl($this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')));
+        }
+
+        $this->getResponse()->setHeader('Content-Type', 'application/json');
+        $this->getResponse()->setBody($response->toJson());
     }
 
     /**

@@ -14,11 +14,12 @@
  *
  * Represents a Ricardo category
  *
- * @method string getCategoryId() getCategoryId()
- * @method string getCategoryName() getCategoryName()
- * @method string getIsFinal() getIsFinal()
- * @method string getLevel() getLevel()
- * @method string getParentId() getParentId()
+ * @method string getCategoryId()
+ * @method string getCategoryName()
+ * @method string getIsFinal()
+ * @method string getLevel()
+ * @method string getParentId()
+ * @method string getPath()
  */
 class Diglin_Ricento_Model_Products_Category extends Varien_Object
 {

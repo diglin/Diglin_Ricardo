@@ -90,6 +90,13 @@ input[type="radio"] {
 
 /********** Category Mapping views **********/
 
+#ricento_popup_content #messages li {
+    line-height: 25px;
+    list-style: outside none none;
+    padding: 5px;
+    text-indent: 30px;
+}
+
 #ricardo_categories {}
 #ricardo_categories nav {
     width: 200px;
@@ -150,6 +157,20 @@ input[type="radio"] {
     font-weight: bold;
 }
 
+.category-suggestion input {
+    line-height: 20px;
+    width: 300px;
+    margin-bottom:20px;
+    padding: 0 4px;
+}
+
+#ricardo_categories .suggested a {
+    color: #FFA500;
+}
+#ricardo_categories .selected a,
+#ricardo_categories .suggested a:hover {
+    color: #000;
+}
 /********** Add missing Magento core pictures **********/
 
 .magento_minimize { background:url('images/window_minimize.png') 0 0 no-repeat !important;}
@@ -595,3 +616,5 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
     float: right;
     margin-right: 20px;
 }
+
+

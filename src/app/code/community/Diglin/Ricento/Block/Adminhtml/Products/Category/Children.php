@@ -16,9 +16,12 @@
  * @method int getLevel() getLevel()
  * @method int getCategoryId() getCategoryId()
  * @method int getSelectedCategoryId() getSelectedCategoryId()
+ * @method array getSuggestedCategoriesId()
+ *
  * @method Diglin_Ricento_Block_Adminhtml_Products_Category_Children setLevel() setLevel(int $level)
  * @method Diglin_Ricento_Block_Adminhtml_Products_Category_Children setCategoryId() setCategoryId(int $categoryId)
  * @method Diglin_Ricento_Block_Adminhtml_Products_Category_Children setSelectedCategoryId() setSelectedCategoryId(int $categoryId)
+ * @method Diglin_Ricento_Block_Adminhtml_Products_Category_Mapping_Tree setSuggestedCategoriesId(array $suggestedCategoriesId)
  */
 class Diglin_Ricento_Block_Adminhtml_Products_Category_Children extends Mage_Adminhtml_Block_Template
 {
@@ -33,7 +36,6 @@ class Diglin_Ricento_Block_Adminhtml_Products_Category_Children extends Mage_Adm
     {
         /* @var $mapping Diglin_Ricento_Model_Products_Category_Mapping */
         $mapping = Mage::getModel('diglin_ricento/products_category_mapping');
-
         return $mapping->getCategories($this->getCategoryId());
     }
 

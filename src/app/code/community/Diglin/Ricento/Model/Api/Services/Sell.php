@@ -19,8 +19,6 @@ use Diglin\Ricardo\Exceptions\ExceptionAbstract;
 use Diglin\Ricardo\Exceptions\GeneralException;
 use Diglin\Ricardo\Enums\GeneralErrors;
 
-
-
 /**
  * Class Diglin_Ricento_Model_Api_Services_Sell
  */

@@ -126,7 +126,9 @@
         <update handle="overlay_popup" />
         <remove name="footer" />
         <reference name="content">
-            <block type="diglin_ricento/adminhtml_products_category_mapping" name="category_mapping" template="ricento/products/category/mapping.phtml"/>
+            <block type="diglin_ricento/adminhtml_products_category_mapping" name="category_mapping">
+                <block type="diglin_ricento/adminhtml_products_category_mapping_tree" name="category_tree" as="category_tree" />
+            </block>
         </reference>
     </ricento_products_category_mapping>
 

@@ -31,7 +31,7 @@ class Diglin_Ricento_Block_Adminhtml_Log extends Mage_Adminhtml_Block_Widget_Con
 
         $this->addButton('show_listing', array(
             'label' => $this->__('Show Products Listing'),
-            'onclick' => 'setLocation(\''.$this->getUrl('*/products_listing/index').'\')',
+            'onclick' => 'setLocation(\''.$this->getUrl('*/products_listing/index') .'\')',
         ));
     }
 

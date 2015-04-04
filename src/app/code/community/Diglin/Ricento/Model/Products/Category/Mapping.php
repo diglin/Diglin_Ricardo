@@ -127,13 +127,18 @@ class Diglin_Ricento_Model_Products_Category_Mapping extends Varien_Object
      * Add category to index and tree
      *
      * @param Diglin_Ricento_Model_Products_Category $category
+     * @return $this
      */
     protected function _addCategoryToIndex(Diglin_Ricento_Model_Products_Category $category)
     {
         $this->_categoryIndex[$category->getId()] = $category;
         if ((int) $category->getLevel() > 0) {
-            $this->_categoryIndex[$category->getParentId()]->addChild($category);
+            $parentCategory = $this->_categoryIndex[$category->getParentId()];
+            $path = ($parentCategory->getPath()) ? $parentCategory->getPath() . '/' . $parentCategory->getCategoryId() : $parentCategory->getCategoryId();
+            $category->setPath($path . '/' . $category->getCategoryId());
+            $parentCategory->addChild($category);
         }
+        return $this;
     }
 
     /**

@@ -646,6 +646,68 @@ Ricento.CategoryMappper.prototype = {
         Ricento.categoryMappingTargetInput.value = formSerialized['ricardo_category_id'];
         Ricento.categoryMappingTargetTitle.innerHTML = formSerialized['ricardo_category_selected_title'];
         Ricento.closePopup();
+    },
+    initAutocomplete : function(url, destinationElement, defaultText){
+
+        var suggest = $('ricardo_categories_suggest');
+        var clearTimeout = 0;
+        var delay = 1000;
+
+        Event.observe(suggest, 'click', function () {
+            if (defaultText == suggest.value) {
+                suggest.value = '';
+            }
+        });
+
+        Event.observe(suggest, 'keydown', function () {
+            if (suggest.value.length >= 2 && !clearTimeout) {
+                clearTimeout = setTimeout(function(){
+                    new Ajax.Request(
+                        url,
+                        {
+                            method: 'get',
+                            parameters: {sentence: $F('ricardo_categories_suggest')},
+                            onComplete: function (transport) {
+                                if (!transport.responseText.isJSON()) {
+                                    return;
+                                }
+
+                                var json = transport.responseText.evalJSON();
+                                //var suggestions = '';
+
+                                Element.hide('loading-mask');
+                                clearTimeout = 0;
+
+                                if (json.levels >= 5) {
+                                    $('ricardo_categories').addClassName('ricardo_categories_resized');
+                                }
+
+                                if (!json.error) {
+                                    $('messages').innerHTML = '';
+                                    $('category-tree').innerHTML = json.content;
+                                    $('ricardo_category_selected_title').value = json.category_id;
+
+                                    // To trigger event and reload some behavior after
+                                    categoryMapper = new Ricento.CategoryMappper({
+                                        wrapperElement : 'ricardo_categories',
+                                        loadChildrenUrl : json.children_url
+                                    });
+
+                                    //if (json.other_suggestions.length > 0) {
+                                    //    json.other_suggestions.each(function(suggestion){
+                                    //        suggestions += '<button type="button" class="button suggestion" onclick="alert(\''+ suggestion['CategoryId'] +'\')"><span><span>'+ suggestion['CategoryName'] +'</span></span></button>';
+                                    //    });
+                                    //}
+                                } else {
+                                    $('messages').innerHTML = json.error;
+                                }
+                                //$('other-suggestions').innerHTML = suggestions;
+                            }
+                        }
+                    )
+                }, delay);
+            }
+        });
     }
 };
 Ricento.GeneralForm = Class.create();
