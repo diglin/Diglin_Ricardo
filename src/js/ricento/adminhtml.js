@@ -700,6 +700,9 @@ Ricento.CategoryMappper.prototype = {
                                     //}
                                 } else {
                                     $('messages').innerHTML = json.error;
+                                    $('ricardo_categories').select('li').each(function(item) {
+                                        item.removeClassName('suggested');
+                                    });
                                 }
                                 //$('other-suggestions').innerHTML = suggestions;
                             }

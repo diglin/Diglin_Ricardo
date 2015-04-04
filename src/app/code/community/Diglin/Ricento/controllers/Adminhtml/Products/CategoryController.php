@@ -20,18 +20,26 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
 {
     public function mappingAction()
     {
+        $suggestedCategoriesId = $this->_getSession()->getData('suggested_categories');
+
         $this->loadLayout();
         $this->getLayout()->getBlock('category_tree')
-            ->setCategoryId($this->getRequest()->getParam('id', 1));
+            ->setCategoryId($this->getRequest()->getParam('id', 1))
+            ->setSuggestedCategoriesId($suggestedCategoriesId);
+
         $this->renderLayout();
     }
 
     public function childrenAction()
     {
+        $suggestedCategoriesId = $this->_getSession()->getData('suggested_categories');
+
         $this->loadLayout();
         $this->getLayout()->getBlock('category_children')
             ->setCategoryId($this->getRequest()->getParam('id', 1))
-            ->setLevel($this->getRequest()->getParam('level', 0));
+            ->setLevel($this->getRequest()->getParam('level', 0))
+            ->setSuggestedCategoriesId($suggestedCategoriesId);
+
         $this->renderLayout();
     }
 
@@ -48,6 +56,7 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
 
         $categories = array();
         $response = new Varien_Object();
+        $suggestedCategoriesId = array();
 
         try {
             $searchService = Mage::getSingleton('diglin_ricento/api_services_search');
@@ -66,7 +75,6 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
             $mapping = Mage::getModel('diglin_ricento/products_category_mapping');
             $categoryId = $categories[0]['CategoryId'];
 
-            $suggestedCategoriesId = array();
             foreach ($categories as $category) {
                 $suggestedCategoriesId = array_merge($suggestedCategoriesId, explode('/', $mapping->getCategory($category['CategoryId'])->getPath()));
             }
@@ -85,6 +93,8 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
                 ->setLevels($block->getLevels()) // must be after $block->toHtml()
                 ->setChildrenUrl($this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')));
         }
+
+        $this->_getSession()->setData('suggested_categories', $suggestedCategoriesId);
 
         $this->getResponse()->setHeader('Content-Type', 'application/json');
         $this->getResponse()->setBody($response->toJson());
