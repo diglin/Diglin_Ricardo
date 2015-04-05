@@ -20,7 +20,7 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
 {
     public function mappingAction()
     {
-        $suggestedCategoriesId = $this->_getSession()->getData('suggested_categories');
+        $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
 
         $this->loadLayout();
         $this->getLayout()->getBlock('category_tree')
@@ -32,7 +32,7 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
 
     public function childrenAction()
     {
-        $suggestedCategoriesId = $this->_getSession()->getData('suggested_categories');
+        $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
 
         $this->loadLayout();
         $this->getLayout()->getBlock('category_children')
