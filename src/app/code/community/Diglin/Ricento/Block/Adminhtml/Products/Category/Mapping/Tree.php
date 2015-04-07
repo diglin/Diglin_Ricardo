@@ -43,9 +43,10 @@ class Diglin_Ricento_Block_Adminhtml_Products_Category_Mapping_Tree extends Mage
             $category = $mapping->getCategory($this->getCategoryId());
 
             if ($this->getParentBlock()) {
-                $this->getParentBlock()->setLevels($category ? $category->getLevel() : 1);
+                $this->getParentBlock()->setLevels(($category ? $category->getLevel() : 1));
             }
-            $category ? $this->setLevels($category->getLevel()) : 1;
+
+            $this->setLevels(($category ? $category->getLevel() : 1));
 
             while ($category && $category->getParentId() != Diglin_Ricento_Model_Products_Category_Mapping::ROOT_CATEGORY_ID) {
                 $this->getChild('sublevel')->insert(

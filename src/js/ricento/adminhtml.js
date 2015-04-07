@@ -182,6 +182,7 @@ Ricento.progressPopup = function(url) {
         }
     });
 };
+
 Ricento.confirmationPopup = function(url) {
     if ($('ricento_popup') && typeof(Windows) != 'undefined') {
         Windows.focus('ricento_popup');
@@ -189,11 +190,10 @@ Ricento.confirmationPopup = function(url) {
     }
 
     var parameters = $('edit_form').serialize(true);
-
     Dialog.info({url:url, options: {parameters: parameters}}, {
         closable:true,
         resizable:true,
-        maximizable: true,
+        maximizable:true,
         draggable:true,
         className:'magento',
         windowClassName:'confirmation-popup-window',
@@ -212,6 +212,7 @@ Ricento.confirmationPopup = function(url) {
         }
     });
 };
+
 Ricento.closePopup = function() {
     Windows.close('ricento_popup');
 };

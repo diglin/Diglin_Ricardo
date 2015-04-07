@@ -21,10 +21,15 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
     public function mappingAction()
     {
         $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
+        $categoryId = (int) $this->getRequest()->getParam('id', 1);
 
         $this->loadLayout();
+
+        $this->getLayout()->getBlock('category_mapping')
+            ->setCategoryId($categoryId);
+
         $this->getLayout()->getBlock('category_tree')
-            ->setCategoryId($this->getRequest()->getParam('id', 1))
+            ->setCategoryId($categoryId)
             ->setSuggestedCategoriesId($suggestedCategoriesId);
 
         $this->renderLayout();
@@ -33,10 +38,11 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
     public function childrenAction()
     {
         $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
+        $categoryId = (int) $this->getRequest()->getParam('id', 1);
 
         $this->loadLayout();
         $this->getLayout()->getBlock('category_children')
-            ->setCategoryId($this->getRequest()->getParam('id', 1))
+            ->setCategoryId($categoryId)
             ->setLevel($this->getRequest()->getParam('level', 0))
             ->setSuggestedCategoriesId($suggestedCategoriesId);
 
@@ -63,9 +69,9 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
             $searchService->setCanUseCache(false);
             $categories = $searchService->getCategoryBestMatch($categoryBestMatchParameter);
         } catch (SearchException $e) {
-            $errorMessage = '<li class="error-msg">';
+            $errorMessage = '<div class="error-msg">';
             $errorMessage .= SearchErrors::getLabel($e->getCode());
-            $errorMessage .= '</li>';
+            $errorMessage .= '</div>';
 
             $response->setError($errorMessage);
         }

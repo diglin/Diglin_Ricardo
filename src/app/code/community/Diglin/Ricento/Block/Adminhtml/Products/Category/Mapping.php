@@ -31,7 +31,13 @@ class Diglin_Ricento_Block_Adminhtml_Products_Category_Mapping extends Mage_Admi
      */
     public function shouldResize()
     {
-        return $this->getLevels() >= 5;
+        /* @var $mapping Diglin_Ricento_Model_Products_Category_Mapping */
+        $mapping = Mage::getModel('diglin_ricento/products_category_mapping');
+        $category = $mapping->getCategory($this->getCategoryId());
+
+        $this->setLevels(($category ? $category->getLevel() : 1));
+
+        return ($this->getLevels() >= 5);
     }
 
     /**

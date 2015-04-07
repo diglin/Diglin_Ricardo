@@ -557,52 +557,57 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
      */
     public function confirmationAction()
     {
+        $error = false;
+
         $listing = $this->_initListing();
         if (!$listing) {
             $this->_getSession()->addError($this->__('Products Listing not found.'));
-            $this->_redirect('*/*/edit');
-            return;
+            $error = true;
         }
 
         if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
-            $this->_getSession()->addError($this->__('Product Listing not saved!'));
-            $this->_redirect('*/*/edit');
-            return;
+            $error = true;
         }
 
         $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
 
         try {
-            $articleDetails = array();
-            $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-            $itemsCollection
-                ->addFieldToFilter('products_listing_id', $listing->getId())
-                ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
+            if (!$error) {
+                $articleDetails = array();
+                $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+                $itemsCollection
+                    ->addFieldToFilter('products_listing_id', $listing->getId())
+                    ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
 
-            /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
-            foreach ($itemsCollection->getItems() as $item) {
-                if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-                    $articleDetails[] = $item->getArticleFeeDetails();
+                /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
+                foreach ($itemsCollection->getItems() as $item) {
+                    if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+                        $articleDetails[] = $item->getArticleFeeDetails();
+                    }
+                }
+
+                $sell = Mage::getModel('diglin_ricento/api_services_sell');
+                $fees = $sell->getArticlesFee($articleDetails);
+
+                if ($fees) {
+                    $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
+                    echo $block->toHtml();
+                    return;
+                } else {
+                    $this->_getSession()->addError($this->__('Sorry, no product found for fees calculation.'));
+                    $error = true;
                 }
             }
 
-            $sell = Mage::getModel('diglin_ricento/api_services_sell');
-            $fees = $sell->getArticlesFee($articleDetails);
-
-            if ($fees) {
-                $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
-                echo $block->toHtml();
-                return;
-            } else {
-                $this->_getSession()->addError($this->__('Nothing found'));
-                $this->_redirect('*/*/edit');
+            if ($error) {
+                $this->_getSession()->addNotice('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo');
+                $this->_initLayoutMessages('adminhtml/session');
+                $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
                 return;
             }
-
         } catch (Exception $e) {
             Mage::logException($e);
-            $this->_getSession()->addError($e->__toString());
-            $this->_redirect('*/*/edit');
+            $this->getResponse()->setBody($e->__toString());
             return;
         }
     }

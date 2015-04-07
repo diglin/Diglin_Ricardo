@@ -90,11 +90,11 @@ input[type="radio"] {
 
 /********** Category Mapping views **********/
 
-#ricento_popup_content #messages li {
-    line-height: 25px;
-    list-style: outside none none;
-    padding: 5px;
-    text-indent: 30px;
+#ricento_popup_content .error-msg {
+    width: 100%;
+    text-indent: 40px;
+    line-height: 36px;
+    margin-bottom: 10px;
 }
 
 #ricardo_categories {}
