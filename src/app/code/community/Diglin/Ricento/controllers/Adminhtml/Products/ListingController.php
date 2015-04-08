@@ -600,7 +600,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             }
 
             if ($error) {
-                $this->_getSession()->addNotice('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo');
+                $this->_getSession()->addNotice('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo.');
                 $this->_initLayoutMessages('adminhtml/session');
                 $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
                 return;

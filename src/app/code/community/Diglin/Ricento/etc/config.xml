@@ -27,13 +27,15 @@
         </system>
 
         <ricento>
+            <listing>
+                <merge_descriptions>0</merge_descriptions>
+            </listing>
             <global>
                 <merge_order>1</merge_order>
                 <decrease_inventory>0</decrease_inventory>
                 <shipping_calculation>cumulative</shipping_calculation>
                 <email_account_creation>0</email_account_creation>
                 <email_order_creation>0</email_order_creation>
-                <merge_descriptions>0</merge_descriptions>
             </global>
             <api_config>
                 <enabled>1</enabled>

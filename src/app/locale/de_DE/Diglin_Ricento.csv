@@ -10,7 +10,7 @@
 "ricardo.ch Shipping","ricardo.ch Versandarten"
 "Admin Email Notification","Admin Email Benachrichtigung"
 "Private message","Private Nachricht"
-"Global Configuration","Globale Konfiguration"
+"Order Configuration","Bestellung Konfiguration"
 "Merge Order","Bestellungen zusammenfassen"
 "If a customer order several products in a period of 30 minutes, do you want to merge the ricardo transaction in one order?","Wenn ein Kunde mehrere Produkte innerhalb von 30 Minuten bestellt, möchten Sie, dass die Bestellungen zusammengefasst werden?"
 "Shipping Calculation","Versandkosten-Kalkulation"
@@ -667,3 +667,8 @@
 "Only 10 pictures maximum allowed.","Only 10 pictures maximum allowed."
 "The starting date must start one hour in future. It will be automatically updated to list on ricardo.","The starting date must start one hour in future. It will be automatically updated to list on ricardo."
 "Enter product name: e.g. iphone","Enter product name: e.g. iphone"
+
+"Sorry, no product found for fees calculation.","Sorry, no product found for fees calculation."
+"Please, close this popup window and fix the errors before to be allowed to list your products on ricardo.","Please, close this popup window and fix the errors before to be allowed to list your products on ricardo."
+"Product Listing Configuration","Product Listing Configuration"
+"Currency Conversion","Currency Conversion"

@@ -15,7 +15,6 @@
 class Diglin_Ricento_Model_Cron
 {
     protected $_syncProcess = array(
-        //Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST, //** Check list before to sync to ricardo.ch - @deprecated move to Diglin_Ricento_Adminhtml_Products_ListingController to start quickly the check
         Diglin_Ricento_Model_Sync_Job::TYPE_LIST, //** List to ricardo.ch
         Diglin_Ricento_Model_Sync_Job::TYPE_STOP, //** Stop the list on ricardo.ch if needed
     );
@@ -133,6 +132,7 @@ class Diglin_Ricento_Model_Cron
                 'shop_url' => Mage::helper('adminhtml')->getUrl('adminhtml')
             ));
 
+            /* @var $token Diglin_Ricento_Model_Api_Token */
             $token = Mage::getModel('diglin_ricento/api_token')
                 ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
 
