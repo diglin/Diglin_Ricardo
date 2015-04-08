@@ -786,20 +786,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         $productId = ($this->getProductListingItem()->getParentProductId()) ? $this->getProductListingItem()->getParentProductId() : $this->getProductId();
+        $price = $this->_getPrice($field, $productId, $this->_defaultStoreId);
 
-        $readConnection = $this->_getReadConnection();
-        $select = $readConnection
-            ->select()
-            ->from(array('cped'=> $this->_getCoreResource()->getTableName('catalog_product_entity_decimal')), array($field => 'value'))
-            ->join(
-                array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
-                '`cped`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
-                array()
-            )
-            ->where('`cped`.`entity_id` = ?', (int) $productId)
-            ->where('`cped`.`store_id` = ?', $this->_defaultStoreId);
-
-        $price = $readConnection->fetchOne($select);
+        if ($price === false) {
+            $price = $this->_getPrice($field, $productId);
+        }
 
         if ($field == 'special_price' && empty($price)) {
             $price = $this->_getProductBasePrice('price', false);
@@ -828,6 +819,29 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         return $price;
+    }
+
+    /**
+     * @param string $field
+     * @param int $productId
+     * @param int $storeId
+     * @return string|bool
+     */
+    private function _getPrice($field, $productId, $storeId = Mage_Core_Model_App::ADMIN_STORE_ID)
+    {
+        $readConnection = $this->_getReadConnection();
+        $select = $readConnection
+            ->select()
+            ->from(array('cped'=> $this->_getCoreResource()->getTableName('catalog_product_entity_decimal')), array($field => 'value'))
+            ->join(
+                array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
+                '`cped`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
+                array()
+            )
+            ->where('`cped`.`entity_id` = ?', (int) $productId)
+            ->where('`cped`.`store_id` = ?', (int) $storeId);
+
+        return $readConnection->fetchOne($select);
     }
 
     /**
