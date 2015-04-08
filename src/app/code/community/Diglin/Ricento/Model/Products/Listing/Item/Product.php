@@ -600,12 +600,15 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getQty()
     {
-        if ($this->isConfigurableType()
-        || $this->isGroupedType()) {
+        if ($this->isConfigurableType()) {
             return false;
         }
 
         $stockItem = $this->getStockItem();
+
+        if ($this->isGroupedType() && $stockItem->getIsInStock()) {
+            return 1;
+        }
 
         if ($stockItem->getIsQtyDecimal()) {
             return false;
@@ -908,7 +911,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 $priceInclTax = Mage::helper('tax')->getPrice($associatedProduct, $associatedProduct->getPrice(), true, null, null, null, $this->_defaultStoreId);
 
                 // Set default qty = 1 when qty = 0
-                $totalPrice += (((!$associatedProduct->getQty()) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
+                $totalPrice += ((($associatedProduct->getQty() > 0) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
             }
         }
 
