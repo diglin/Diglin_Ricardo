@@ -65,7 +65,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_General
         foreach ($languages as $lang) {
             $title = Mage::helper('catalog')->__('Store View for %s', ucwords(Mage::app()->getLocale()->getTranslation($lang, 'language')));
             $fieldsetLang->addField('lang_store_id_'. $lang, 'select', array(
-                'name'      => 'product_listing[lang_store_id_]' . $lang,
+                'name'      => 'product_listing[lang_store_id_' . $lang . ']',
                 'label'     => $title,
                 'title'     => $title,
                 'class'     => 'lang_store_id',
