@@ -51,6 +51,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Add
         if ($this->getListing()->getId()) {
             $this->setDefaultFilter(array('in_category'=>1));
         }
+
         /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
         $collection = Mage::getResourceModel('catalog/product_collection')
             ->addAttributeToSelect('name')

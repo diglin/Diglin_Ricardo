@@ -24,7 +24,7 @@ class Diglin_Ricento_Model_Config_Source_Sales_Promotion extends Diglin_Ricento_
     public function toOptionHash()
     {
         if (empty($this->_promotions) && Mage::helper('diglin_ricento')->isConfigured()) {
-            $promotions = (array) Mage::getSingleton('diglin_ricento/api_services_system')->getPromotions(
+            $promotions = (array)Mage::getSingleton('diglin_ricento/api_services_system')->getPromotions(
                 Mage::helper('diglin_ricento')->getJsonDate(), \Diglin\Ricardo\Enums\System\CategoryArticleType::ALL, 1, 1
             );
 
@@ -34,7 +34,7 @@ class Diglin_Ricento_Model_Config_Source_Sales_Promotion extends Diglin_Ricento_
 
             $websiteId = 0;
             // Listing exists in a context of products listing edition
-            $listing =  Mage::registry('products_listing');
+            $listing = Mage::registry('products_listing');
             if ($listing->getWebsiteId()) {
                 $websiteId = $listing->getWebsiteId();
             }
@@ -45,7 +45,9 @@ class Diglin_Ricento_Model_Config_Source_Sales_Promotion extends Diglin_Ricento_
 
             foreach ($promotions as $promotion) {
                 if ($promotion['GroupId'] == \Diglin\Ricardo\Enums\Article\PromotionCode::PREMIUMCATEGORY) {
-                    $this->_promotions[$promotion['PromotionId']] = $helper->__($promotion['PromotionLabel']) . ' - ' . $helper->formatPrice($promotion['PromotionFee'], $websiteId);
+                    $this->_promotions[$promotion['PromotionId']] = $helper->__($promotion['PromotionLabel'])
+                        . ' - '
+                        . implode(' / ', $helper->formatDoubleCurrency($promotion['PromotionFee'], $websiteId, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
                 }
             }
         }

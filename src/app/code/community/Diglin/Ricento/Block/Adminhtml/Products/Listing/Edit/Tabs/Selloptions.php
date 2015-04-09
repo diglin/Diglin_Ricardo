@@ -553,6 +553,6 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             }
         }
 
-        return $priceHelper->formatPrice($price, $this->_getListing()->getWebsiteId());
+        return implode(' / ', $priceHelper->formatDoubleCurrency($price, $this->_getListing()->getWebsiteId(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
     }
 }
