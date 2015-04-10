@@ -97,6 +97,11 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
     protected $_totalError = 0;
 
     /**
+     * @var null | Mage_Directory_Model_Currency
+     */
+    protected $_currency = null;
+
+    /**
      * @return $this
      */
     public function proceed()
@@ -500,5 +505,17 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         return Mage::getSingleton('diglin_ricento/api_services_selleraccount')
             ->setCanUseCache(false)
             ->setCurrentWebsite($this->_getListing()->getWebsiteId());
+    }
+
+    /**
+     * @return Mage_Directory_Model_Currency
+     */
+    protected function _getCurrency()
+    {
+        if (!$this->_currency) {
+            $this->_currency = Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+        }
+
+        return $this->_currency;
     }
 }

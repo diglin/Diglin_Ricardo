@@ -461,14 +461,18 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     /**
      * @return float
      */
-    public function getPrice()
+    public function getPrice($convert = false)
     {
-        //@todo do the conversion from a non supported currency to the supported currency - at the moment we do not support this feature
-
         $salesOptions = $this->getProductListingItem()->getSalesOptions();
         $price = $this->_getProductPrice($salesOptions->getPriceSourceAttributeCode());
 
-        return Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+        $price = Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+
+        if ($convert) {
+            $price = $this->_convert($price);
+        }
+
+        return $price;
     }
 
     /**
@@ -600,12 +604,15 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getQty()
     {
-        if ($this->isConfigurableType()
-        || $this->isGroupedType()) {
+        if ($this->isConfigurableType()) {
             return false;
         }
 
         $stockItem = $this->getStockItem();
+
+        if ($this->isGroupedType() && $stockItem->getIsInStock()) {
+            return 1;
+        }
 
         if ($stockItem->getIsQtyDecimal()) {
             return false;
@@ -786,20 +793,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         $productId = ($this->getProductListingItem()->getParentProductId()) ? $this->getProductListingItem()->getParentProductId() : $this->getProductId();
+        $price = $this->_getPrice($field, $productId, $this->_defaultStoreId);
 
-        $readConnection = $this->_getReadConnection();
-        $select = $readConnection
-            ->select()
-            ->from(array('cped'=> $this->_getCoreResource()->getTableName('catalog_product_entity_decimal')), array($field => 'value'))
-            ->join(
-                array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
-                '`cped`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
-                array()
-            )
-            ->where('`cped`.`entity_id` = ?', (int) $productId)
-            ->where('`cped`.`store_id` = ?', $this->_defaultStoreId);
-
-        $price = $readConnection->fetchOne($select);
+        if ($price === false) {
+            $price = $this->_getPrice($field, $productId);
+        }
 
         if ($field == 'special_price' && empty($price)) {
             $price = $this->_getProductBasePrice('price', false);
@@ -828,6 +826,29 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         return $price;
+    }
+
+    /**
+     * @param string $field
+     * @param int $productId
+     * @param int $storeId
+     * @return string|bool
+     */
+    private function _getPrice($field, $productId, $storeId = Mage_Core_Model_App::ADMIN_STORE_ID)
+    {
+        $readConnection = $this->_getReadConnection();
+        $select = $readConnection
+            ->select()
+            ->from(array('cped'=> $this->_getCoreResource()->getTableName('catalog_product_entity_decimal')), array($field => 'value'))
+            ->join(
+                array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
+                '`cped`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
+                array()
+            )
+            ->where('`cped`.`entity_id` = ?', (int) $productId)
+            ->where('`cped`.`store_id` = ?', (int) $storeId);
+
+        return $readConnection->fetchOne($select);
     }
 
     /**
@@ -894,7 +915,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 $priceInclTax = Mage::helper('tax')->getPrice($associatedProduct, $associatedProduct->getPrice(), true, null, null, null, $this->_defaultStoreId);
 
                 // Set default qty = 1 when qty = 0
-                $totalPrice += (((!$associatedProduct->getQty()) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
+                $totalPrice += ((($associatedProduct->getQty() > 0) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
             }
         }
 
@@ -995,6 +1016,24 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         return ($productPrice + $finalMinPrice);
+    }
+
+    /**
+     * @param $price
+     * @return float|null
+     * @throws Mage_Core_Exception
+     */
+    protected function _convert($price)
+    {
+        $websiteId = $this->getProductListingItem()->getProductsListing()->getWebsiteId();
+        $baseCurrency = Mage::app()->getWebsite($websiteId)->getBaseCurrencyCode();
+
+        if ($baseCurrency != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
+            $priceHelper = Mage::helper('diglin_ricento/price');
+            $price = $priceHelper->convert($price, $baseCurrency, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $websiteId);
+        }
+
+        return $price;
     }
 
     /**

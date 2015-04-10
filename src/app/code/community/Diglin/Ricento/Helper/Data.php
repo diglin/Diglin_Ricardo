@@ -51,7 +51,11 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_ORDER_CREATION_EMAIL          = 'ricento/global/email_order_creation';
     const CFG_MERGE_ORDER                   = 'ricento/global/merge_order';
     const CFG_DECREASE_INVENTORY            = 'ricento/global/decrease_inventory';
-    const CFG_MERGE_DESCRIPTIONS            = 'ricento/global/merge_descriptions';
+
+    /**
+     * Listing config
+     */
+    const CFG_MERGE_DESCRIPTIONS            = 'ricento/listing/merge_descriptions';
 
     /**
      * Cleanup Job config
@@ -87,7 +91,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Payment Config
      */
-    const PAYMENT_CURRENCY          = 'payment/ricento/currency';
     const PAYMENT_BANK_INFO         = 'payment/ricento/bank_transfer_instructions';
 
     /**

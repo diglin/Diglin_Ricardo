@@ -62,16 +62,16 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
 
         $item->setLoadFallbackOptions(true);
 
-        $this->_validateProductStores($item, $stores);
-        $this->_validateCustomOptions($item);
-        $this->_validateStockManagement($item);
-        $this->_validateCurrency($item);
-        $this->_validateCategory($item);
-        $this->_validatePaymentShippingRules($item);
-        $this->_validateBuyNow($item);
-        $this->_validateStartingDate($item);
-        $this->_validateEndingDate($item);
-        $this->_validatePicture($item);
+        $this->validateProductStores($item, $stores);
+        $this->validateCustomOptions($item);
+        $this->validateStockManagement($item);
+        $this->validateCurrency($item);
+        $this->validateCategory($item);
+        $this->validatePaymentShippingRules($item);
+        $this->validateBuyNow($item);
+        $this->validateStartingDate($item);
+        $this->validateEndingDate($item);
+        $this->validatePicture($item);
 
         if (count($this->_errors)) {
             return false;
@@ -84,7 +84,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @param $stores
      */
-    private function _validateProductStores(Diglin_Ricento_Model_Products_Listing_Item $item, array $stores)
+    public function validateProductStores(Diglin_Ricento_Model_Products_Listing_Item $item, array $stores)
     {
         foreach ($stores as $store) {
 
@@ -126,7 +126,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateCustomOptions(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateCustomOptions(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         if ($item->getProduct()->getHasOptions()) {
             // warning - no option will be send to ricardo.ch
@@ -139,7 +139,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateStockManagement(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateStockManagement(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         // Validate Inventory - In Stock or not? Enough Qty or not?
         $salesOptionsStockManagement = $item->getSalesOptions()->getStockManagement();
@@ -170,12 +170,17 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateCurrency(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateCurrency(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $currencyCode = Mage::app()->getWebsite($item->getProductsListing()->getWebsiteId())->getBaseCurrencyCode();
         if ($currencyCode != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
-            // Warning - Ricardo supports only CHF currency
-            $this->_warnings[] = $this->getHelper()->__('Only %s currency is supported. No conversion will be done.', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+
+            $priceHelper = Mage::helper('diglin_ricento/price');
+            $rate = $priceHelper->getCurrency($currencyCode)->getRate(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+
+            if (empty($rate)) {
+                $this->_errors[] = $this->getHelper()->__('Currency Rate not defined for CHF currency. Please configure your currency rate before to proceed.');
+            }
         }
         return;
     }
@@ -183,7 +188,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateCategory(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateCategory(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $category = $item->getCategory();
         if (!$category) {
@@ -197,7 +202,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validatePaymentShippingRules(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validatePaymentShippingRules(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $methodValidator = new Diglin_Ricento_Model_Validate_Rules_Methods();
         $rules = $item->getShippingPaymentRule();
@@ -219,7 +224,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
      *
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateBuyNow(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateBuyNow(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $salesOptions = $item->getSalesOptions();
         $productPrice = $item->getProductPrice();
@@ -260,7 +265,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateStartingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateStartingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         if ($item->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
             $startDate = $item->getProductsListing()->getSalesOptions()->getScheduleDateStart();
@@ -280,7 +285,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     /**
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validateEndingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validateEndingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $period = (int) $item->getSalesOptions()->getSchedulePeriodDays();
         $betweenValidator  = new Zend_Validate_Between(
@@ -303,7 +308,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
      *
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      */
-    private function _validatePicture(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function validatePicture(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $assignedImages = $item->getProduct()->getImages();
         if (empty($assignedImages) && ($item->getSalesOptions()->getPromotionSpace() || $item->getSalesOptions()->getPromotionStartPage())) {

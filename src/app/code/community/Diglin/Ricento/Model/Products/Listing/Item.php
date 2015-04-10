@@ -42,7 +42,6 @@ use Diglin\Ricardo\Managers\Sell\Parameter\BaseInsertArticleWithTrackingParamete
  * @method DateTime getUpdatedAt()
  * @method bool   getReload()
  * @method int    getStoreId()
- * @method int    getDefaultStoreId()
  * @method bool   getLoadFallbackOptions()
  * @method Diglin_Ricento_Model_Products_Listing_Item setProductId(int $productId)
  * @method Diglin_Ricento_Model_Products_Listing_Item setType(string $type)
@@ -60,7 +59,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\BaseInsertArticleWithTrackingParamete
  * @method Diglin_Ricento_Model_Products_Listing_Item setUpdatedAt(DateTime $updatedAt)
  * @method Diglin_Ricento_Model_Products_Listing_Item setReload(bool $reload)
  * @method Diglin_Ricento_Model_Products_Listing_Item setStoreId(int $storeId)
- * @method Diglin_Ricento_Model_Products_Listing_Item setDefaultStoreId(int $storeId)
+ * @method Diglin_Ricento_Model_Products_Listing_Item setDefaultStoreId(int $defaultStoreId)
  * @method Diglin_Ricento_Model_Products_Listing_Item setLoadFallbackOptions(bool $loadFallbackOptions)
  */
 class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstract
@@ -97,6 +96,11 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      * @var Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     protected $_itemProduct;
+
+    /**
+     * @var array
+     */
+    protected $_storesLang = array();
 
     /**
      * Products_Listing_Item Constructor
@@ -174,6 +178,15 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         parent::_afterDeleteCommit();
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultStoreId()
+    {
+        $this->_prepareStoresLanguage();
+        return $this->getData('default_store_id');
     }
 
     /**
@@ -327,9 +340,11 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     }
 
     /**
+     * Return the product price in CHF
+     *
      * @return float
      */
-    public function getProductPrice()
+    public function getProductPrice($convert = true)
     {
         $priceOptions = array();
         if ($this->getParentProductId()) {
@@ -340,11 +355,11 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
         }
 
-        // We take the price from default store view and parent product if relevant
+        // We take the price from default store view of the current Product Listing Website and parent product if relevant
         $productPrice = $this->getProduct()
             ->setStoreId($this->getDefaultStoreId())
             ->setPriceOptions($priceOptions)
-            ->getPrice();
+            ->getPrice($convert);
 
         return $productPrice;
     }
@@ -407,33 +422,46 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
     /**
      * Define a list of store IDs for each supported and expected language
-     * Define a default one in case of accept all languages
      *
      * @return array
      */
     protected function _prepareStoresLanguage()
     {
-        // Prepare language and store id for each language
-        $storesLang = array();
-        $defaultLang = null;
-        $publishLanguages = $this->getProductsListing()->getPublishLanguages();
+        if (!$this->_storesLang) {
+            $defaultLang = null;
+            $publishLanguages = $this->getProductsListing()->getPublishLanguages();
 
-        if ($publishLanguages == 'all') {
-            $languages = Mage::helper('diglin_ricento')->getSupportedLang();
-            $defaultLang = $this->getProductsListing()->getDefaultLanguage();
-            foreach ($languages as $language) {
-                $method = 'getLangStoreId' . ucwords($language);
-                $storesLang[$language] = $this->$method();
-                if ($defaultLang == $language) {
-                    $this->setDefaultStoreId($storesLang[$language]);
+            if ($publishLanguages == 'all') {
+                $languages = Mage::helper('diglin_ricento')->getSupportedLang();
+                $defaultLang = $this->getProductsListing()->getDefaultLanguage();
+                foreach ($languages as $language) {
+                    $this->_storesLang[$language] = $this->getLangStoreId($language);
+                    if ($defaultLang == $language) {
+                        $this->setDefaultStoreId($this->_storesLang[$language]);
+                    }
                 }
+            } else {
+                $this->_storesLang[$publishLanguages] = $this->getLangStoreId($publishLanguages);
+                $this->setDefaultStoreId($this->_storesLang[$publishLanguages]);
             }
-        } else {
-            $method = 'getLangStoreId' . ucwords($publishLanguages);
-            $storesLang[$publishLanguages] = $this->$method();
         }
 
-        return $storesLang;
+        return $this->_storesLang;
+    }
+
+    /**
+     * @param string $language
+     * @return int
+     * @throws Mage_Core_Exception
+     */
+    public function getLangStoreId($language)
+    {
+        $method = 'getLangStoreId' . ucwords($language);
+        $storeId = $this->getProductsListing()->$method();
+        if (is_null($storeId)) {
+            $storeId = Mage::app()->getWebsite($this->getProductsListing()->getWebsiteId())->getDefaultStore()->getId();
+        }
+        return (int) $storeId;
     }
 
     /**
@@ -467,6 +495,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             ->setArticleInformation($this->_getArticleInformationParameter())
             ->setIsUpdateArticle(false);
 
+        $this->setLoadFallbackOptions(false);
+
         return $insertArticleParameter;
     }
 
@@ -499,6 +529,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             ->setArticleInformation($this->_getArticleInformationParameter())
             ->setIsUpdateArticle(false)
             ->setCorrelationKey(Helper::guid());
+
+        $this->setLoadFallbackOptions(false);
 
         return $baseInsert;
     }
@@ -790,6 +822,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         if ($salesType == Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW || $this->getSalesOptions()->getSalesAuctionDirectBuy()) {
             $articleFeeParameter->setBuyNowPrice($this->getProductPrice());
         }
+
+        $this->setLoadFallbackOptions(false);
 
         return $articleFeeParameter;
     }

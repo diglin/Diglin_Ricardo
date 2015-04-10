@@ -146,10 +146,11 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
         $this->addColumn('price', array(
             'header'        => Mage::helper('diglin_ricento')->__('Price Catalog'),
             'type'          => 'price',
-            'currency_code' => $store->getBaseCurrency()->getCode(),
+//            'currency_code' => $store->getBaseCurrency()->getCode(),
             'index'         => 'price',
             'sortable'      => false,
             'filter'        => false,
+            'renderer'    => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_price')
         ));
         $this->addColumn('type', array(
             'header'    => Mage::helper('catalog')->__('Type'),

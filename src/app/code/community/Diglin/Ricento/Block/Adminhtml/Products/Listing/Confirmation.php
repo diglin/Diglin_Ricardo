@@ -16,10 +16,19 @@ use Diglin\Ricardo\Enums\Article\PromotionCode;
  */
 class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation extends Mage_Core_Block_Template
 {
+    /**
+     * @var string
+     */
     protected $_template = 'ricento/products/listing/confirmation.phtml';
 
-    protected $_totalFee    = 0;
+    /**
+     * @var int
+     */
+    protected $_totalFee = 0;
 
+    /**
+     * @var array
+     */
     protected $_listingFees = array('total_price' => 0, 'qty' => 0);
 
     /**
@@ -38,7 +47,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation extends Mage_
                 foreach ($fee['PromotionFees'] as $promotionFees) {
                     if ($promotionFees['PromotionFee'] > 0) {
                         $preparedArticleFees[$promotionFees['PromotionId']]['label'] = $this->__(PromotionCode::getLabel($promotionFees['PromotionId']));
-                        @$preparedArticleFees[$promotionFees['PromotionId']]['total_price'] +=  $promotionFees['PromotionFee'];
+                        @$preparedArticleFees[$promotionFees['PromotionId']]['total_price'] += $promotionFees['PromotionFee'];
                         @$preparedArticleFees[$promotionFees['PromotionId']]['qty'] += 1;
                         $preparedArticleFees[$promotionFees['PromotionId']]['unit_price'] = $this->getUnitPrice($preparedArticleFees[$promotionFees['PromotionId']]['total_price'], $preparedArticleFees[$promotionFees['PromotionId']]['qty']);
                     }
@@ -121,11 +130,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation extends Mage_
      */
     public function formatPrice($price)
     {
-        $store = Mage::app()->getStore();
-
-        $price = $store->getBaseCurrency()->convert($price, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
-        $price = $store->formatPrice($price, true);
-
-        return $price;
+        $helperPrice = Mage::helper('diglin_ricento/price');
+        return implode(' / ', $helperPrice->formatDoubleCurrency($price, Mage::registry('products_listing')->getWebsiteId(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
     }
 }

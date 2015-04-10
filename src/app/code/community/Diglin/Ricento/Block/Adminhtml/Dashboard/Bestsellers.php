@@ -59,9 +59,9 @@ class Diglin_Ricento_Block_Adminhtml_Dashboard_Bestsellers extends Mage_Adminhtm
         $this->addColumn('price', array(
             'header'    => $helper->__('Price'),
             'sortable'  => false,
-            'type'      => 'currency',
-            'currency_code' => (string) Mage::getStoreConfig(Mage_Directory_Model_Currency::XML_PATH_CURRENCY_BASE),
-            'index'     => 'product_price'
+            'type'      => 'number',
+            'index'     => 'product_price',
+            'renderer'    => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_dashboard_renderer_price')
         ));
 
         $this->addColumn('qty', array(

@@ -298,7 +298,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Item_Preview extends Mage_
      */
     public function getProductPrice()
     {
-        return $this->_getPrice($this->getProductItem()->getProductPrice());
+        return $this->_getPrice($this->getProductItem()->getProductPrice(false));
     }
 
     /**

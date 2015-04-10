@@ -30,12 +30,23 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             'name' => 'sales_options[entity_id]',
         ));
 
-        $storeCurrency = Mage::getStoreConfig('currency/options/base', Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore());
+        $storeCurrency = Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore()->getBaseCurrencyCode();
         $currencyWarning = '';
         if ($storeCurrency !== Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
-            $currencyWarning = '<ul class="messages"><li class="warning-msg">' .
-                $this->__("The store's base currency is {$storeCurrency}. Only %s is allowed as currency. No currency conversion will be proceed.", Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) .
-                '</li></ul>';
+            $currencyWarning = '<ul class="messages">';
+
+            $rate = Mage::helper('diglin_ricento/price')->getCurrency($storeCurrency)->getRate(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+            if (empty($rate)) {
+                $currencyWarning .= '<li class="error-msg">' . $this->__('Currency Rate not configured') . '</li>';
+            }
+
+            $currencyWarning .= '<li class="warning-msg">'
+                . $this->__('The store\'s base currency is %2$s. Only %1$s is allowed as currency on ricardo.ch. Be aware that your product will be converted into %1$s. Check the documentation for more explanation.',
+                    Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY,
+                    $storeCurrency)
+                . '</li>';
+
+            $currencyWarning .= '</ul>';
         }
 
         /**
@@ -553,6 +564,6 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             }
         }
 
-        return $priceHelper->formatPrice($price, $this->_getListing()->getWebsiteId());
+        return implode(' / ', $priceHelper->formatDoubleCurrency($price, $this->_getListing()->getWebsiteId(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
     }
 }
