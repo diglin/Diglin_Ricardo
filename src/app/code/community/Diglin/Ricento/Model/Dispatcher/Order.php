@@ -151,15 +151,12 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 
     /**
      * @param array $articleIds
-     * @param Diglin_Ricento_Model_Products_Listing_Item $productItem
-     * @return bool
-     * @throws Exception
+     * @return array
      */
-    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null)
+    protected function _getSoldArticlesList(array $articleIds)
     {
         $soldArticlesParameter = new SoldArticlesParameter();
         $delay = (3 * 24 * 60 * 60); // 3 days
-        $soldArticlesReturn = array();
 
         $transactionCollection = Mage::getResourceModel('diglin_ricento/sales_transaction_collection');
         $transactionCollection
@@ -181,9 +178,21 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
 
         $soldArticlesResult = $sellerAccountService->getSoldArticles($soldArticlesParameter);
-        $soldArticles = array_reverse($soldArticlesResult['SoldArticles']);
 
-        foreach ($soldArticles as $soldArticle) {
+        return array_reverse($soldArticlesResult['SoldArticles']);
+    }
+
+    /**
+     * @param array $articleIds
+     * @param Diglin_Ricento_Model_Products_Listing_Item $productItem
+     * @return bool
+     * @throws Exception
+     */
+    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null)
+    {
+        $soldArticlesReturn = array();
+
+        foreach ($this->_getSoldArticlesList($articleIds) as $soldArticle) {
 
             $rawData = $soldArticle;
             $soldArticle = $this->_getHelper()->extractData($soldArticle);
@@ -398,26 +407,26 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     {
         $lang = $this->_getHelper()->getLocalCodeFromRicardoLanguageId($soldArticle->getMainLanguageId());
         $transactionData = array(
-            'bid_id' => $transaction->getBidId(),
-            'website_id' => $this->_getListing()->getWebsiteId(),
-            'customer_id' => $customer->getId(),
-            'address_id' => $address->getId(),
-            'ricardo_customer_id' => $customer->getRicardoId(),
-            'ricardo_article_id' => $soldArticle->getArticleId(),
-            'qty' => $transaction->getBuyerQuantity(),
-            'view_count' => $soldArticle->getViewCount(),
-            'shipping_fee' => $soldArticle->getDeliveryCost(),
-            'shipping_text' => $soldArticle->getDeliveryText(), // @fixme - if bought in FR and the API use the DE key, text will in DE. I have no solution now
-            'shipping_method' => $soldArticle->getDeliveryId(),
-            'shipping_cumulative_fee' => (int)$soldArticle->getIsCumulativeShipping(),
-            'language_id' => $soldArticle->getMainLanguageId(),
-            'payment_methods' => implode(',', $soldArticle->getPaymentMethodIds()->getData()),
-            'shipping_description' => $productItem->getShippingPaymentRule()->getShippingDescription($lang),
-            'payment_description' => $productItem->getShippingPaymentRule()->getPaymentDescription($lang),
-            'total_bid_price' => $soldArticle->getWinningBidPrice(),
-            'product_id' => $productItem->getProductId(),
-            'raw_data' => Mage::helper('core')->jsonEncode($rawData),
-            'sold_at' => $this->_getHelper()->getJsonTimestamp($soldArticle->getEndDate())
+            'bid_id'                    => $transaction->getBidId(),
+            'website_id'                => $this->_getListing()->getWebsiteId(),
+            'customer_id'               => $customer->getId(),
+            'address_id'                => $address->getId(),
+            'ricardo_customer_id'       => $customer->getRicardoId(),
+            'ricardo_article_id'        => $soldArticle->getArticleId(),
+            'qty'                       => $transaction->getBuyerQuantity(),
+            'view_count'                => $soldArticle->getViewCount(),
+            'shipping_fee'              => $soldArticle->getDeliveryCost(),
+            'shipping_text'             => $soldArticle->getDeliveryText(), // @fixme - if bought in FR and the API use the DE key, text will in DE. I have no solution now
+            'shipping_method'           => $soldArticle->getDeliveryId(),
+            'shipping_cumulative_fee'   => (int)$soldArticle->getIsCumulativeShipping(),
+            'language_id'               => $soldArticle->getMainLanguageId(),
+            'payment_methods'           => implode(',', $soldArticle->getPaymentMethodIds()->getData()),
+            'shipping_description'      => $productItem->getShippingPaymentRule()->getShippingDescription($lang),
+            'payment_description'       => $productItem->getShippingPaymentRule()->getPaymentDescription($lang),
+            'total_bid_price'           => $soldArticle->getWinningBidPrice(),
+            'product_id'                => $productItem->getProductId(),
+            'raw_data'                  => Mage::helper('core')->jsonEncode($rawData),
+            'sold_at'                   => $this->_getHelper()->getJsonTimestamp($soldArticle->getEndDate())
         );
 
         $salesTransaction = Mage::getModel('diglin_ricento/sales_transaction')
@@ -428,7 +437,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     }
 
     /**
-     * Create new orders for transactions done more than 30 min in past
+     * Create new orders for transactions done more than 30 min in past (depends on the extension configuration)
      *
      * @return $this
      */
@@ -447,7 +456,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $transactionCollection
             ->getSelect()
             ->where('order_id IS NULL')
-            ->where('UNIX_TIMESTAMP(sold_at) + ( ? * 60) < UNIX_TIMESTAMP(now())', (int) $delay); // 30 or 1 min past
+            ->where('UNIX_TIMESTAMP(sold_at) + ( ? * 60) < UNIX_TIMESTAMP(now())', (int) $delay); // 30 or 0 min past
 
         $inc = 0;
         foreach ($transactionCollection->getItems() as $transactionItem) {
@@ -493,7 +502,6 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $storeId = $shippingTransactionMethod = $shippingMethodFee = $highestShippingFee = 0;
         $shippingText = $shippingDescription = '';
         $paymentMethod = $shippingMethod = Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE;
-        $currency = Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
 
         try {
             /**
@@ -506,7 +514,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 
                 $storeId = $this->_getStoreId($transaction->getWebsiteId());
 
-                Mage::app()->getStore($storeId)->setCurrentCurrency($currency);
+                Mage::app()->getStore($storeId)->setCurrentCurrency($this->_getCurrency());
                 Mage::app()->getLocale()->emulate($storeId);
 
                 /**
@@ -538,7 +546,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     ->setIsRicardo(true)
                     ->setRicardoTransactionId($transaction->getId())
                     ->setShippingCumulativeFee($transaction->getShippingCumulativeFee())
-                    ->setShippingFee($transaction->getShippingFee());
+                    ->setShippingFee($this->_getShippingFee($transaction, $storeId));
 
                 $product = Mage::getModel('catalog/product')
                     ->setStoreId($storeId)
@@ -562,7 +570,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     ->setOriginalCustomPrice($transaction->getTotalBidPrice());
 
                 /**
-                 * 3. Set shipping information, price, etc
+                 * 3. Set shipping information
                  * @todo provide correct language
                  */
                 $shippingText = $transaction->getShippingText();
@@ -580,7 +588,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                  */
                 $quote
                     ->setIsRicardo(1)
-                    ->setForcedCurrency(Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
+                    ->setForcedCurrency($this->_getCurrency());
 
                 $payment = $quote->getPayment();
                 $payment->importData(array(
@@ -777,5 +785,23 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     protected function _getStoreId($websiteId)
     {
         return Mage::app()->getWebsite($websiteId)->getDefaultStore()->getId();
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Sales_Transaction $transaction
+     * @param int|Mage_Core_Model_Store $storeId
+     * @return float|int|null
+     */
+    protected function _getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, $storeId = null)
+    {
+        $currency = $this->_getCurrency();
+        $shippingFee = $transaction->getShippingFee();
+        $baseCurrencyCode = Mage::app()->getStore($storeId)->getBaseCurrencyCode();
+
+        if ($baseCurrencyCode != $currency->getCode()) {
+            $shippingFee = Mage::helper('diglin_ricento/price')->convert($shippingFee, $currency->getCode(), $baseCurrencyCode);
+        }
+
+        return $shippingFee;
     }
 }

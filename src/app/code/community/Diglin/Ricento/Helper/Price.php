@@ -186,7 +186,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
                  */
                 $rate = $this->getCurrency($store->getBaseCurrencyCode())->getRate($from);
                 if ($rate) {
-                    $priceCurrency = $price * (1 / $rate);
+                    $priceCurrency = $price / $rate;
                 } else {
                     throw new Exception(Mage::helper('directory')->__('Undefined rate from "%s-%s".',
                         Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY,
