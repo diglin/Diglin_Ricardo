@@ -461,14 +461,18 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     /**
      * @return float
      */
-    public function getPrice()
+    public function getPrice($convert = false)
     {
-        //@todo do the conversion from a non supported currency to the supported currency - at the moment we do not support this feature
-
         $salesOptions = $this->getProductListingItem()->getSalesOptions();
         $price = $this->_getProductPrice($salesOptions->getPriceSourceAttributeCode());
 
-        return Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+        $price = Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+
+        if ($convert) {
+            $price = $this->_convert($price);
+        }
+
+        return $price;
     }
 
     /**
@@ -1012,6 +1016,24 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         return ($productPrice + $finalMinPrice);
+    }
+
+    /**
+     * @param $price
+     * @return float|null
+     * @throws Mage_Core_Exception
+     */
+    protected function _convert($price)
+    {
+        $websiteId = $this->getProductListingItem()->getProductsListing()->getWebsiteId();
+        $baseCurrency = Mage::app()->getWebsite($websiteId)->getBaseCurrencyCode();
+
+        if ($baseCurrency != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
+            $priceHelper = Mage::helper('diglin_ricento/price');
+            $price = $priceHelper->convert($price, $baseCurrency, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $websiteId);
+        }
+
+        return $price;
     }
 
     /**

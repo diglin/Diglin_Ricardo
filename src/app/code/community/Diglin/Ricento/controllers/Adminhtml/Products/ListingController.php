@@ -282,7 +282,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             $this->_redirectUrl($this->_getRefererUrl());
             return;
         }
-        $productIds = (array) $this->getRequest()->getPost('product', array());
+        $productIds = (array)$this->getRequest()->getPost('product', array());
         $productsAdded = 0;
         foreach ($productIds as $productId) {
             if ($this->_getListing()->addProduct((int)$productId)) {
@@ -308,9 +308,9 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         if ($this->getRequest()->isPost()) {
-            $itemIds = array_map('intval', (array) $this->getRequest()->getPost('item', array()));
+            $itemIds = array_map('intval', (array)$this->getRequest()->getPost('item', array()));
         } else {
-            $itemIds = array_map('intval', (array) $this->getRequest()->getParam('item', array()));
+            $itemIds = array_map('intval', (array)$this->getRequest()->getParam('item', array()));
         }
 
         list($productsRemoved, $productsNotRemoved) = $this->_getListing()->removeProductsByItemIds($itemIds);
@@ -375,7 +375,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             $job
                 ->setJobType($jobType)
                 ->setProgress(Diglin_Ricento_Model_Sync_Job::PROGRESS_PENDING)
-                ->setJobMessage( (is_array($job->getJobMessage())) ? $job->getJobMessage() : array($job->getJobMessage()))
+                ->setJobMessage((is_array($job->getJobMessage())) ? $job->getJobMessage() : array($job->getJobMessage()))
                 ->save();
 
             $jobListing = Mage::getModel('diglin_ricento/sync_job_listing');
@@ -590,6 +590,20 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $fees = $sell->getArticlesFee($articleDetails);
 
                 if ($fees) {
+
+                    $storeCurrency = Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore()->getBaseCurrencyCode();
+                    if ($storeCurrency !== Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
+
+                        $rate = Mage::helper('diglin_ricento/price')
+                            ->getCurrency($storeCurrency)
+                            ->getRate(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+
+                        if (empty($rate)) {
+                            $this->_getSession()->addError($this->__('Currency Rate not configured'));
+                        }
+                    }
+
+                    $this->_initLayoutMessages('adminhtml/session');
                     $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
                     echo $block->toHtml();
                     return;

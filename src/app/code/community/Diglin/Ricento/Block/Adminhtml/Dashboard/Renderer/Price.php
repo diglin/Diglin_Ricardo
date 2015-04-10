@@ -20,9 +20,15 @@ class Diglin_Ricento_Block_Adminhtml_Dashboard_Renderer_Price extends Mage_Admin
      */
     public function render(Varien_Object $row)
     {
+        $websiteId = $row->getWebsiteId();
+
+        if (Mage::registry('products_listing')) {
+            $websiteId = Mage::registry('products_listing')->getWebsiteId();
+        }
+
         $value = $this->_getValue($row);
         if (!empty($value)) {
-            return implode(' / ', Mage::helper('diglin_ricento/price')->formatDoubleCurrency($value));
+            return implode(' / ', Mage::helper('diglin_ricento/price')->formatDoubleCurrency($value, $websiteId));
         }
         return $value;
     }

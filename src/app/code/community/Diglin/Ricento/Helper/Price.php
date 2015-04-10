@@ -141,7 +141,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
     {
         $priceCurrentCurrency = null;
         $formattedPrice = array();
-        $store = Mage::app()->getStore();
+        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
 
         if ($defaultCurrency == Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
             // CHF Currency
@@ -149,7 +149,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
 
             // Base Currency
             if ($store->getBaseCurrencyCode() != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
-                $priceCurrency = $this->convert($price, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $store->getBaseCurrencyCode());
+                $priceCurrency = $this->convert($price, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $store->getBaseCurrencyCode(), $websiteId);
                 $formattedPrice['right_currency'] = $store->formatPrice($priceCurrency);
             }
         } else {
@@ -158,7 +158,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
 
             // CHF Currency
             if ($store->getBaseCurrencyCode() != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
-                $priceCurrency = $this->convert($price, $store->getBaseCurrencyCode(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+                $priceCurrency = $this->convert($price, $store->getBaseCurrencyCode(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $websiteId);
                 $formattedPrice['right_currency'] = $this->formatPrice($priceCurrency, $websiteId);
             }
         }
@@ -174,29 +174,46 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
      * @throws Exception
      * @throws Mage_Core_Exception
      */
-    public function convert($price, $from, $to = null)
+    public function convert($price, $from, $to = null, $websiteId = null)
     {
         $priceCurrency = null;
-        $store = Mage::app()->getStore();
+        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
 
-        if ($from == Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY && $to == $store->getBaseCurrencyCode()) {
-            /**
-             * Magento cannot convert from CHF to Base Currency Code
-             */
-            $currency = Mage::getModel('directory/currency')->load($store->getBaseCurrencyCode());
-            $rate = $currency->getRate($from);
-            if ($rate) {
-                $priceCurrency = $price * (1 / $rate);
+        try {
+            if ($from == Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY && $to == $store->getBaseCurrencyCode()) {
+                /**
+                 * Magento cannot convert from CHF to Base Currency Code
+                 */
+                $rate = $this->getCurrency($store->getBaseCurrencyCode())->getRate($from);
+                if ($rate) {
+                    $priceCurrency = $price * (1 / $rate);
+                } else {
+                    throw new Exception(Mage::helper('directory')->__('Undefined rate from "%s-%s".',
+                        Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY,
+                        $store->getBaseCurrencyCode())
+                    );
+                }
             } else {
-                throw new Exception(Mage::helper('directory')->__('Undefined rate from "%s-%s".',
-                    Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY,
-                    $store->getBaseCurrencyCode())
-                );
+                $priceCurrency = $this->getCurrency($from)->convert($price, $this->getCurrency($to));
             }
-        } else {
-            $priceCurrency = Mage::helper('directory')->currencyConvert($price, $from, $to);
+        } catch (Exception $e) {
+            $priceCurrency = $this->__('NaN');
+            Mage::log($e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
         }
 
         return $priceCurrency;
+    }
+
+    /**
+     * @param string $currencyCode
+     * @return Mage_Directory_Model_Currency
+     */
+    public function getCurrency($currencyCode)
+    {
+        if (empty($this->_currencyCache[$currencyCode])) {
+            $this->_currencyCache[$currencyCode] = Mage::getModel('directory/currency')->load($currencyCode);
+        }
+
+        return $this->_currencyCache[$currencyCode];
     }
 }

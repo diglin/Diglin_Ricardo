@@ -91,7 +91,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Payment Config
      */
-    const PAYMENT_CURRENCY          = 'payment/ricento/currency';
     const PAYMENT_BANK_INFO         = 'payment/ricento/bank_transfer_instructions';
 
     /**

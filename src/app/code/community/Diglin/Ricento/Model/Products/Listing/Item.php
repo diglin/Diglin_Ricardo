@@ -340,9 +340,11 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     }
 
     /**
+     * Return the product price in CHF
+     *
      * @return float
      */
-    public function getProductPrice()
+    public function getProductPrice($convert = true)
     {
         $priceOptions = array();
         if ($this->getParentProductId()) {
@@ -357,7 +359,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         $productPrice = $this->getProduct()
             ->setStoreId($this->getDefaultStoreId())
             ->setPriceOptions($priceOptions)
-            ->getPrice();
+            ->getPrice($convert);
 
         return $productPrice;
     }

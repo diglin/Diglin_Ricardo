@@ -53,8 +53,9 @@ $listingFees = $this->getListingFees();
 <div class="terms">
     <h3><?php echo $this->__('Important'); ?></h3>
     <ul>
+        <li><?php echo $this->__('ricardo.ch does invoices in %s', Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY); ?></li>
         <li><?php echo $this->__('Sales Fee (following the <a href="%s" target="_blank">fees rules from 01.07.2014</a>)', $this->getFeesRulesUrl()); ?></li>
-        <li><?php echo $this->__('With the confirmation of the publication, you accept the <a href="%s" target="_blank">terms and conditions</a> and <a href="%s" target="_blank">privacy policy</a>)', $this->getTermsUrl(), $this->getPrivacyUrl()); ?></li>
+        <li><?php echo $this->__('With the confirmation of the publication, you accept the <a href="%s" target="_blank">terms and conditions</a> and <a href="%s" target="_blank">privacy policy</a>', $this->getTermsUrl(), $this->getPrivacyUrl()); ?></li>
     </ul>
 </div>
 <form id="confirmation_fee" name="confirmation_fee" enctype="application/x-www-form-urlencoded" action="<?php echo $this->getFormUrl(); ?>">

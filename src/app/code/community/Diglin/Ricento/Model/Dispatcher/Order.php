@@ -437,7 +437,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $customerTransactions = array();
         $mergeOrder = Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_MERGE_ORDER);
 
-        $delay = ($mergeOrder) ? 30 : 1;
+        $delay = ($mergeOrder) ? 30 : 0;
 
         /**
          * Get transaction older than 30 or 1 minutes and when no order was created
@@ -474,8 +474,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
          * Stop the list if all products listing items are stopped
          */
         if ($this->_productsListingId) {
-            $listResource = Mage::getResourceModel('diglin_ricento/products_listing');
-            $listResource->setStatusStop($this->_productsListingId);
+            Mage::getResourceModel('diglin_ricento/products_listing')->setStatusStop($this->_productsListingId);
         }
 
         unset($transactionCollection);
@@ -494,6 +493,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $storeId = $shippingTransactionMethod = $shippingMethodFee = $highestShippingFee = 0;
         $shippingText = $shippingDescription = '';
         $paymentMethod = $shippingMethod = Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE;
+        $currency = Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
 
         try {
             /**
@@ -506,6 +506,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 
                 $storeId = $this->_getStoreId($transaction->getWebsiteId());
 
+                Mage::app()->getStore($storeId)->setCurrentCurrency($currency);
                 Mage::app()->getLocale()->emulate($storeId);
 
                 /**
@@ -579,7 +580,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                  */
                 $quote
                     ->setIsRicardo(1)
-                    ->setQuoteCurrencyCode(Mage::getStoreConfig(Diglin_Ricento_Helper_Data::PAYMENT_CURRENCY));
+                    ->setForcedCurrency(Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
 
                 $payment = $quote->getPayment();
                 $payment->importData(array(
