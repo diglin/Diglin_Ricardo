@@ -51,12 +51,16 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Add
         if ($this->getListing()->getId()) {
             $this->setDefaultFilter(array('in_category'=>1));
         }
+
+        $store = Mage::app()->getWebsite($this->getListing()->getWebsiteId())->getDefaultStore();
+
         /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
         $collection = Mage::getResourceModel('catalog/product_collection')
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('sku')
             ->addAttributeToSelect('type_id')
             ->addWebsiteFilter($this->getListing()->getWebsiteId())
+            ->setStoreId($store->getId())
             ->addAttributeToFilter('type_id', array('in' => $this->_helper->getAllowedProductTypes()))
             ->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
             //->addFieldToFilter('visibility', array('neq' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE ))
