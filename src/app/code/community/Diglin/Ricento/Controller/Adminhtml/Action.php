@@ -76,6 +76,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
     protected function _prepareConfigurableProduct()
     {
         $productListingId = $this->_initListing()->getId();
+        $statuses = array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD);
 
         /**
          * Delete not listed children products of configurable product
@@ -83,7 +84,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
         $collectionListingItemChildren = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
         $collectionListingItemChildren
             ->addFieldToFilter('parent_product_id', array('notnull' => 1))
-            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('nin' => $statuses))
             ->addFieldToFilter('products_listing_id', $productListingId);
 
         $collectionListingItemChildren->walk('delete');
@@ -94,7 +95,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
         $collectionListingItemChildren = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
         $collectionListingItemChildren
             ->addFieldToFilter('parent_product_id', array('notnull' => 1))
-            ->addFieldToFilter('status', array('in' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('in' => $statuses))
             ->addFieldToFilter('products_listing_id', $productListingId);
 
         $listedChildrenIds = $collectionListingItemChildren->getColumnValues('product_id');
@@ -104,9 +105,9 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
          */
         $collectionListingItem = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
         $collectionListingItem
-            ->addFieldToFilter('products_listing_id', $productListingId)
             ->addFieldToFilter('type', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-            ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
+            ->addFieldToFilter('status', array('nin' => $statuses))
+            ->addFieldToFilter('products_listing_id', $productListingId);
 
         /**
          * Get all products of configurable products for a list
