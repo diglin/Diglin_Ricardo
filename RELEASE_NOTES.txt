@@ -1,4 +1,5 @@
 ## Version 1.1
+- NEW: Support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...)
 - NEW: While selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
 - NEW: display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
 - NEW: allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that
