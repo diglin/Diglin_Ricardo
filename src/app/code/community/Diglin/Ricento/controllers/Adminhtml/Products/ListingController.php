@@ -577,7 +577,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemsCollection
                     ->addFieldToFilter('products_listing_id', $listing->getId())
-                    ->addFieldToFilter('status', array('nin' => Diglin_Ricento_Helper_Data::STATUS_LISTED));
+                    ->addFieldToFilter('status', array('nin' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)));
 
                 /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
                 foreach ($itemsCollection->getItems() as $item) {
