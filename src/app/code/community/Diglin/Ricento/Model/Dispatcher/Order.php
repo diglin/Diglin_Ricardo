@@ -153,7 +153,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param array $articleIds
      * @return array
      */
-    protected function _getSoldArticlesList(array $articleIds)
+    private function _getSoldArticlesList(array $articleIds)
     {
         $soldArticlesParameter = new SoldArticlesParameter();
         $delay = (3 * 24 * 60 * 60); // 3 days
@@ -234,10 +234,10 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 /**
                  * 3. Create customer if not exist and set his default billing address
                  */
-                $customer = $this->_getCustomer($transaction->getBuyer(), $this->_getListing()->getWebsiteId());
+                $customer = $this->getCustomerFromTransaction($transaction->getBuyer(), $this->_getListing()->getWebsiteId());
 
                 if ($customer) {
-                    $address = $this->_getBillingAddress($customer, $transaction);
+                    $address = $this->getBillingAddress($customer, $transaction);
                 } else {
                     Mage::log($transaction->getBuyer(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
                     throw new Exception($this->_getHelper()->__('Customer creation failed! ricardo.ch transaction cannot be added.'));
@@ -246,7 +246,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 /**
                  * 4. Insert transaction into DB for future use
                  */
-                $salesTransaction = $this->_saveTransaction($transaction, $customer, $address, $soldArticle, $productItem, $rawData);
+                $salesTransaction = $this->saveTransaction($transaction, $customer, $address, $soldArticle, $productItem, $rawData);
 
                 /**
                  * 5. Decrease the quantity at products listing item level and stop it if needed
@@ -285,13 +285,13 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param int $websiteId
      * @return bool|Mage_Customer_Model_Customer
      */
-    protected function _getCustomer(Varien_Object $buyer, $websiteId = Mage_Core_Model_App::ADMIN_STORE_ID)
+    public function getCustomerFromTransaction(Varien_Object $buyer, $websiteId = Mage_Core_Model_App::ADMIN_STORE_ID)
     {
         if (!$buyer->getBuyerId()) {
             return false;
         }
 
-        $store = $this->_getStore($websiteId);
+        $store = $this->getStoreFromWebsite($websiteId);
 
         /* @var $customer Mage_Customer_Model_Customer */
         $customer = Mage::getModel('customer/customer')
@@ -339,7 +339,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @return Mage_Customer_Model_Address
      * @throws Exception
      */
-    protected function _getBillingAddress(Mage_Customer_Model_Customer $customer, $transaction)
+    public function getBillingAddress(Mage_Customer_Model_Customer $customer, $transaction)
     {
         $buyerAddress = $transaction->getBuyer()->getAddresses();
 
@@ -359,7 +359,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
              * We use the first region found for the current country but it's far to be good
              * @todo add a "other" region into each country having required region
              */
-            $countryId = $this->_getCountryId($buyerAddress->getCountry());
+            $countryId = $this->getCountryId($buyerAddress->getCountry());
             $regionId = null;
             if (Mage::helper('directory')->isRegionRequired($countryId)) {
                 $regionId = Mage::getModel('directory/region')->getCollection()
@@ -403,7 +403,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @return Diglin_Ricento_Model_Sales_Transaction
      * @throws Exception
      */
-    protected function _saveTransaction(
+    public function saveTransaction(
         $transaction,
         Mage_Customer_Model_Customer $customer,
         Mage_Customer_Model_Address $address,
@@ -515,16 +515,16 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             /* @var $transaction Diglin_Ricento_Model_Sales_Transaction */
             foreach ($transactions as $transaction) {
 
-                $store = $this->_getStore($transaction->getWebsiteId());
+                $store = $this->getStoreFromWebsite($transaction->getWebsiteId());
 
                 Mage::app()->getStore($store->getId())->setCurrentCurrency($this->_getCurrency());
                 Mage::app()->getLocale()->emulate($store->getId());
 
                 if (is_null($quote)) {
-                    $quote = $this->_createQuote($transaction, $store);
+                    $quote = $this->createQuote($transaction, $store);
                 }
 
-                if (!$this->_addProduct($transaction, $store, $quote)) {
+                if (!$this->addProductToQuote($transaction, $store, $quote)) {
                     continue;
                 }
 
@@ -542,10 +542,10 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     ->setRicardoShippingDescription($shippingText . "\n" . $shippingDescription)
                     ->setRicardoShippingMethod($shippingTransactionMethod);
 
-                $this->_prepareQuote($quote, $dispatchedTransactions, $transaction->getPaymentMethods());
+                $this->prepareQuote($quote, $dispatchedTransactions, $transaction->getPaymentMethods());
 
                 if ($quote->getId()) {
-                    $orderCreateModel = $this->_getOrderCreateModel();
+                    $orderCreateModel = $this->getOrderCreateModel();
                     $orderCreateModel
                         ->setQuote($quote)
                         ->setStore($store)
@@ -588,11 +588,8 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             if (!isset($transaction) || !($transaction instanceof Diglin_Ricento_Model_Sales_Transaction)) {
                 $transaction = new Varien_Object();
             }
-            if (!isset($product) || !($product instanceof Mage_Catalog_Model_Product)) {
-                $product = new Varien_Object();
-            }
 
-            $message = 'Error with ricardo Transaction ID: ' . $transaction->getBidId() . ' - Product ID:' . $product->getId() . "\n" . $e->__toString();
+            $message = 'Error with ricardo Transaction ID: ' . $transaction->getBidId() . ' - Product ID:' . $transaction->getProductId() . "\n" . $e->__toString();
 
             // We store and send the exception but don't block the rest of the process
             Mage::log($message, Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
@@ -621,7 +618,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param Mage_Core_Model_Store $store
      * @return Mage_Sales_Model_Quote
      */
-    protected function _createQuote(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store)
+    public function createQuote(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store)
     {
         $customer = Mage::getModel('customer/customer')->load($transaction->getCustomerId());
         $address = Mage::getModel('customer/address')->load($transaction->getAddressId());
@@ -651,7 +648,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @throws Mage_Core_Exception
      * @return bool
      */
-    protected function _addProduct(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store, Mage_Sales_Model_Quote $quote)
+    public function addProductToQuote(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store, Mage_Sales_Model_Quote $quote)
     {
         $infoBuyRequest = new Varien_Object();
         $infoBuyRequest
@@ -659,7 +656,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             ->setIsRicardo(true)
             ->setRicardoTransactionId($transaction->getId())
             ->setShippingCumulativeFee($transaction->getShippingCumulativeFee())
-            ->setShippingFee($this->_getShippingFee($transaction, $store->getId()));
+            ->setShippingFee($this->getShippingFee($transaction, $store->getId()));
 
         $product = Mage::getModel('catalog/product')
             ->setStoreId($store->getId())
@@ -690,7 +687,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param int|Mage_Core_Model_Store $storeId
      * @return float|int|null
      */
-    protected function _getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, $storeId = null)
+    public function getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, $storeId = null)
     {
         $currency = $this->_getCurrency();
         $shippingFee = $transaction->getShippingFee();
@@ -709,7 +706,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param $paymentMethods
      * @return Mage_Sales_Model_Quote
      */
-    protected function _prepareQuote(Mage_Sales_Model_Quote $quote, array $dispatchedTransactions, $paymentMethods)
+    public function prepareQuote(Mage_Sales_Model_Quote $quote, array $dispatchedTransactions, $paymentMethods)
     {
         $shippingTransactionMethod = $this->_getHelper()
             ->getRicardoShippingRegistry()
@@ -763,7 +760,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @deprecated
      * @return Mage_Adminhtml_Model_Session_Quote
      */
-    protected function _getSession()
+    public function getSession()
     {
         return Mage::getSingleton('adminhtml/session_quote');
     }
@@ -773,7 +770,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      *
      * @return Diglin_Ricento_Model_Sales_Order_Create
      */
-    protected function _getOrderCreateModel()
+    public function getOrderCreateModel()
     {
         return Mage::getSingleton('diglin_ricento/sales_order_create');
     }
@@ -783,7 +780,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @return string
      * @throws Exception
      */
-    protected function _getCountryId($countryRicardoId)
+    public function getCountryId($countryRicardoId)
     {
         $countryName = '';
         $countries = Mage::getSingleton('diglin_ricento/api_services_system')
@@ -797,7 +794,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             }
         }
 
-        $code = $this->_translateCountryNameToCode($countryName);
+        $code = $this->translateCountryNameToCode($countryName);
         if (!$code) {
             throw new Exception(Mage::helper('diglin_ricento')->__('Country Code is not available. Please contact the author of this extension or support.'));
         }
@@ -812,7 +809,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param $countryName
      * @return string
      */
-    protected function _translateCountryNameToCode($countryName)
+    public function translateCountryNameToCode($countryName)
     {
         $countryCode = array(
             'Schweiz' => 'CH',
@@ -835,7 +832,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param int $websiteId
      * @return Mage_Core_Model_Store
      */
-    protected function _getStore($websiteId)
+    public function getStoreFromWebsite($websiteId)
     {
         return Mage::app()->getWebsite($websiteId)->getDefaultStore();
     }

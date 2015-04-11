@@ -15,7 +15,7 @@
 class Diglin_Ricento_Test_Model_Rule_Validate extends EcomDev_PHPUnit_Test_Case
 {
     /**
-     * @var Diglin_Ricento_Model_Sales_Validate_Increment
+     * @var Diglin_Ricento_Model_Validate_Sales_Increment
      */
     protected $_subject;
 
