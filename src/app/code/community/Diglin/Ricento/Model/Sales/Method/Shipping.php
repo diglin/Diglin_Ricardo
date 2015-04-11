@@ -16,12 +16,13 @@ class Diglin_Ricento_Model_Sales_Method_Shipping
     extends Mage_Shipping_Model_Carrier_Abstract
     implements Mage_Shipping_Model_Carrier_Interface
 {
+    const SHIPPING_CODE = 'ricento';
     /**
      * Carrier's code
      *
      * @var string
      */
-    protected $_code = 'ricento';
+    protected $_code = self::SHIPPING_CODE;
 
     /**
      * Whether this carrier has fixed rates calculation
@@ -38,11 +39,13 @@ class Diglin_Ricento_Model_Sales_Method_Shipping
      */
     public function collectRates(Mage_Shipping_Model_Rate_Request $request)
     {
-        if (!$this->getConfigFlag('active') || !Mage::helper('diglin_ricento')->isEnabled()) {
+        $helper = Mage::helper('diglin_ricento');
+
+        if (!$this->getConfigFlag('active') || !$helper->isEnabled()) {
             return false;
         }
 
-        $calculationMethod = Mage::helper('diglin_ricento')->getShippingCalculationMethod();
+        $calculationMethod = $helper->getShippingCalculationMethod();
         $shippingPrice = 0;
         $isRicardo = false;
 
@@ -84,8 +87,9 @@ class Diglin_Ricento_Model_Sales_Method_Shipping
         /** @var Mage_Shipping_Model_Rate_Result $result */
         $result = Mage::getModel('shipping/rate_result');
 
-        $description = Mage::getSingleton('core/session')->getRicardoShippingDescription();
-        $shippingMethod = Mage::getSingleton('core/session')->getRicardoShippingMethod();
+
+        $description = $helper->getRicardoShippingRegistry()->getRicardoShippingDescription();
+        $shippingMethod = $helper->getRicardoShippingRegistry()->getRicardoShippingMethod();
 
         $shippingPrice = $this->getFinalPriceWithHandlingFee($shippingPrice);
 

@@ -821,4 +821,16 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             return self::RICARDO_URL_HELP_PROMOTION_DE;
         }
     }
+
+    /**
+     * @return Varien_Object
+     */
+    public function getRicardoShippingRegistry()
+    {
+        if(!Mage::registry('ricardo_shipping')) {
+            Mage::register('ricardo_shipping', new Varien_Object());
+        };
+
+        return Mage::registry('ricardo_shipping');
+    }
 }
