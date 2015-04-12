@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * ricardo.ch AG - Switzerland
  *
  * @author Sylvain Rayé <support at diglin.com>
