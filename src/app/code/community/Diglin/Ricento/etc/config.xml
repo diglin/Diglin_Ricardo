@@ -36,6 +36,10 @@
                 <shipping_calculation>cumulative</shipping_calculation>
                 <email_account_creation>0</email_account_creation>
                 <email_order_creation>0</email_order_creation>
+                <banner>
+                    <enabled>0</enabled>
+                    <xml>http://dev.ricento.local/welcome.xml</xml>
+                </banner>
             </global>
             <api_config>
                 <enabled>1</enabled>

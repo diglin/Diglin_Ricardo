@@ -51,6 +51,8 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_ORDER_CREATION_EMAIL          = 'ricento/global/email_order_creation';
     const CFG_MERGE_ORDER                   = 'ricento/global/merge_order';
     const CFG_DECREASE_INVENTORY            = 'ricento/global/decrease_inventory';
+    const CFG_BANNER                        = 'ricento/global/banner/enabled';
+    const CFG_BANNER_XML                    = 'ricento/global/banner/xml';
 
     /**
      * Listing config
@@ -382,6 +384,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Get the default supported lang depending if the partner key is set or not
+     *
      * @return string
      */
     public function getDefaultSupportedLang()
