@@ -53,6 +53,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </merge_descriptions>
+                        <nl2br>
+                            <label>Replace Carriage Return with br HTML Tag</label>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Do you want to replace into the description the carriage return with <br> HTML Tag?]]></comment>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </nl2br>
                     </fields>
                 </listing>
 

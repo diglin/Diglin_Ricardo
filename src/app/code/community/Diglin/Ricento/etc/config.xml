@@ -29,6 +29,7 @@
         <ricento>
             <listing>
                 <merge_descriptions>0</merge_descriptions>
+                <nl2br>0</nl2br>
             </listing>
             <global>
                 <merge_order>1</merge_order>

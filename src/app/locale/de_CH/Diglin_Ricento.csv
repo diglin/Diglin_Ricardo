@@ -673,3 +673,6 @@
 "The store's base currency is %2$s. Only %1$s is allowed as currency on ricardo.ch. Be aware that your product will be converted into %1$s. Check the documentation for more explanation.","The store's base currency is %2$s. Only %1$s is allowed as currency on ricardo.ch. Be aware that your product will be converted into %1$s. Check the documentation for more explanation."
 "Currency Rate not configured","Currency Rate not configured"
 "Currency Rate not defined for CHF currency. Please configure your currency rate before to proceed.","Currency Rate not defined for CHF currency. Please configure your currency rate before to proceed."
+
+"Replace Carriage Return with br HTML Tag","Replace Carriage Return with br HTML Tag"
+"Do you want to replace into the description the carriage return with <br> HTML Tag?","Do you want to replace into the description the carriage return with <br> HTML Tag?"

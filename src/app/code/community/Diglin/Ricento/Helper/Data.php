@@ -62,6 +62,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
      * Listing config
      */
     const CFG_MERGE_DESCRIPTIONS            = 'ricento/listing/merge_descriptions';
+    const CFG_NL2BR                         = 'ricento/listing/nl2br';
 
     /**
      * Cleanup Job config
