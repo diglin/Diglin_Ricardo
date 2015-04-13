@@ -425,7 +425,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
          * Set the default values for the ending date
          */
         if (!in_array($this->getSalesOptions()->getSchedulePeriodDays(), $this->_getDaysOptions()->toOptionHash())) {
-            $derivedValues['schedule_period_use_end_date'] = 1;
+            $derivedValues['schedule_period_use_end_date'] = 0;
             $derivedValues['schedule_period_end_date'] = date_add(
                 new DateTime($this->getSalesOptions()->getScheduleDateStart()),
                 DateInterval::createFromDateString($this->getSalesOptions()->getSchedulePeriodDays() . ' day')
