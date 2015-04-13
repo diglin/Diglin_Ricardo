@@ -38,8 +38,8 @@
                 <email_account_creation>0</email_account_creation>
                 <email_order_creation>0</email_order_creation>
                 <banner>
-                    <enabled>0</enabled>
-                    <xml>http://dev.ricento.local/welcome.xml</xml>
+                    <enabled>1</enabled>
+                    <xml>https://pics.ricardostatic.ch/Contents/ch/magento/magento-banner.xml</xml>
                 </banner>
                 <stats>1</stats>
                 <stats_test_mode>0</stats_test_mode>

@@ -15,40 +15,89 @@
 class Diglin_Ricento_Block_Adminhtml_Dashboard_Banner extends Mage_Core_Block_Template
 {
     /**
+     * @var bool
+     */
+    protected $_xml = false;
+
+    /**
      * @return bool|string
      */
-    public function getBannerUrlFromXml()
+    public function getBannerXml()
     {
-        try {
-            $url = Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_BANNER_XML);
-            if (strpos($url, 'http') === false) {
-                return false;
-            }
-            $bannerXML = new SimpleXMLElement($url, 0, true);
+        if (!$this->_xml) {
 
-        } catch (Exception $e) {
-            $bannerXML  = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
-        }
+            try {
+                $url = Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_BANNER_XML);
+                $xml = file_get_contents($url);
 
-        $helper = Mage::helper('diglin_ricento');
-        $lang = strtoupper($helper->getDefaultSupportedLang());
+                if (!$xml) {
+                    return false;
+                }
 
-        if ($bannerXML) {
-            $url = $bannerXML->item[0]->$lang->imagePath;
-            if (strpos($url, 'http') !== false) {
-                return $url;
+                $this->_xml = new SimpleXMLElement($xml);
+
+            } catch (Exception $e) {
+                return new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?>');
             }
         }
-        return false;
+        return $this->_xml;
     }
 
     /**
      * @return bool|string
      */
+    public function getBannerSrc()
+    {
+        $url = false;
+        $bannerXml = $this->getBannerXml();
+
+        $helper = Mage::helper('diglin_ricento');
+        $lang = strtolower($helper->getDefaultSupportedLang());
+
+        if ($bannerXml) {
+            $url = trim($bannerXml->$lang->url);
+            if (strpos($url, 'http') !== false) {
+                return $url;
+            }
+        }
+
+        return ($url) ? $url : false;
+    }
+
     public function getBannerUrl()
     {
-        $banner = $this->getBannerUrlFromXml();
-        return ($banner) ? $banner : $this->getSkinUrl('ricento/images/banner.png');
+        $url = false;
+        $bannerXml = $this->getBannerXml();
+
+        $helper = Mage::helper('diglin_ricento');
+        $lang = strtolower($helper->getDefaultSupportedLang());
+
+        if ($bannerXml) {
+            $url = trim($bannerXml->$lang->link);
+            if (strpos($url, 'http') !== false) {
+                return $url;
+            }
+        }
+
+        return ($url) ? $url : '#';
+    }
+
+    public function getBannerTitle()
+    {
+        $url = false;
+        $bannerXml = $this->getBannerXml();
+
+        $helper = Mage::helper('diglin_ricento');
+        $lang = strtolower($helper->getDefaultSupportedLang());
+
+        if ($bannerXml) {
+            $url = trim($bannerXml->$lang->title);
+            if (strpos($url, 'http') !== false) {
+                return $url;
+            }
+        }
+
+        return ($url) ? $url : '#';
     }
 
     /**
