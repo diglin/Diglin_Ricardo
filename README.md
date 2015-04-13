@@ -32,16 +32,19 @@ Some classes and javascript contain a MIT license.
 - PHP Curl, GD Library
 - Cron enabled and configured for Magento (set your cron at server level to a period of 5 min to launch internal task related to the rircardo extension
 */5 * * * * php path/to/my/magento/cron.php)
-- Base currency: CHF / Swiss Franc (currency conversion is not yet supported)
 
 ## Features
 
 #### Version 1.1
-- Get Article Fees Information before to publish on ricardo.ch
-- Refactoring and general performance improvements related to API connection, configurable products, pictures, price calculation
-- Via global extension configuration, allow to merge short and normal description if ricardo description is not defined for publication on ricardo.ch  
-- Support Magento Pictures Watermark
-- Fix several issues related to configurable products, pictures, stop articles, orders  
+- Add button to export configuration into a tar.gz archive to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files
+- Support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
+- While selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
+- Display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
+- Allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that - Default "disabled"
+- Support Magento Watermark Pictures
+- Add ricardo banner in the dashboard of the extension
+
+Check RELEASE_NOTES.txt file for further information
 
 #### Version 1.0
 
