@@ -18,7 +18,7 @@
     "require":{
         "php": ">=5.3.2",
         "magento-hackathon/magento-composer-installer":"2.*",
-        "diglin/ricardo": "dev-develop"
+        "diglin/ricardo": "1.*"
     },
     "require-dev": {
         "ivanchepurnyi/ecomdev_phpunit": "0.3.*"
