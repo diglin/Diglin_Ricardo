@@ -40,6 +40,10 @@
                     <enabled>0</enabled>
                     <xml>http://dev.ricento.local/welcome.xml</xml>
                 </banner>
+                <stats>1</stats>
+                <stats_test_mode>0</stats_test_mode>
+                <stats_app_id>bza2zlst</stats_app_id>
+                <stats_app_id_test>xce86uyp</stats_app_id_test>
             </global>
             <api_config>
                 <enabled>1</enabled>
@@ -326,6 +330,14 @@
         </translate>
 
         <events>
+            <controller_action_layout_load_before>
+                <observers>
+                    <ricardo_layout_handle>
+                        <class>Diglin_Ricento_Model_Observer</class>
+                        <method>addLayoutHandle</method>
+                    </ricardo_layout_handle>
+                </observers>
+            </controller_action_layout_load_before>
             <adminhtml_block_html_before>
                 <observers>
                     <ricardo_customer_fields>

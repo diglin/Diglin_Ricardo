@@ -53,6 +53,10 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_DECREASE_INVENTORY            = 'ricento/global/decrease_inventory';
     const CFG_BANNER                        = 'ricento/global/banner/enabled';
     const CFG_BANNER_XML                    = 'ricento/global/banner/xml';
+    const CFG_STATS                         = 'ricento/global/stats';
+    const CFG_STATS_TEST_MODE               = 'ricento/global/stats_test_mode';
+    const CFG_STATS_APPID                   = 'ricento/global/stats_app_id';
+    const CFG_STATS_APPID_TEST              = 'ricento/global/stats_app_id_test';
 
     /**
      * Listing config

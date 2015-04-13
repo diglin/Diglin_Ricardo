@@ -67,7 +67,18 @@ class Diglin_Ricento_Block_Adminhtml_Config_Source_Hint
             // do nothing just don't display it as the key may be not yet configured.
         }
 
+        $buttonExport = '<button type="button" onclick="window.location.href=\'' . $this->getUrl('ricento/support/export') . '\'"><span><span>'. $this->__('Export your configuration') .'</span></span></button>';
 
-        return $html . '<p>' . $buttonSignUp . '&nbsp;' . $buttonDashboard . '&nbsp;' . $buttonAuthorize .' - <strong>Diglin_Ricento Version: '. Mage::getConfig()->getModuleConfig('Diglin_Ricento')->version .' - Powered by <a href="http://www.diglin.com/?utm_source=magento&utm_medium=extension&utm_campaign=ricento">Diglin GmbH</a></strong></p>';
+
+        return $html
+        . '<p>'
+        . $buttonSignUp . '&nbsp;'
+        . $buttonDashboard . '&nbsp;'
+        . $buttonAuthorize
+        .' - <strong>Diglin_Ricento Version: '
+        . Mage::getConfig()->getModuleConfig('Diglin_Ricento')->version
+        .' - Powered by <a href="http://www.diglin.com/?utm_source=magento&utm_medium=extension&utm_campaign=ricento">Diglin GmbH</a></strong>'
+        . '&nbsp;&nbsp;' . $buttonExport
+        . '</p>';
     }
 }

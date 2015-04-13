@@ -207,4 +207,18 @@ class Diglin_Ricento_Model_Observer
         }
         return $this;
     }
+
+    /**
+     * Event
+     * - controller_action_layout_load_before
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function addLayoutHandle(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        if (strpos($event->getAction()->getFullActionName(), 'ricento') !== false) {
+            $event->getLayout()->getUpdate()->addHandle('ricento');
+        }
+    }
 }

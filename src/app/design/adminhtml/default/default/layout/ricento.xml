@@ -28,6 +28,12 @@
         </reference>
     </default>
 
+    <ricento>
+        <reference name="before_body_end">
+            <block type="core/template" name="stats" as="stats" template="ricento/stats.phtml" />
+        </reference>
+    </ricento>
+
     <ricento_scripts>
         <reference name="head">
             <action method="addItem"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>

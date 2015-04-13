@@ -65,11 +65,11 @@
                             <action>ricento/support/contact</action>
                             <sort_order>10</sort_order>
                         </contact>
-                        <!--<export>-->
-                            <!--<title>Listing</title>-->
-                            <!--<action>ricento/support/export</action>-->
-                            <!--<sort_order>20</sort_order>-->
-                        <!--</export>-->
+                        <export>
+                            <title>Export</title>
+                            <action>ricento/support/export</action>
+                            <sort_order>20</sort_order>
+                        </export>
                     </children>
                 </support>
             </children>
