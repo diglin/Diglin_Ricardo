@@ -186,7 +186,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid extends Mage_Adminhtm
         $this->getMassactionBlock()->addItem('delete', array(
             'label'=> $this->__('Delete'),
             'url'  => $this->getUrl('*/*/massDelete', array('_current'=>true)),
-            'confirm' => $this->__('Are you sure that you want to delete this/these products listing(s)? Be aware it\'s only possible when the listing is "Listed"')
+            'confirm' => $this->__('Are you sure that you want to delete this/these products listing(s)? Be aware it\'s not possible when the listing is "Listed"')
         ));
 
         return $this;

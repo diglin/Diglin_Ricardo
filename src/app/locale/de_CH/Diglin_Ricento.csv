@@ -326,7 +326,7 @@
 "View Logs","Siehe Logs"
 "Change status","Ändere Status"
 "Delete","Löschen"
-"Are you sure that you want to delete this/these products listing(s)? Be aware it\'s only possible when the listing is ""Listed""","Sind Sie sicher, dass Sie die Produktlisting(s) löschen möchten? Beachten Sie, das nur aktive Listen gelöscht werden können."
+"Are you sure that you want to delete this/these products listing(s)? Be aware it\'s not possible when the listing is ""Listed""","Sind Sie sicher, dass Sie die Produktlisting(s) löschen möchten? Beachten Sie, das kein aktive Listen gelöscht werden können."
 "Products Listing Log ""%s""","Produktlistings Log ""%s"""
 "Edit ""%s""","Bearbeite ""%s"""
 "Job ID","Job ID"
