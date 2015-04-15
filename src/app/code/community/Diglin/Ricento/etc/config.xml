@@ -18,6 +18,10 @@
     </modules>
 
     <default>
+        <support>
+            <email>support[/at/]diglin.com</email>
+        </support>
+
         <system>
             <messages>
                 <notification_email_template>system_admin_notification_email_template</notification_email_template>
@@ -291,6 +295,11 @@
                     <file>ricento/token_expiration.html</file>
                     <type>text</type>
                 </token_expiration_email_template>
+                <ricento_support translate="label" module="diglin_ricento">
+                    <label>Support Email</label>
+                    <file>ricento/support.html</file>
+                    <type>text</type>
+                </ricento_support>
             </email>
         </template>
 
