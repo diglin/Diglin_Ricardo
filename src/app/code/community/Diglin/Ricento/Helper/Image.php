@@ -9,8 +9,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Class Diglin_Ricento_Helper_Image
+ */
 class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
 {
+    /**
+     * @return int
+     */
     protected function getWatermarkImageOpacity()
     {
         if ($this->_watermarkImageOpacity) {
@@ -20,6 +26,9 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
         return (int) $this->_getModel()->getWatermarkImageOpacity();
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         try {
