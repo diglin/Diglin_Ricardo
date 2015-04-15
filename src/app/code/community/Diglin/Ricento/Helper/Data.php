@@ -35,7 +35,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_RICARDO_PARTNERPASS           = 'ricento/api_config/partner_pass_';
     const CFG_EXPIRATION_NOTIFICATION_DELAY = 'ricento/api_config/expiration_notification_delay'; // in day
     const CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY = 'ricento/api_config/expiration_notification_validation_delay'; // in day
-    const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification'; // in day
+    const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification';
 
     const CFG_SUPPORTED_LANG                = 'ricento/api_config/lang';
     const DEFAULT_SUPPORTED_LANG            = 'de';
@@ -840,5 +840,13 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
         };
 
         return Mage::registry('ricardo_shipping');
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSendEmailNotification()
+    {
+        return Mage::getStoreConfigFlag(self::CFG_EMAIL_NOTIFICATION);
     }
 }

@@ -593,7 +593,9 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 
             // We store and send the exception but don't block the rest of the process
             Mage::log($message, Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
-            Mage::helper('diglin_ricento/tools')->sendAdminNotification($message);
+            if ($this->_getHelper()->canSendEmailNotification()) {
+                Mage::helper('diglin_ricento/tools')->sendAdminNotification($message);
+            }
 
             // Deactivate the last quote if a problem occur to prevent cart display in frontend to the customer
             if ($quote && $quote->getId()) {
