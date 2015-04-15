@@ -53,4 +53,8 @@ $installer->getConnection()->addColumn($transactionTable, 'currency', array(
     'after' => 'total_bid_price',
     'comment' => 'Currency'));
 
+$installer->updateAttribute(Mage_Catalog_Model_Product::ENTITY, 'ricardo_description', 'is_global', Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE);
+$installer->updateAttribute(Mage_Catalog_Model_Product::ENTITY, 'ricardo_title', 'is_global', Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE);
+$installer->updateAttribute(Mage_Catalog_Model_Product::ENTITY, 'ricardo_subtitle', 'is_global', Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE);
+
 $installer->endSetup();

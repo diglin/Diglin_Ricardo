@@ -335,10 +335,9 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     public function getProductDescription($sub = true)
     {
         $description = $this->getProduct()->getDescription($this->getBaseProductId(), $this->getStoreId(), $sub);
+        $description = (Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_NL2BR)) ? nl2br($description) : $description;
 
-        $nl2br = (Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_NL2BR)) ? 'nl2br' : '';
-
-        return strip_tags($nl2br($description), implode('', Mage::helper('diglin_ricento')->getAllowedTags()));
+        return strip_tags($description, implode('', Mage::helper('diglin_ricento')->getAllowedTags()));
     }
 
     /**

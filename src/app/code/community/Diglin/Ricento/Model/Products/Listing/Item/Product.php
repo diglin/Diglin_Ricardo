@@ -184,7 +184,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     {
         return array(
             $storeId,
-            $this->getDefaultStoreId(),
+//            $this->getDefaultStoreId(),
             Mage_Core_Model_App::ADMIN_STORE_ID
         );
     }
@@ -431,17 +431,44 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 continue;
             }
 
+            /**
+             * 1. Search if ricardo_description exists
+             * 2. if not exist search description
+             * 3. if not exist search short description
+             *
+             * if Merge allowed
+             * 1. Search if ricardo_description exists
+             * 2. if not exists search description and keep in memory
+             * 3. Then Search short_description and keep in memory
+             * 4. Do the merge
+             */
+
             foreach ($descriptions as $description) {
-                $returnedDescription = $this->_getProductText($description, $productId, $id);
+                $result = $this->_getProductText($description, $productId, $id);
+                $returnedDescription = $result[$description];
+                $rowFounded = (bool) (count($result) >= 1);
+
+                if ((!$rowFounded && $canMergeDescriptions || !$rowFounded && $description == 'ricardo_description') && $id != 0) {
+                    $returnedDescription = $this->_getProductText($description, $productId, 0);
+                }
+
                 if ($returnedDescription && !$canMergeDescriptions || $returnedDescription && $description == 'ricardo_description') {
                     $skip = true;
                     break;
                 }
-                $mergedDescriptions[$description] = $returnedDescription;
+
+                if ($returnedDescription) {
+                    $mergedDescriptions[$description] = $returnedDescription;
+                }
             }
 
             if ($canMergeDescriptions && count($mergedDescriptions) && !$skip) {
-                $returnedDescription = $mergedDescriptions['short_description'] . '<br><br>' . $mergedDescriptions['description'];
+                if (!empty($mergedDescriptions['short_description']) && !empty($mergedDescriptions['description'])) {
+                    $returnedDescription = $mergedDescriptions['short_description'] . '<br><br>' . $mergedDescriptions['description'];
+                }
+                if (!empty($returnedDescription)) {
+                    $skip = true;
+                }
             }
 
             if ($skip) {
@@ -750,7 +777,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
 
         $select = $readConnection
             ->select()
-            ->from(array('cpet'=> $this->_getCoreResource()->getTableName('catalog_product_entity_text')), array($field => 'value'))
+            ->from(array('cpet'=> $this->_getCoreResource()->getTableName('catalog_product_entity_text')), array($field => 'value', 'entity_id'))
             ->join(
                 array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
                 '`cpet`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
@@ -759,7 +786,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             ->where('`cpet`.`entity_id` = ?', $productId)
             ->where('`cpet`.`store_id` = ?', $storeId);
 
-        return $readConnection->fetchOne($select);
+        return $readConnection->fetchRow($select);
     }
 
     /**
