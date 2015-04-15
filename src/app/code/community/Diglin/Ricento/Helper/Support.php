@@ -109,6 +109,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         $files = array();
         foreach ($tables as $key => $table) {
 
+            // Anonymize
             $cols = array('*');
             if (in_array($key, array('entity_id_010', 'entity_id_010'))) {
                 $cols = $read->fetchCol('describe ' . $table);
@@ -300,7 +301,8 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
                 ->setDesignConfig(array('area' => 'adminhtml', 'store' => 0));
 
             if (!empty($replyTo)) {
-                $emailTemplate->setReplyTo($replyTo)
+                $emailTemplate
+                    ->setReplyTo($replyTo)
                     ->setReturnPath($replyTo);
             }
 
