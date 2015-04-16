@@ -165,9 +165,9 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
 
         $fieldsetSchedule = $form->addFieldset('fieldset_schedule', array('legend' => $this->__('Schedule')));
         $fieldsetSchedule->addType('radios_extensible', Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_form_element_radios_extensible'));
-        $dateFormatIso = Mage::app()->getLocale()->getDateTimeFormat(
-            Mage_Core_Model_Locale::FORMAT_TYPE_SHORT
-        );
+
+        $dateFormatIso = Mage::app()->getLocale()->getDateTimeFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
+
         $fieldsetSchedule->addField('schedule_date_start_immediately', 'radios_extensible', array(
             'name' => 'sales_options[schedule_date_start_immediately]',
             'label' => $this->__('Start'),
@@ -179,7 +179,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
                         'time'      => true,
                         'name' => 'sales_options[schedule_date_start]',
                         'image' => $this->getSkinUrl('images/grid-cal.gif'),
-                        'format' => $dateFormatIso,
+                        'format' => $dateFormatIso
                         //'class' => 'validate-date validate-date-range date-range-end_date-from' // Prototype's date validation does not work with localized dates, so we don't use it
                     )
                 ))
@@ -419,6 +419,8 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
          */
         if ($this->getSalesOptions()->getScheduleDateStart() == null) {
             $derivedValues['schedule_date_start_immediately'] = 1;
+        } else {
+            $derivedValues['schedule_date_start'] = Mage::app()->getLocale()->date($this->getSalesOptions()->getScheduleDateStart());
         }
 
         /**
