@@ -541,7 +541,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
                 $notDeleted = array_diff($productListings, $goingToBeDeleted);
                 if ($notDeleted) {
-                    $this->_getSession()->addNotice($this->__('The following products listings IDs have not been deleted because they are still listed on ricardo.ch: ' . implode(',', $notDeleted)));
+                    $this->_getSession()->addNotice($this->__("The following products listings IDs have not been deleted because they are still listed on ricardo.ch: %s", implode(',', $notDeleted)));
                 }
             }
         } catch (Exception $e) {

@@ -168,7 +168,7 @@
 "Only listed product items can be stopped.","Nur aktive gelistete Produkte können deaktiviert werden."
 "The job to stop to list your products will start in few minutes.","Der Vorgang um Ihre Produkte zu beenden wird in wenigen Minuten beginnen."
 "Products listing(s) is/are successfully deleted.","Produktlisting(s) wurde(n) erfolgreich gelöscht."
-"The following products listings IDs have not been deleted because they are still listed on ricardo.ch: ' . implode(","Die folgenden Produktlisting-IDs wurden nicht gelöscht, da Sie immer noch aktiv auf ricardo.ch gelistet sind:"
+"The following products listings IDs have not been deleted because they are still listed on ricardo.ch: %s","Die folgenden Produktlisting-IDs wurden nicht gelöscht, da Sie immer noch aktiv auf ricardo.ch gelistet sind:"
 "An error occurred while trying to delete the products listing(s). Please, check your exception log.","Beim Löschen des/der Produktlisting(s) trat ein Fehler auf. Bitte schauen Sie in Ihre Fehlerlog."
 "No products selected.","Keine Produkte gewählt."
 "The configuration has been saved successfully.","Die Konfiguration wurde erfolgreich gespeichert."
