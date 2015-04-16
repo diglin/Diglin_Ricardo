@@ -27,6 +27,8 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     const PERIOD_DAYS_MIN = 1; // in days
     const PERIOD_DAYS_MAX = 10; // in days
 
+    const QTY_MAX = 999;
+
     /**
      * @var array
      */

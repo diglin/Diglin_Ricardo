@@ -370,6 +370,8 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     public function getProductQty()
     {
+        $qtyMax = Diglin_Ricento_Model_Validate_Products_Item::QTY_MAX;
+
         if ($this->getSalesOptions()->getStockManagement() == -1
             || $this->getSalesOptions()->getStockManagementQtyType() == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) {
 
@@ -380,10 +382,12 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
 
             if ($this->getSalesOptions()->getStockManagement() == -1) {
-                return $qty;
+                return ($qty > $qtyMax) ? $qtyMax : $qty;
             }
 
-            return $this->getProduct()->getPercentQty($qty, $this->getSalesOptions()->getStockManagement(), Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT);
+            $qty = $this->getProduct()->getPercentQty($qty, $this->getSalesOptions()->getStockManagement(), Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT);
+
+            return ($qty > $qtyMax) ? $qtyMax : $qty;
         } else {
             return $this->getSalesOptions()->getStockManagement();
         }
