@@ -87,7 +87,7 @@ class Diglin_Ricento_Block_Adminhtml_Config_Source_Hint
         .' - <strong>Diglin_Ricento Version: '
         . Mage::getConfig()->getModuleConfig('Diglin_Ricento')->version
         .' </strong>'
-        . '&nbsp; For support:' . $buttonSend . '&nbsp;' . $buttonExport
+        . '&nbsp;' . $buttonSend . '&nbsp;' . $buttonExport
         . '</p>';
     }
 }
