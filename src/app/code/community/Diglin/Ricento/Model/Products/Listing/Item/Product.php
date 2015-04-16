@@ -184,7 +184,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     {
         return array(
             $storeId,
-//            $this->getDefaultStoreId(),
+            $this->getDefaultStoreId(), // fallback language
             Mage_Core_Model_App::ADMIN_STORE_ID
         );
     }
