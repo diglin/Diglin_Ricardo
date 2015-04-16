@@ -515,7 +515,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        $this->_successMessage = $this->__('The job to stop to list your products will start in few minutes.') . $this->__('You can check the progression below.');
+        $this->_successMessage = $this->__('The job to stop to list your products will start in few minutes.') . '&nbsp;' . $this->__('You can check the progression below.');
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_STOP, $countListedItem);
     }
 
@@ -565,13 +565,13 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             $error = true;
         }
 
-        if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
-            $error = true;
-        }
-
-        $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
-
         try {
+            if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
+                $error = true;
+            }
+
+            $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
+
             if (!$error) {
                 $articleDetails = array();
                 $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
@@ -614,14 +614,16 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             }
 
             if ($error) {
-                $this->_getSession()->addNotice('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo.');
+                $this->_getSession()->addNotice($this->__('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo.ch.'));
                 $this->_initLayoutMessages('adminhtml/session');
                 $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
                 return;
             }
         } catch (Exception $e) {
             Mage::logException($e);
-            $this->getResponse()->setBody($e->__toString());
+            $this->_getSession()->addError($this->__('An error occurred %s', $e->getMessage()));
+            $this->_initLayoutMessages('adminhtml/session');
+            $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
             return;
         }
     }
