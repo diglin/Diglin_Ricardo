@@ -675,3 +675,4 @@
 "Confirm, check and List","Confirmer, vérifier et lister"
 "Send us your configuration","Envoyez nous votre configuration"
 "Export your configuration","Exporter votre configuration"
+"Receive email notification in case of error? Email are sent to the main shop contact and are related to API errors, Token expiration, etc...","Voulez-vous recevoir un email de notification en cas d'erreur? Les emails sont envoyés au contact principal de la boutique en cas d'erreur avec l'API ou que le token expire, etc..."
