@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -70,14 +70,13 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Products_Listing extends Digl
         if (!empty($data['sales_options']['sales_auction_direct_buy'])
             && $data['sales_options']['sales_type'] == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
             $data['sales_options']['stock_management'] = 1;
+            $data['sales_options']['stock_management_qty_type'] = Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_FIX;
             $this->_getSession()->addNotice($this->__('Stock quantity set to 1 because auction sales type with direct buy option does not allow more than one article to be sold'));
         }
         if (!empty($data['sales_options']['schedule_date_start_immediately'])) {
             $data['sales_options']['schedule_date_start'] = null;
-            if ($data['sales_options']['sales_type'] == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
-                $dateStart = new DateTime();
-                $derivedValues['schedule_date_start'] = $dateStart->format(Varien_Date::DATETIME_PHP_FORMAT);
-            }
+        } else {
+            $data['sales_options']['schedule_date_start'] = Mage::app()->getLocale()->utcDate(null, $data['sales_options']['schedule_date_start'], true)->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
         }
         if (!empty($data['sales_options']['schedule_period_use_end_date'])) {
             try {

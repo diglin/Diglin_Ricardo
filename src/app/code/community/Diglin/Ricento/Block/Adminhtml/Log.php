@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -31,7 +31,7 @@ class Diglin_Ricento_Block_Adminhtml_Log extends Mage_Adminhtml_Block_Widget_Con
 
         $this->addButton('show_listing', array(
             'label' => $this->__('Show Products Listing'),
-            'onclick' => 'setLocation(\''.$this->getUrl('*/products_listing/index').'\')',
+            'onclick' => 'setLocation(\''.$this->getUrl('*/products_listing/index') .'\')',
         ));
     }
 

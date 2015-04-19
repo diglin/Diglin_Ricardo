@@ -5,16 +5,16 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Status
+ * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Status
  *
  * Renderer for column name for configurable product
  */
-class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Status
+class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Status
     extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
     /**
@@ -24,7 +24,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
     public function render(Varien_Object $row)
     {
         $value = $this->_getValue($row);
-        if ($row->getTypeId() == Mage_Catalog_Model_Product_Type_Configurable::TYPE_CODE) {
+        if ($row->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
             $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
             $itemCollection->addFieldToFilter('parent_item_id', $row->getItemId());
             $helper = Mage::helper('diglin_ricento');
@@ -33,8 +33,11 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
             foreach ($itemCollection->getItems() as $item) {
                 $output = '';
                 switch ($item->getStatus()) {
+                    case 'stopped':
+                        $output .= '<span class="message_warnings">' . $helper->__('Stopped') . '</span>';
+                        break;
                     case 'error':
-                        $output .= '<span class="message_errors">' . $helper->__('Stopped') . '</span>';
+                        $output .= '<span class="message_errors">' . $helper->__('Error') . '</span>';
                         break;
                     case 'listed':
                         $output .= '<span class="message_success">' . $helper->__('Listed') . '</span>';
@@ -58,12 +61,20 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
         return $value;
     }
 
+    /**
+     * @param $value
+     * @param Varien_Object $row
+     * @return string
+     */
     protected function _decorate($value, Varien_Object $row)
     {
         $output = '';
         $helper = Mage::helper('diglin_ricento');
         $value = htmlspecialchars_decode($value);
         switch ($row->getStatus()) {
+            case 'stopped':
+                $output .= '<div id="message-warnings-' . $row->getId() . '" class="message_warnings">' . $helper->__('Stopped') . '</div>';
+                break;
             case 'error':
                 $output .= '<div id="message-errors-' . $row->getId() . '" class="message_errors">' . $helper->__('Error') . '</div>';
                 break;

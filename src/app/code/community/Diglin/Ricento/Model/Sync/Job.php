@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -31,13 +31,12 @@
 class Diglin_Ricento_Model_Sync_Job extends Diglin_Ricento_Model_Sync_Abstract
 {
     // TYPES OF JOB
-    const TYPE_CHECK_LIST   = 'check_list';
-    const TYPE_LIST         = 'list';
-    const TYPE_RELIST       = 'relist';
-    const TYPE_STOP         = 'stop';
-    const TYPE_UPDATE       = 'update';
-    const TYPE_ORDER        = 'order';
-    const TYPE_SYNCLIST     = 'sync_list';
+    const TYPE_CHECK_LIST           = 'check_list';
+    const TYPE_LIST                 = 'list';
+    const TYPE_STOP                 = 'stop';
+    const TYPE_ORDER                = 'order';
+    const TYPE_SYNCLIST             = 'sync_list';
+    const TYPE_CLOSED               = 'closed';
 
     // PROGRESS
     const PROGRESS_PENDING          = 'pending';
@@ -129,7 +128,7 @@ class Diglin_Ricento_Model_Sync_Job extends Diglin_Ricento_Model_Sync_Abstract
                     if (in_array($this->getProgress(), array(self::PROGRESS_PENDING, self::PROGRESS_CHUNK_RUNNING))) {
                         return $helper->__('Check in progress...');
                     }
-                break;
+                    break;
                 case self::TYPE_LIST:
                     if (in_array($this->getProgress(), array(self::PROGRESS_PENDING, self::PROGRESS_CHUNK_RUNNING))) {
                         return $helper->__('List in progress...');

@@ -5,9 +5,11 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
+use \Diglin\Ricardo\Enums\Article\PromotionCode;
 
 /**
  * Sales_Options Model
@@ -26,6 +28,7 @@
  * @method int      getScheduleCycleMultipleProducts()
  * @method int      getScheduleOverwriteProductDateStart()
  * @method int      getStockManagement()
+ * @method string   getStockManagementQtyType()
  * @method int      getCustomizationTemplate()
  * @method int      getPromotionSpace()
  * @method int      getPromotionStartPage()
@@ -50,6 +53,7 @@
  * @method Diglin_Ricento_Model_Sales_Options setScheduleCycleMultipleProducts(int $scheduleCycleMultipleProducts)
  * @method Diglin_Ricento_Model_Sales_Options setScheduleOverwriteProductDateStart(int $scheduleOverwriteProductDateStart)
  * @method Diglin_Ricento_Model_Sales_Options setStockManagement(int $stockManagement)
+ * @method Diglin_Ricento_Model_Sales_Options setStockManagementQtyType(string $stockManagementQtyType)
  * @method Diglin_Ricento_Model_Sales_Options setCustomizationTemplate(int $customizationTemplate)
  * @method Diglin_Ricento_Model_Sales_Options setPromotionSpace(int $promotionSpace)
  * @method Diglin_Ricento_Model_Sales_Options setPromotionStartPage(int $promotionStartPage)
@@ -127,5 +131,31 @@ class Diglin_Ricento_Model_Sales_Options extends Mage_Core_Model_Abstract
             return $this->$method();
         }
         return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getPromotionIds()
+    {
+        $promotionIds = array();
+
+        if ($this->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION
+            && $this->getSalesAuctionDirectBuy()
+        ) {
+            $promotionIds[] = PromotionCode::BUYNOW;
+        }
+
+        $space = $this->getPromotionSpace();
+        if ($space) {
+            $promotionIds[] = (int) $space;
+        }
+
+        $startSpace = $this->getPromotionStartPage();
+        if ($startSpace) {
+            $promotionIds[] = (int) $startSpace;
+        }
+
+        return $promotionIds;
     }
 }

@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -77,7 +77,14 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      *
      * @var array
      */
-    protected $_configurable_attributes = array();
+    protected $_configurableAttributes = array();
+
+    /**
+     * For configurable products
+     *
+     * @var array
+     */
+    protected $_priceOptions = array();
 
     protected $_title;
     protected $_subtitle;
@@ -118,11 +125,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getMagentoProduct()
     {
-        if ($this->_model) {
+        if ($this->_model && $this->_model->getId() == $this->getProductId()) {
             return $this->_model;
         }
 
-        if ($this->_productId > 0) {
+        if ($this->getProductId() > 0) {
             $this->loadProduct();
             return $this->_model;
         }
@@ -152,8 +159,8 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function loadProduct($productId = null, $storeId = null)
     {
-        $productId = (is_null($productId)) ? $this->_productId : $productId;
-        $storeId = (is_null($storeId)) ? $this->_storeId : $storeId;
+        $productId = (is_null($productId)) ? $this->getProductId() : $productId;
+        $storeId = (is_null($storeId)) ? $this->getStoreId() : $storeId;
 
         if (!$productId) {
             throw new Exception('Product ID is empty.');
@@ -177,7 +184,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     {
         return array(
             $storeId,
-            $this->getDefaultStoreId(),
+            $this->getDefaultStoreId(), // fallback language
             Mage_Core_Model_App::ADMIN_STORE_ID
         );
     }
@@ -190,7 +197,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     {
         (!is_null($productId)) && $this->_productId = $productId;
 
-        $productId = (int) is_null($productId) ? $this->_productId : $productId;
+        $productId = (int) is_null($productId) ? $this->getProductId() : $productId;
 
         if (empty($productId)) {
             return false;
@@ -248,13 +255,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return $this->_model->getTypeId();
         }
 
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
 
         if (empty($productId) && empty($this->_typeid)) {
             return false;
         }
 
-        if (empty($this->_typeid) || $productId != $this->_productId) {
+        if (empty($this->_typeid) || $productId != $this->getProductId()) {
             $this->getProductInformation($productId);
         }
 
@@ -271,13 +278,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return $this->_model->getHasOptions();
         }
 
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
 
         if (empty($productId) && empty($this->_has_options)) {
             return false;
         }
 
-        if (empty($this->_has_options) || $productId != $this->_productId) {
+        if (empty($this->_has_options) || $productId != $this->getProductId()) {
             $this->getProductInformation($productId);
         }
 
@@ -294,13 +301,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return $this->_model->getRequiredOptions();
         }
 
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
 
         if (empty($productId) && empty($this->_required_options)) {
             return false;
         }
 
-        if (empty($this->_required_options) || $productId != $this->_productId) {
+        if (empty($this->_required_options) || $productId != $this->getProductId()) {
             $this->getProductInformation($productId);
         }
 
@@ -313,13 +320,13 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getCategoryIds($productId = null)
     {
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
 
         if (empty($productId) && empty($this->_category_ids)) {
             return false;
         }
 
-        if ($productId && empty($this->_category_ids) || $productId != $this->_productId) {
+        if ($productId && empty($this->_category_ids) || $productId != $this->getProductId()) {
             $this->getProductInformation($productId);
         }
 
@@ -334,8 +341,8 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getTitle($productId = null, $storeId = null, $sub = true)
     {
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
-        $storeId = (int) (is_null($storeId) ? $this->_storeId : $storeId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
+        $storeId = (int) (is_null($storeId) ? $this->getStoreId() : $storeId);
 
         $titles = array(
             'ricardo_title',
@@ -376,8 +383,8 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getSubtitle($productId = null, $storeId = null, $sub = true)
     {
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
-        $storeId = (int) (is_null($storeId) ? $this->_storeId : $storeId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
+        $storeId = (int) (is_null($storeId) ? $this->getStoreId() : $storeId);
 
         $subtitle = '';
 
@@ -405,8 +412,8 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getDescription($productId = null, $storeId = null, $sub = true)
     {
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
-        $storeId = (int) (is_null($storeId) ? $this->_storeId : $storeId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
+        $storeId = (int) (is_null($storeId) ? $this->getStoreId() : $storeId);
 
         $descriptions = array(
             'ricardo_description',
@@ -414,19 +421,57 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             'short_description'
         );
 
+        $canMergeDescriptions = Mage::helper('diglin_ricento')->canMergeDescriptions($storeId);
         $returnedDescription = null;
+        $mergedDescriptions = array();
+        $skip = false;
 
         foreach ($this->getStoresList($storeId) as $id) {
             if (is_null($id)) {
                 continue;
             }
+
+            /**
+             * 1. Search if ricardo_description exists
+             * 2. if not exist search description
+             * 3. if not exist search short description
+             *
+             * if Merge allowed
+             * 1. Search if ricardo_description exists
+             * 2. if not exists search description and keep in memory
+             * 3. Then Search short_description and keep in memory
+             * 4. Do the merge
+             */
+
             foreach ($descriptions as $description) {
-                $returnedDescription = $this->_getProductText($description, $productId, $id);
-                if ($returnedDescription) {
+                $result = $this->_getProductText($description, $productId, $id);
+                $returnedDescription = $result[$description];
+                $rowFounded = (bool) (count($result) >= 1);
+
+                if ((!$rowFounded && $canMergeDescriptions || !$rowFounded && $description == 'ricardo_description') && $id != 0) {
+                    $returnedDescription = $this->_getProductText($description, $productId, 0);
+                }
+
+                if ($returnedDescription && !$canMergeDescriptions || $returnedDescription && $description == 'ricardo_description') {
+                    $skip = true;
                     break;
                 }
+
+                if ($returnedDescription) {
+                    $mergedDescriptions[$description] = $returnedDescription;
+                }
             }
-            if ($returnedDescription) {
+
+            if ($canMergeDescriptions && count($mergedDescriptions) && !$skip) {
+                if (!empty($mergedDescriptions['short_description']) && !empty($mergedDescriptions['description'])) {
+                    $returnedDescription = $mergedDescriptions['short_description'] . '<br><br>' . $mergedDescriptions['description'];
+                }
+                if (!empty($returnedDescription)) {
+                    $skip = true;
+                }
+            }
+
+            if ($skip) {
                 break;
             }
         }
@@ -443,14 +488,18 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     /**
      * @return float
      */
-    public function getPrice()
+    public function getPrice($convert = false)
     {
-        //@todo do the conversion from a non supported currency to the supported currency - at the moment we do not support this feature
-
         $salesOptions = $this->getProductListingItem()->getSalesOptions();
         $price = $this->_getProductPrice($salesOptions->getPriceSourceAttributeCode());
 
-        return Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+        $price = Mage::helper('diglin_ricento/price')->calculatePriceChange($price, $salesOptions->getPriceChangeType(), $salesOptions->getPriceChange());
+
+        if ($convert) {
+            $price = $this->_convert($price);
+        }
+
+        return $price;
     }
 
     /**
@@ -463,7 +512,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return $this->_model->getSku();
         }
 
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        $productId = (int) (is_null($productId) ? $this->getProductId() : $productId);
 
         if (empty($productId) && empty($this->_sku)) {
             return false;
@@ -492,26 +541,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getImages($productId = null)
     {
-        if (is_null($productId) && $this->_model && $this->_model->getId()) {
-            $productId = $this->_model->getId();
-        } elseif (is_null($productId) && $this->_productId) {
-            $productId = $this->_productId;
-        }
-
-        if (!is_numeric($productId)) {
-            return false;
-        }
-
-        $mediaConfig = Mage::getSingleton('catalog/product_media_config');
-        $images = $this->getAssignedImages($productId);
-
-        foreach ($images as &$image) {
-            if (isset($image['filepath'])) {
-                $image['filepath'] = $mediaConfig->getMediaPath($image['filepath']);
-            }
-        }
-
-        return $images;
+        return $this->getAssignedImages($productId);
     }
 
     /**
@@ -523,7 +553,15 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getAssignedImages($productId = null)
     {
-        $productId = (int) (is_null($productId) ? $this->_productId : $productId);
+        if (is_null($productId) && $this->_model && $this->_model->getId()) {
+            $productId = $this->_model->getId();
+        } elseif (is_null($productId) && $this->getProductId()) {
+            $productId = $this->getProductId();
+        }
+
+        if (!is_numeric($productId)) {
+            return false;
+        }
 
         $read = $this->_getReadConnection();
         $resource = $this->_getCoreResource();
@@ -570,7 +608,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             ->where('store_id = 0')
             ->where('attribute_code = ?', 'image');
 
-        return array_merge($mediaGallery, $read->fetchAll($select));
+        return array_merge($read->fetchAll($select), $mediaGallery);
     }
 
     /**
@@ -579,11 +617,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getStockItem()
     {
-        if (is_null($this->_model) && $this->_productId < 0) {
+        if (is_null($this->_model) && $this->getProductId() < 0) {
             throw new Exception('Product Model must be init first');
         }
 
-        $productId = !is_null($this->_model) ? $this->_model->getId() : $this->_productId;
+        $productId = !is_null($this->_model) ? $this->_model->getId() : $this->getProductId();
 
         return Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
     }
@@ -593,12 +631,15 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function getQty()
     {
-        if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-        || $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        if ($this->isConfigurableType()) {
             return false;
         }
 
         $stockItem = $this->getStockItem();
+
+        if ($this->isGroupedType() && $stockItem->getIsInStock()) {
+            return 1;
+        }
 
         if ($stockItem->getIsQtyDecimal()) {
             return false;
@@ -608,13 +649,31 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     }
 
     /**
+     * @param int $productStockQty
+     * @param int $qtyTargeted
+     * @param $type
+     * @return float
+     */
+    public function getPercentQty($productStockQty, $qtyTargeted, $type)
+    {
+        if ($type == Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT) {
+            $qty = round($productStockQty * $qtyTargeted / 100, 0, PHP_ROUND_HALF_DOWN);
+        } else {
+            $qty = $qtyTargeted;
+        }
+
+        return ($qty) ? $qty : 1;
+    }
+
+    /**
      * Check quantity
      *
      * @param   float $qty
+     * @param   string $type
      * @exception Mage_Core_Exception
      * @return  bool
      */
-    public function checkQty($qty)
+    public function checkQty($qty, $type = Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_FIX)
     {
         $stockItem = $this->getStockItem();
 
@@ -625,11 +684,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         $composite = false;
         $usedProductIds = array();
 
-        if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+        if ($this->isConfigurableType()) {
             /* @var $instance Mage_Catalog_Model_Product_Type_Configurable */
             $usedProductIds = $this->getTypeInstance(true)->getUsedProductIds($this->getMagentoProduct());
             $composite = true;
-        } else if ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+        } else if ($this->isGroupedType()) {
             /* @var $instance Mage_Catalog_Model_Product_Type_Grouped */
             $usedProductIds = $this->getAssociatedProductIds();
             $composite = true;
@@ -639,7 +698,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             foreach ($usedProductIds as $id) {
                 $stockItem->unsetData(); // cleanup before to proceed, we may also use the method reset but it's not relevant here
                 $stockItemProd = $stockItem->loadByProduct($id);
-                if ($stockItemProd->getQty() - $stockItemProd->getMinQty() - $qty < 0) {
+                if ($stockItemProd->getQty() - $stockItemProd->getMinQty() - $this->getPercentQty($stockItemProd->getQty(), $qty, $type) < 0) {
                     switch ($stockItemProd->getBackorders()) {
                         case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NONOTIFY:
                         case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY:
@@ -651,7 +710,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 }
             }
         } else {
-            if ($stockItem->getQty() - $stockItem->getMinQty() - $qty < 0) {
+            if ($stockItem->getQty() - $stockItem->getMinQty() - $this->getPercentQty($stockItem->getQty(), $qty, $type) < 0) {
                 switch ($stockItem->getBackorders()) {
                     case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NONOTIFY:
                     case Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY:
@@ -718,7 +777,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
 
         $select = $readConnection
             ->select()
-            ->from(array('cpet'=> $this->_getCoreResource()->getTableName('catalog_product_entity_text')), array($field => 'value'))
+            ->from(array('cpet'=> $this->_getCoreResource()->getTableName('catalog_product_entity_text')), array($field => 'value', 'entity_id'))
             ->join(
                 array('ea' => $this->_getCoreResource()->getTableName('eav_attribute')),
                 '`cpet`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
@@ -727,7 +786,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             ->where('`cpet`.`entity_id` = ?', $productId)
             ->where('`cpet`.`store_id` = ?', $storeId);
 
-        return $readConnection->fetchOne($select);
+        return $readConnection->fetchRow($select);
     }
 
     /**
@@ -737,17 +796,14 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
     protected function _getProductPrice($field = null)
     {
         switch ($this->getTypeId()) {
-            case Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE:
-                $price = $this->_getSimpleProductBasePrice($field);
-                return $this->_getConfigurableProductBasePrice($price);
-                break;
             case Mage_Catalog_Model_Product_Type::TYPE_GROUPED:
                 return $this->_getGroupedProductBasePrice();
                 break;
             case Mage_Catalog_Model_Product_Type::TYPE_SIMPLE:
+            case Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE:
             default:
                 // @todo implement a factory adapter to get other kind of external product type
-                return $this->_getSimpleProductBasePrice($field);
+                return $this->_getProductBasePrice($field);
                 break;
         }
     }
@@ -757,14 +813,57 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      * @param bool $withTax
      * @return float|string
      */
-    protected function _getSimpleProductBasePrice($field = null, $withTax = true)
+    protected function _getProductBasePrice($field = null, $withTax = true)
     {
         if (is_null($field)) {
             $field = 'price';
         }
 
-        $readConnection = $this->_getReadConnection();
+        $productId = ($this->getProductListingItem()->getParentProductId()) ? $this->getProductListingItem()->getParentProductId() : $this->getProductId();
+        $price = $this->_getPrice($field, $productId, $this->_defaultStoreId);
 
+        if ($price === false) {
+            $price = $this->_getPrice($field, $productId);
+        }
+
+        if ($field == 'special_price' && empty($price)) {
+            $price = $this->_getProductBasePrice('price', false);
+        }
+
+        if ($this->getProductListingItem()->getParentProductId() && count($this->getPriceOptions())) {
+            foreach ($this->getPriceOptions() as $option) {
+                $price += Mage::helper('diglin_ricento/price')->calcSelectionPrice($option, $price);
+            }
+        }
+
+        /**
+         * Calculate price with incl tax if price catalog doesn't include it
+         * @todo improve performance - Loading product is a bad idea (we just need getTaxPercent and getTaxClassId)
+         */
+        if ($withTax) {
+            if ($productId != $this->getProductId()) {
+                $product = Mage::getModel('catalog/product')
+                    ->setStoreId($this->getStoreId())
+                    ->load($productId);
+            } else {
+                $product = $this->getMagentoProduct();
+            }
+
+            $price = Mage::helper('tax')->getPrice($product, $price, true, null, null, null, $this->_defaultStoreId);
+        }
+
+        return $price;
+    }
+
+    /**
+     * @param string $field
+     * @param int $productId
+     * @param int $storeId
+     * @return string|bool
+     */
+    private function _getPrice($field, $productId, $storeId = Mage_Core_Model_App::ADMIN_STORE_ID)
+    {
+        $readConnection = $this->_getReadConnection();
         $select = $readConnection
             ->select()
             ->from(array('cped'=> $this->_getCoreResource()->getTableName('catalog_product_entity_decimal')), array($field => 'value'))
@@ -773,24 +872,10 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 '`cped`.`attribute_id` = `ea`.`attribute_id` AND `ea`.`attribute_code` = \''. $field .'\'',
                 array()
             )
-            ->where('`cped`.`entity_id` = ?', (int) $this->getProductId())
-            ->where('`cped`.`store_id` = ?', $this->_defaultStoreId);
+            ->where('`cped`.`entity_id` = ?', (int) $productId)
+            ->where('`cped`.`store_id` = ?', (int) $storeId);
 
-        $price = $readConnection->fetchOne($select);
-
-        if ($field == 'special_price' && empty($price)) {
-            $price = $this->_getSimpleProductBasePrice('price', false);
-        }
-
-        /**
-         * Calculate price with incl tax if price catalog doesn't include it
-         * @todo improve performance - Loading product is bad idea (we just need getTaxPercent and getTaxClassId)
-         */
-        if ($withTax) {
-            $price = Mage::helper('tax')->getPrice($this->getMagentoProduct(), $price, true, null, null, null, $this->_defaultStoreId);
-        }
-
-        return $price;
+        return $readConnection->fetchOne($select);
     }
 
     /**
@@ -857,7 +942,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                 $priceInclTax = Mage::helper('tax')->getPrice($associatedProduct, $associatedProduct->getPrice(), true, null, null, null, $this->_defaultStoreId);
 
                 // Set default qty = 1 when qty = 0
-                $totalPrice += (((!$associatedProduct->getQty()) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
+                $totalPrice += ((($associatedProduct->getQty() > 0) ? $associatedProduct->getQty() : $defaultQty) * $priceInclTax);
             }
         }
 
@@ -902,22 +987,27 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         return $this->_usedProductIds;
     }
 
+    /**
+     * @return array|Mage_Catalog_Model_Resource_Product_Type_Configurable_Attribute_Collection|null
+     * @throws Exception
+     */
     public function getConfigurableAttributes()
     {
         if (!$this->isConfigurableType()) {
             return null;
         }
 
-        if (empty($this->_configurable_attributes)) {
-            $this->_configurable_attributes = Mage::getResourceModel('catalog/product_type_configurable_attribute_collection')
+        if (empty($this->_configurableAttributes)) {
+            $this->_configurableAttributes = Mage::getResourceModel('catalog/product_type_configurable_attribute_collection')
                 ->orderByPosition()
                 ->setProductFilter($this->getMagentoProduct());
         }
 
-        return $this->_configurable_attributes;
+        return $this->_configurableAttributes;
     }
 
     /**
+     * @deprecated
      * @param float|int $productPrice
      * @return null|float
      */
@@ -953,6 +1043,24 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         }
 
         return ($productPrice + $finalMinPrice);
+    }
+
+    /**
+     * @param $price
+     * @return float|null
+     * @throws Mage_Core_Exception
+     */
+    protected function _convert($price)
+    {
+        $websiteId = $this->getProductListingItem()->getProductsListing()->getWebsiteId();
+        $baseCurrency = Mage::app()->getWebsite($websiteId)->getBaseCurrencyCode();
+
+        if ($baseCurrency != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
+            $priceHelper = Mage::helper('diglin_ricento/price');
+            $price = $priceHelper->convert($price, $baseCurrency, Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY, $websiteId);
+        }
+
+        return $price;
     }
 
     /**
@@ -1053,7 +1161,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isSimpleType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE);
     }
 
     /**
@@ -1061,7 +1169,7 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isConfigurableType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
     }
 
     /**
@@ -1069,6 +1177,24 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
      */
     public function isGroupedType()
     {
-        return $this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED;
+        return ($this->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED);
+    }
+
+    /**
+     * @return array
+     */
+    public function getPriceOptions()
+    {
+        return $this->_priceOptions;
+    }
+
+    /**
+     * @param array $priceOptions
+     * @return $this
+     */
+    public function setPriceOptions($priceOptions)
+    {
+        $this->_priceOptions = $priceOptions;
+        return $this;
     }
 }

@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -90,7 +90,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid extends Mage_Adminhtm
         $this->addColumn('status', array(
             'header'   => $this->__('Status') ,
             'align'    => 'left',
-            'width'    => '150px',
+            'width'    => '200px',
             'index'    => 'status',
             'type'     => 'options',
             'options'  => Mage::getSingleton('diglin_ricento/config_source_status')->toOptionHash(),
@@ -186,7 +186,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid extends Mage_Adminhtm
         $this->getMassactionBlock()->addItem('delete', array(
             'label'=> $this->__('Delete'),
             'url'  => $this->getUrl('*/*/massDelete', array('_current'=>true)),
-            'confirm' => $this->__('Are you sure that you want to delete this/these products listing(s)? Be aware it\'s only possible when the listing is "Listed"')
+            'confirm' => $this->__('Are you sure that you want to delete this/these products listing(s)? Be aware it\'s not possible when the listing is "Listed"')
         ));
 
         return $this;

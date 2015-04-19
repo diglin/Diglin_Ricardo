@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 /* @var $this Diglin_Ricento_Block_Adminhtml_Products_Category_Mapping */
@@ -16,14 +16,13 @@
         <button type="button" onclick="Ricento.closePopup()" class="cancel button" id="ricardo_categories_button_cancel"><span><?php echo $this->__('Cancel'); ?></span></button>
         <button type="submit" class="save button" id="ricardo_categories_button_save"><span><?php echo $this->__('Confirm');?></span></button>
     </div>
-<?php
-    echo $this->getChildHtml('toplevel');
-?>
-    <div id="ricardo_children">
-<?php
-    echo $this->getChildHtml('sublevel');
-?>
+    <div class="category-suggestion">
+        <input type="text" id="ricardo_categories_suggest" name="ricardo_categories_suggest" value="<?php echo $this->__('Enter product name: e.g. iphone'); ?>" />
+        <div id="other-suggestions"></div>
     </div>
+
+    <?php echo $this->getChildHtml('category_tree'); ?>
+
     <input type="hidden" name="ricardo_category_selected_title" id="ricardo_category_selected_title" value="" />
     <div class="form-buttons">
         <button type="button" onclick="Ricento.closePopup()" class="cancel button" id="ricardo_categories_button_cancel"><span><?php echo $this->__('Cancel'); ?></span></button>
@@ -31,10 +30,10 @@
     </div>
 </form>
 </div>
-
 <script type="text/javascript">
     categoryMapper = new Ricento.CategoryMappper({
         wrapperElement : 'ricardo_categories',
         loadChildrenUrl : '<?php echo $this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')); ?>'
     });
+    categoryMapper.initAutocomplete('<?php echo $this->getSuggestUrl() ?>', 'category-tree', '<?php echo $this->__('Enter product name: e.g. iphone'); ?>');
 </script>

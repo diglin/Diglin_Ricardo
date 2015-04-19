@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -84,13 +84,6 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
 
             // Be aware doing that doesn't trigger Magento events but it's faster
             $this->getProductsListingItemCollection()->updateStatusToAll(Diglin_Ricento_Helper_Data::STATUS_PENDING);
-
-            // Delete configurable product children, will be recreated when the check list process is done
-            Mage::getResourceModel('diglin_ricento/products_listing_item_collection')
-                ->addFieldToFilter('products_listing_id', $this->getId())
-                ->addFieldToFilter('parent_item_id', array('notnull' => 1))
-                ->addFieldToFilter('ricardo_article_id', array('null' => 1))
-                ->walk('delete');
         }
 
         $this->setUpdatedAt(Mage::getSingleton('core/date')->gmtDate());
@@ -109,7 +102,7 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
     {
         parent::_beforeDelete();
 
-        // We must not use the FK constrains cause of deletion of other values at item level
+        // We must not use the FK constrains cause of the need to delete other values at item level
         $this->getProductsListingItemCollection()->walk('delete');
         return $this;
     }
@@ -163,81 +156,43 @@ class Diglin_Ricento_Model_Products_Listing extends Mage_Core_Model_Abstract
      */
     public function addProduct($productId)
     {
-        if (Mage::getResourceModel('catalog/product_collection')->addFieldToFilter('entity_id', $productId)->getSize()) {
+        $readConnection = $this->getResource()->getReadConnection();
+        $select = $readConnection
+            ->select()
+            ->from($this->getResource()->getTable('catalog/product'), array('entity_id', 'type_id'))
+            ->where('entity_id = ?', $productId);
+
+        $productTable = $readConnection->fetchRow($select);
+
+        if (count($productTable)) {
             /** @var $productListingItem Diglin_Ricento_Model_Products_Listing_Item */
             $productListingItem = Mage::getModel('diglin_ricento/products_listing_item');
-            $productListingItem->setProductsListingId($this->getId())->setProductId($productId)->save();
+            $productListingItem
+                ->setProductsListingId($this->getId())
+                ->setProductId($productId)
+                ->setType($productTable['type_id'])
+                ->save();
             return true;
         }
         return false;
     }
 
     /**
-     * Removes items by product id
-     *
      * @param array $productIds
-     * @return int[] Returns two values: [number of removed products, number of not removed listed products]
+     * @return int[]
      */
     public function removeProductsByProductIds(array $productIds)
     {
-        /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-
-        /** @var $itemResource Diglin_Ricento_Model_Resource_Products_Listing_Item */
-        $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
-        $itemResource->beginTransaction();
-
-        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('product_id', array('in' => $productIds))
-            ->addFieldToFilter('status', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->getSize();
-
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-        $numberOfItemsToDelete = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('product_id', array('in' => $productIds))
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->count();
-
-        if ($numberOfItemsToDelete) {
-            $items->walk('delete');
-        }
-
-        $itemResource->commit();
-        return array($numberOfItemsToDelete, $numberOfListedItems);
+        return $this->getResource()->removeProductsByProductIds($productIds, $this->getId());
     }
 
     /**
-     * Removes items by item id
-     *
-     * @param array $itemIds
-     * @return int[] Returns two values: [number of removed products, number of not removed listed products]
+     * @param array $productIds
+     * @return int[]
      */
-    public function removeProductsByItemIds(array $itemIds)
+    public function removeProductsByItemIds(array $productIds)
     {
-        /** @var $items Diglin_Ricento_Model_Resource_Products_Listing_Item_Collection */
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-
-        /** @var $itemResource Diglin_Ricento_Model_Resource_Products_Listing_Item */
-        $itemResource = Mage::getResourceModel('diglin_ricento/products_listing_item');
-        $itemResource->beginTransaction();
-
-        $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('item_id', array('in' => $itemIds))
-            ->addFieldToFilter('status', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->getSize();
-
-        $items = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
-        $numberOfItemsToDelete = $items->addFieldToFilter('products_listing_id', $this->getId())
-            ->addFieldToFilter('item_id', array('in' => $itemIds))
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
-            ->count();
-
-        if ($numberOfItemsToDelete) {
-            $items->walk('delete');
-        }
-
-        $itemResource->commit();
-        return array($numberOfItemsToDelete, $numberOfListedItems);
+        return $this->getResource()->removeProductsByItemIds($productIds, $this->getId());
     }
 
     /**

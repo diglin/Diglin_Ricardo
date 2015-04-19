@@ -182,6 +182,37 @@ Ricento.progressPopup = function(url) {
         }
     });
 };
+
+Ricento.confirmationPopup = function(url) {
+    if ($('ricento_popup') && typeof(Windows) != 'undefined') {
+        Windows.focus('ricento_popup');
+        return;
+    }
+
+    var parameters = $('edit_form').serialize(true);
+    Dialog.info({url:url, options: {parameters: parameters}}, {
+        closable:true,
+        resizable:true,
+        maximizable:true,
+        draggable:true,
+        className:'magento',
+        windowClassName:'confirmation-popup-window',
+        title: Translator.translate('List the products on ricardo.ch'),
+        top:50,
+        width:640,
+        height:480,
+        zIndex:1000,
+        recenterAuto:false,
+        hideEffect:Element.hide,
+        showEffect:Element.show,
+        id:'ricento_popup_confirmation',
+        showProgress:true,
+        onShow:function(dialog) {
+            dialog.element.innerHTML.evalScripts();
+        }
+    });
+};
+
 Ricento.closePopup = function() {
     Windows.close('ricento_popup');
 };
@@ -294,7 +325,6 @@ Ricento.salesOptionsForm.prototype = {
         Countable.live($(this.htmlIdPrefix + 'product_warranty_description_fr'), function (counter){
             $(self.htmlIdPrefix + 'product_warranty_description_fr_result__all').update(counter.characters);
         });
-
     },
     toggleRequired : function(field, required, label) {
         field = $(field);
@@ -363,15 +393,18 @@ Ricento.salesOptionsForm.prototype = {
             warrantyDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'product_warranty_description_' + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             warrantyDescription.disabled = !required;
@@ -429,15 +462,18 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             paymentDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'payment_description_' + this.langs[i] + ']')[0];
 
             required = field.checked;
-            currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
+
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
 
             paymentDescription.disabled = !required;
@@ -450,16 +486,19 @@ Ricento.RulesForm = Class.create (Ricento.salesOptionsForm, {
             shippingDescriptionLabel = $$('label[for='+ this.htmlIdPrefix + 'shipping_description_'  + this.langs[i] + ']')[0];
 
             required = (field.value == '0') ? 1 : 0;
-            currentLang = $('product_listing_publish_languages').value;
+            if ($('product_listing_publish_languages')) {
+                currentLang = $('product_listing_publish_languages').value;
 
-            switch (currentLang) {
-                case 'de':
-                case 'fr':
-                    if (this.langs[i] != currentLang) {
-                        required = false;
-                    }
-                    break;
+                switch (currentLang) {
+                    case 'de':
+                    case 'fr':
+                        if (this.langs[i] != currentLang) {
+                            required = false;
+                        }
+                        break;
+                }
             }
+
 
             shippingDescription.disabled = !required;
             this.toggleRequired(shippingDescription, required, shippingDescriptionLabel);
@@ -608,6 +647,71 @@ Ricento.CategoryMappper.prototype = {
         Ricento.categoryMappingTargetInput.value = formSerialized['ricardo_category_id'];
         Ricento.categoryMappingTargetTitle.innerHTML = formSerialized['ricardo_category_selected_title'];
         Ricento.closePopup();
+    },
+    initAutocomplete : function(url, destinationElement, defaultText){
+
+        var suggest = $('ricardo_categories_suggest');
+        var clearTimeout = 0;
+        var delay = 1000;
+
+        Event.observe(suggest, 'click', function () {
+            if (defaultText == suggest.value) {
+                suggest.value = '';
+            }
+        });
+
+        Event.observe(suggest, 'keydown', function () {
+            if (suggest.value.length >= 2 && !clearTimeout) {
+                clearTimeout = setTimeout(function(){
+                    new Ajax.Request(
+                        url,
+                        {
+                            method: 'get',
+                            parameters: {sentence: $F('ricardo_categories_suggest')},
+                            onComplete: function (transport) {
+                                if (!transport.responseText.isJSON()) {
+                                    return;
+                                }
+
+                                var json = transport.responseText.evalJSON();
+                                //var suggestions = '';
+
+                                Element.hide('loading-mask');
+                                clearTimeout = 0;
+
+                                if (json.levels >= 5) {
+                                    $('ricardo_categories').addClassName('ricardo_categories_resized');
+                                }
+
+                                if (!json.error) {
+                                    $('messages').innerHTML = '';
+                                    $('category-tree').innerHTML = json.content;
+                                    $('ricardo_category_selected_title').value = json.category_id;
+
+                                    // To trigger event and reload some behavior after
+                                    categoryMapper = new Ricento.CategoryMappper({
+                                        wrapperElement : 'ricardo_categories',
+                                        loadChildrenUrl : json.children_url
+                                    });
+
+                                    //if (json.other_suggestions.length > 0) {
+                                    //    json.other_suggestions.each(function(suggestion){
+                                    //        suggestions += '<button type="button" class="button suggestion" onclick="alert(\''+ suggestion['CategoryId'] +'\')"><span><span>'+ suggestion['CategoryName'] +'</span></span></button>';
+                                    //    });
+                                    //}
+                                } else {
+                                    $('messages').innerHTML = json.error;
+                                    $('ricardo_categories').select('li').each(function(item) {
+                                        item.removeClassName('suggested');
+                                    });
+                                }
+                                //$('other-suggestions').innerHTML = suggestions;
+                            }
+                        }
+                    )
+                }, delay);
+            }
+        });
     }
 };
 Ricento.GeneralForm = Class.create();

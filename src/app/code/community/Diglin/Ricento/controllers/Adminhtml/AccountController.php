@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -38,23 +38,6 @@ class Diglin_Ricento_Adminhtml_AccountController extends Mage_Adminhtml_Controll
 
     public function assistantAction()
     {
-        $block = $this->getLayout()->createBlock('core/template');
-
-        $block
-            ->setTemplate('ricento/iframe.phtml')
-            ->setTitle($this->__('ricardo.ch Assistant Portal'))
-            ->setIframeUrl(Mage::helper('diglin_ricento')->getRicardoAssistantUrl());
-
-        $ricardoLabel = $this->__('ricardo.ch');
-        $assistantLabel = $this->__('Assistant Portal');
-
-        $this->_title($assistantLabel);
-
-        $this->loadLayout()
-            ->_setActiveMenu('ricento/assistant')
-            ->_addBreadcrumb($ricardoLabel, $ricardoLabel)
-            ->_addBreadcrumb($assistantLabel, $assistantLabel)
-            ->_addContent($block)
-            ->renderLayout();
+        $this->_redirectUrl(Mage::helper('diglin_ricento')->getRicardoAssistantUrl());
     }
 }

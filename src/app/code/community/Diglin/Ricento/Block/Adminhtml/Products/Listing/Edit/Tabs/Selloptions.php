@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -30,12 +30,23 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             'name' => 'sales_options[entity_id]',
         ));
 
-        $storeCurrency = Mage::getStoreConfig('currency/options/base', Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore());
+        $storeCurrency = Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore()->getBaseCurrencyCode();
         $currencyWarning = '';
         if ($storeCurrency !== Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
-            $currencyWarning = '<ul class="messages"><li class="warning-msg">' .
-                $this->__("The store's base currency is {$storeCurrency}. Only %s is allowed as currency. No currency conversion will be proceed.", Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) .
-                '</li></ul>';
+            $currencyWarning = '<ul class="messages">';
+
+            $rate = Mage::helper('diglin_ricento/price')->getCurrency($storeCurrency)->getRate(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+            if (empty($rate)) {
+                $currencyWarning .= '<li class="error-msg">' . $this->__('Currency Rate not configured') . '</li>';
+            }
+
+            $currencyWarning .= '<li class="warning-msg">'
+                . $this->__('The store\'s base currency is %2$s. Only %1$s is allowed as currency on ricardo.ch. Be aware that your product will be converted into %1$s. Check the documentation for more explanation.',
+                    Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY,
+                    $storeCurrency)
+                . '</li>';
+
+            $currencyWarning .= '</ul>';
         }
 
         /**
@@ -88,7 +99,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         $fieldsetTypeAuction->addField('sales_auction_increment', 'text', array(
             'name' => 'sales_options[sales_auction_increment]',
             'label' => $this->__('Increment'),
-            'class' => 'validate-number required-if-visible validate-startprice-increment',
+            'class' => 'validate-number required-if-visible validate-startprice-increment'
         ));
         $fieldsetTypeAuction->addField('auction_currency', 'label', array(
             'name' => 'sales_options[auction_currency]',
@@ -125,7 +136,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             'after_element_html' => ' &nbsp;',
             'no_span' => true,
             'values' => Mage::getSingleton('diglin_ricento/config_source_sales_price_method')->getAllOptions(),
-            'class'  => 'required-if-visible',
+            'class'  => 'required-if-visible product-listing-select',
         ));
         $fieldsetPriceChange->addField('price_change', 'text', array(
             'name' => 'sales_options[price_change]',
@@ -154,9 +165,9 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
 
         $fieldsetSchedule = $form->addFieldset('fieldset_schedule', array('legend' => $this->__('Schedule')));
         $fieldsetSchedule->addType('radios_extensible', Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_form_element_radios_extensible'));
-        $dateFormatIso = Mage::app()->getLocale()->getDateTimeFormat(
-            Mage_Core_Model_Locale::FORMAT_TYPE_SHORT
-        );
+
+        $dateFormatIso = Mage::app()->getLocale()->getDateTimeFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
+
         $fieldsetSchedule->addField('schedule_date_start_immediately', 'radios_extensible', array(
             'name' => 'sales_options[schedule_date_start_immediately]',
             'label' => $this->__('Start'),
@@ -168,7 +179,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
                         'time'      => true,
                         'name' => 'sales_options[schedule_date_start]',
                         'image' => $this->getSkinUrl('images/grid-cal.gif'),
-                        'format' => $dateFormatIso,
+                        'format' => $dateFormatIso
                         //'class' => 'validate-date validate-date-range date-range-end_date-from' // Prototype's date validation does not work with localized dates, so we don't use it
                     )
                 ))
@@ -269,7 +280,8 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
 
         $fieldsetStock = $form->addFieldset('fieldset_stock', array('legend' => $this->__('Stock Management')));
         $fieldsetStock->addType('radios_extensible', Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_form_element_radios_extensible'));
-        $fieldsetStock->addField('stock_management_use_inventory', 'radios_extensible', array(
+
+        $stockManagementUseInventory = $fieldsetStock->addField('stock_management_use_inventory', 'radios_extensible', array(
             'name' => 'sales_options[stock_management_use_inventory]',
             'label' => $this->__('Stock Management'),
             'note' => $this->__('Range 1...999. If you use the product inventory option, the amount of items will be taken from the field "Qty" defined in the product inventory and limited to 999 if you have a quantity above this value.'),
@@ -282,6 +294,18 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
                     )
                 ))
             )
+        ));
+
+        $stockManagement = $stockManagementUseInventory->getElements()->searchById('stock_management');
+        $stockManagement->addField('stock_management_qty_type', 'select', array(
+            'name' => 'sales_options[stock_management_qty_type]',
+            'after_element_html' => ' &nbsp;',
+            'no_span' => true,
+            'class'  => 'product-listing-select',
+            'values' => array(
+                array('label' => $this->__('Fix'), 'value' => Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_FIX),
+                array('label' => $this->__('Percent'), 'value' => Diglin_Ricento_Helper_Data::INVENTORY_QTY_TYPE_PERCENT)
+            ),
         ));
 
         /**
@@ -305,14 +329,14 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         $fieldsetPromotion->addField('promotion_space', 'radios_extensible', array(
             'name' => 'sales_options[promotion_space]',
             'label' => $this->__('Privilege Space'),
-            'note' => $this->__("Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Diglin_Ricento_Helper_Data::RICARDO_URL_HELP_PROMOTION),
+            'note' => $this->__("Privilege space on main category page and search results. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Mage::helper('diglin_ricento')->getHelpPromotion()),
             'values' => Mage::getSingleton('diglin_ricento/config_source_sales_promotion')->getAllOptions()
         ));
 
         $fieldsetPromotion->addField('promotion_start_page', 'checkbox', array(
             'name' => 'sales_options[promotion_start_page]',
             'label' => $this->__('Home Privilege Space'),
-            'note' => $this->__("Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Diglin_Ricento_Helper_Data::RICARDO_URL_HELP_PROMOTION),
+            'note' => $this->__("Privilege space on the homepage. More information about this feature <a onclick=\"window.open('%s');\">here</a>", Mage::helper('diglin_ricento')->getHelpPromotion()),
             'after_element_html' => $this->__('Home Space') . ' - ' .  $this->_getPromotionHomeFee()
         ));
 
@@ -384,17 +408,26 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
         }
 
         /**
+         * Set the default values of the radio button for the "stock management quantity type"
+         */
+        if ($this->getSalesOptions()->getStockManagementQtyType()) {
+            $derivedValues['stock_management_qty_type'] = $this->getSalesOptions()->getStockManagementQtyType();
+        }
+
+        /**
          * Set the default values of the radio button for the "Starting Date"
          */
         if ($this->getSalesOptions()->getScheduleDateStart() == null) {
             $derivedValues['schedule_date_start_immediately'] = 1;
+        } else {
+            $derivedValues['schedule_date_start'] = Mage::app()->getLocale()->date($this->getSalesOptions()->getScheduleDateStart());
         }
 
         /**
          * Set the default values for the ending date
          */
         if (!in_array($this->getSalesOptions()->getSchedulePeriodDays(), $this->_getDaysOptions()->toOptionHash())) {
-            $derivedValues['schedule_period_use_end_date'] = 1;
+            $derivedValues['schedule_period_use_end_date'] = 0;
             $derivedValues['schedule_period_end_date'] = date_add(
                 new DateTime($this->getSalesOptions()->getScheduleDateStart()),
                 DateInterval::createFromDateString($this->getSalesOptions()->getSchedulePeriodDays() . ' day')
@@ -422,6 +455,13 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             $this->getForm()->getElement('promotion_start_page')->setChecked(true);
         }
 
+        /* @var $stockManagement Varien_Data_Form_Element_Select */
+        $stockManagement = $this->getForm()->getElement('stock_management');
+        $stockManagement->setAfterElementHtml($stockManagement->getElements()->searchById('stock_management_qty_type')->getElementHtml());
+
+        if ($this->getSalesOptions()->getSalesAuctionIncrement() <= 0) {
+            $derivedValues['sales_auction_increment'] = 1;
+        }
 
         $this->getForm()->addValues($derivedValues);
         return parent::_initFormValues();
@@ -526,6 +566,6 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Selloptions
             }
         }
 
-        return $priceHelper->formatPrice($price, $this->_getListing()->getWebsiteId());
+        return implode(' / ', $priceHelper->formatDoubleCurrency($price, $this->_getListing()->getWebsiteId(), Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY));
     }
 }

@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -33,7 +33,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
      */
     public function isApiGoExpire($website = 0)
     {
-        return (bool) Mage::helper('diglin_ricento/api')->isApiTokenCredentialGoingToExpire($website);
+        return (bool) $this->getApiHelper()->apiTokenCredentialGoingToExpire($website);
     }
 
     /**
@@ -42,7 +42,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
      */
     public function isApiCredentialTokenExist($website = 0)
     {
-        return (bool) Mage::helper('diglin_ricento/api')->isApiTokenCredentialExists($website);
+        return (bool) $this->getApiHelper()->apiTokenCredentialExists($website);
     }
 
     /**
@@ -51,9 +51,27 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
      */
     public function getExpirationNotificationDelay($storeId = 0)
     {
-        return (int) Mage::helper('diglin_ricento')->getExpirationNotificationDelay($storeId);
+        return (int) $this->getRicentoHelper()->getExpirationNotificationDelay($storeId);
     }
 
+    /**
+     * @param int $website
+     * @return int
+     */
+    public function canApiAuthorizationBeTriggered($website = 0)
+    {
+        return (int) $this->getApiHelper()->apiTokenCredentialValidation($website);
+    }
+
+    /**
+     * @param int $storeId
+     * @return int
+     */
+    public function getExpirationNotificationValidationDelay($storeId = 0)
+    {
+        return (int) $this->getRicentoHelper()->getExpirationNotificationValidationDelay($storeId);
+    }
+    
     /**
      * @return array
      */
@@ -102,5 +120,31 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
     public function getApiReady()
     {
         return (bool) $this->_apiReady;
+    }
+
+    /**
+     * @return Diglin_Ricento_Helper_Api
+     */
+    public function getApiHelper()
+    {
+        return Mage::helper('diglin_ricento/api');
+    }
+
+    /**
+     * @return Diglin_Ricento_Helper_Data
+     */
+    public function getRicentoHelper()
+    {
+        return Mage::helper('diglin_ricento');
+    }
+
+    /**
+     * @param int $website
+     * @return float
+     */
+    public function getDelayExpirationDays($website = 0)
+    {
+        $expirationDate = Mage::getSingleton('core/date')->timestamp($this->getApiHelper()->getExpirationDate($website));
+        return round(($expirationDate - time()) / (24 * 3600), 0, PHP_ROUND_HALF_UP) + 0;
     }
 }

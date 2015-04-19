@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -139,17 +139,18 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'header'    => Mage::helper('catalog')->__('Name'),
             'index'     => 'name',
             'width'     => '300',
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_name')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_name')
         ));
 
         $store = Mage::app()->getWebsite($this->getListing()->getWebsiteId())->getDefaultStore();
         $this->addColumn('price', array(
             'header'        => Mage::helper('diglin_ricento')->__('Price Catalog'),
             'type'          => 'price',
-            'currency_code' => $store->getBaseCurrency()->getCode(),
+//            'currency_code' => $store->getBaseCurrency()->getCode(),
             'index'         => 'price',
             'sortable'      => false,
             'filter'        => false,
+            'renderer'    => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_price')
         ));
         $this->addColumn('type', array(
             'header'    => Mage::helper('catalog')->__('Type'),
@@ -169,7 +170,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'width'     => '120',
             'index'     => 'ricardo_article_id',
             'type'      => 'number',
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_article')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_article')
         ));
 
         $this->addColumn('qty', array(
@@ -179,7 +180,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'index'     => 'stock_qty',
             'sortable'  => false,
             'filter'    => false,
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_inventory')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_inventory')
         ));
         $this->addColumn('status', array(
             'header'    => Mage::helper('catalog')->__('Status'),
@@ -188,7 +189,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'type'     => 'options',
             'sortable' => true,
             'options'  => Mage::getSingleton('diglin_ricento/config_source_status')->toOptionHash(),
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_status')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_status')
         ));
         $this->addColumn('has_custom_options', array(
             'header'    => '',
@@ -196,7 +197,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'index'     => 'has_custom_options',
             'sortable'  => false,
             'filter'    => false,
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_customoptions')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_customoptions')
         ));
         $this->addColumn('is_configured', array(
             'header'    => '',
@@ -204,7 +205,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
             'index'     => 'is_configured',
             'sortable'  => false,
             'filter'    => false,
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_tabs_products_renderer_configured')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_products_listing_edit_renderer_configured')
         ));
         $this->addColumn('action',
             array(

@@ -6,32 +6,49 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 -->
 <config>
     <modules>
         <Diglin_Ricento>
-            <version>1.0.18</version>
+            <version>1.1.0</version>
         </Diglin_Ricento>
     </modules>
 
     <default>
+        <support>
+            <email>support[/at/]diglin.com</email>
+        </support>
+
         <system>
             <messages>
                 <notification_email_template>system_admin_notification_email_template</notification_email_template>
                 <pm_email_template>customer_private_message_email_template</pm_email_template>
+                <token_expiration_email_template>token_expiration_email_template</token_expiration_email_template>
             </messages>
         </system>
 
         <ricento>
+            <listing>
+                <merge_descriptions>0</merge_descriptions>
+                <nl2br>0</nl2br>
+            </listing>
             <global>
                 <merge_order>1</merge_order>
                 <decrease_inventory>0</decrease_inventory>
                 <shipping_calculation>cumulative</shipping_calculation>
                 <email_account_creation>0</email_account_creation>
                 <email_order_creation>0</email_order_creation>
+                <banner>
+                    <enabled>1</enabled>
+                    <xml>https://pics.ricardostatic.ch/Contents/ch/magento/magento-banner.xml</xml>
+                </banner>
+                <stats>1</stats>
+                <stats_test_mode>0</stats_test_mode>
+                <stats_app_id>bza2zlst</stats_app_id>
+                <stats_app_id_test>xce86uyp</stats_app_id_test>
             </global>
             <api_config>
                 <enabled>1</enabled>
@@ -43,7 +60,8 @@
                 <simulate_authorization>0</simulate_authorization>
                 <email_notification>1</email_notification>
                 <!-- it's only possible one day before to renew the API token -->
-                <expiration_notification_delay>1</expiration_notification_delay>
+                <expiration_notification_delay>7</expiration_notification_delay>
+                <expiration_notification_validation_delay>1</expiration_notification_validation_delay>
                 <host>ws.ricardo.ch</host>
                 <host_dev>ws.betaqxl.com</host_dev>
                 <lang>de,fr</lang>
@@ -253,6 +271,9 @@
                     <stop>
                         <class>Diglin_Ricento_Model_Dispatcher_Stop</class>
                     </stop>
+                    <closed>
+                        <class>Diglin_Ricento_Model_Dispatcher_Closed</class>
+                    </closed>
                 </types>
             </dispatcher>
         </ricento>
@@ -269,6 +290,16 @@
                     <file>ricento/private_message.html</file>
                     <type>html</type>
                 </customer_private_message_email_template>
+                <token_expiration_email_template translate="label" module="diglin_ricento">
+                    <label>Admin Email Notification</label>
+                    <file>ricento/token_expiration.html</file>
+                    <type>text</type>
+                </token_expiration_email_template>
+                <ricento_support translate="label" module="diglin_ricento">
+                    <label>Support Email</label>
+                    <file>ricento/support.html</file>
+                    <type>text</type>
+                </ricento_support>
             </email>
         </template>
 
@@ -309,6 +340,14 @@
         </translate>
 
         <events>
+            <controller_action_layout_load_before>
+                <observers>
+                    <ricardo_layout_handle>
+                        <class>Diglin_Ricento_Model_Observer</class>
+                        <method>addLayoutHandle</method>
+                    </ricardo_layout_handle>
+                </observers>
+            </controller_action_layout_load_before>
             <adminhtml_block_html_before>
                 <observers>
                     <ricardo_customer_fields>

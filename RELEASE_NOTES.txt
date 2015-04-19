@@ -1,3 +1,30 @@
+## Version 1.1
+- NEW: add buttons to export configuration into a tar.gz archive and/or send it to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files. No customer information are saved.
+- NEW: support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
+- NEW: while selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
+- NEW: display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
+- NEW: allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that - Default "disabled"
+- NEW: support Magento Watermark Pictures
+- NEW: add ricardo banner in the dashboard of the extension
+- ENHANCEMENT: make description with carriage return to <br> HTML Tag configurable - default is 0
+- ENHANCEMENT: refactor order import process to reduce potential issues
+- ENHANCEMENT: add a new dispatcher to close articles properly for those which are not anymore available on ricardo.ch
+- ENHANCEMENT: global performance improvement with the ricardo API and product pictures (> X MB - image attribute and media gallery)
+- ENHANCEMENT: configurable products and their options having price are computed differently, it fixes some issues with price calculation but also allow Fees calculation
+- ENHANCEMENT: links of the backend user interface depending on the user language are correctly defined (french or german)
+- ENHANCEMENT: related products of configurable products are displayed in the products grid of a list after a product is added or after the products listing is saved instead to wait that the product listing is checked
+- ENHANCEMENT: cleanup, factorize and perform code related to configurable products
+- ENHANCEMENT: set auto increment value of auction sales type to 1 per default
+- ENHANCEMENT: the inventory column in the products grid of the products listing has several meaning: 1) if the product is already listed, the value displayed is the quantity of product sent and still available on ricardo, 2) if the product is not yet listed, the quantity displayed is calculated based on the configuration at the product list or the product level, it will be automatically refreshed if the stock of the product changed before it is listed.
+- FIX: issue with price calculation when price scope is per website instead global
+- FIX: issue with grouped product quantity - default is 1 if related products don't have quantity defined
+- FIX: issue with order synchronization on Magento 1.7 and the ricardo payment method
+- FIX: issue with Internet Explorer when configuring a product and using defaults values are not expected
+- FIX: some translations issue
+- FIX: issue with shipping description while editing the configuration at product level into a products listing
+- FIX: memory issue due to pictures too big and API requirements (bytes array)
+- FIX: issue with MagentoConnect install
+
 ## Version 1.0.15
 - 8cc97f0 [ENHANCE] Delete old jobs in the SQL way (no collection), speed up the delete and may prevent mysql error
 - 571d315 Open new window for a link located into the product list and jumping into ricardo.ch website

@@ -5,9 +5,13 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
+use \Diglin\Ricardo\Managers\Search\Parameter\GetCategoryBestMatchParameter;
+use \Diglin\Ricardo\Exceptions\SearchException;
+use \Diglin\Ricardo\Enums\SearchErrors;
 
 /**
  * Class Diglin_Ricento_Adminhtml_Products_CategoryController
@@ -16,19 +20,90 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
 {
     public function mappingAction()
     {
+        $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
+        $categoryId = (int) $this->getRequest()->getParam('id', 1);
+
         $this->loadLayout();
+
         $this->getLayout()->getBlock('category_mapping')
-            ->setCategoryId($this->getRequest()->getParam('id', 1));
+            ->setCategoryId($categoryId);
+
+        $this->getLayout()->getBlock('category_tree')
+            ->setCategoryId($categoryId)
+            ->setSuggestedCategoriesId($suggestedCategoriesId);
+
         $this->renderLayout();
     }
 
     public function childrenAction()
     {
+        $suggestedCategoriesId = (array) $this->_getSession()->getData('suggested_categories');
+        $categoryId = (int) $this->getRequest()->getParam('id', 1);
+
         $this->loadLayout();
         $this->getLayout()->getBlock('category_children')
-            ->setCategoryId($this->getRequest()->getParam('id', 1))
-            ->setLevel($this->getRequest()->getParam('level', 0));
+            ->setCategoryId($categoryId)
+            ->setLevel($this->getRequest()->getParam('level', 0))
+            ->setSuggestedCategoriesId($suggestedCategoriesId);
+
         $this->renderLayout();
+    }
+
+    public function suggestAction()
+    {
+        $helper = Mage::helper('diglin_ricento');
+        $sentence = (string) $this->getRequest()->getParam('sentence');
+
+        $categoryBestMatchParameter = new GetCategoryBestMatchParameter();
+        $categoryBestMatchParameter
+            ->setNumberMaxOfResult(5)
+            ->setLanguageId($helper->getRicardoLanguageIdFromLocaleCode($helper->getDefaultSupportedLang()))
+            ->setSentence($sentence);
+
+        $categories = array();
+        $response = new Varien_Object();
+        $suggestedCategoriesId = array();
+
+        try {
+            $searchService = Mage::getSingleton('diglin_ricento/api_services_search');
+            $searchService->setCanUseCache(false);
+            $categories = $searchService->getCategoryBestMatch($categoryBestMatchParameter);
+        } catch (SearchException $e) {
+            $errorMessage = '<div class="error-msg">';
+            $errorMessage .= SearchErrors::getLabel($e->getCode());
+            $errorMessage .= '</div>';
+
+            $response->setError($errorMessage);
+        }
+
+        if (count($categories) > 0) {
+
+            $mapping = Mage::getModel('diglin_ricento/products_category_mapping');
+            $categoryId = $categories[0]['CategoryId'];
+
+            foreach ($categories as $category) {
+                $suggestedCategoriesId = array_merge($suggestedCategoriesId, explode('/', $mapping->getCategory($category['CategoryId'])->getPath()));
+            }
+
+            $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_category_mapping_tree');
+            $block
+                ->setCategoryId($categoryId)
+                ->setSuggestedCategoriesId($suggestedCategoriesId);
+
+//            array_shift($categories);
+
+            $response
+                ->setCategoryId($categoryId)
+//                ->setOtherSuggestions($categories)
+                ->setContent($block->toHtml())
+                ->setLevels($block->getLevels()) // must be after $block->toHtml()
+                ->setChildrenUrl($this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')));
+        }
+
+        $this->_getSession()->setData('suggested_categories', $suggestedCategoriesId);
+
+        $this->getResponse()->setHeader('Content-Type', 'application/json');
+        $this->getResponse()->setBody($response->toJson());
     }
 
     /**
@@ -128,6 +203,8 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
                     }
                 }
             }
+
+            $this->_prepareConfigurableProduct();
 
             $this->_getSession()->addSuccess($this->__('%d product(s) added to the listing', $productsAdded));
         } catch (Exception $e) {

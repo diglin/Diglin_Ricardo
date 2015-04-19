@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -37,21 +37,67 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
      * @param int|string|Mage_Core_Model_Website $website
      * @return bool
      */
-    public function isApiTokenCredentialGoingToExpire($website = 0)
+    public function apiTokenCredentialGoingToExpire($website = 0)
     {
-        $token = Mage::getModel('diglin_ricento/api_token')
-            ->loadByWebsiteAndTokenType(Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite($website)->getId());
-
-        $expirationDate = $token->getExpirationDate();
         $dayDelay = Mage::helper('diglin_ricento')->getExpirationNotificationDelay();
+        $expirationDate = $this->getExpirationDate($website);
 
         if (empty($expirationDate) ||
-            isset($expirationDate) && time() >= (Mage::getSingleton('core/date')->timestamp($expirationDate) - ($dayDelay * 24 * 3600)))
-        {
+            isset($expirationDate) && time() >= (Mage::getSingleton('core/date')->timestamp($expirationDate) - ($dayDelay * 24 * 3600))
+        ) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * The API token can be validated X days before expiration
+     *
+     * @param int $website
+     * @return bool
+     */
+    public function apiTokenCredentialValidation($website = 0)
+    {
+        $dayDelay = Mage::helper('diglin_ricento')->getExpirationNotificationValidationDelay();
+
+        $expirationDate = $this->getExpirationDate($website);
+        if (empty($expirationDate) ||
+            isset($expirationDate) && time() >= (Mage::getSingleton('core/date')->timestamp($expirationDate) - ($dayDelay * 24 * 3600))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $website
+     * @return bool
+     */
+    public function apiExpired($website = 0)
+    {
+        $expirationDate = $this->getExpirationDate($website);
+        if (empty($expirationDate) ||
+            isset($expirationDate) && time() >= (Mage::getSingleton('core/date')->timestamp($expirationDate))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $website
+     * @return mixed
+     * @throws Mage_Core_Exception
+     */
+    public function getExpirationDate($website = 0)
+    {
+        $token = Mage::getModel('diglin_ricento/api_token')
+            ->loadByWebsiteAndTokenType(Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite($website)->getId());
+
+        return $token->getExpirationDate();
     }
 
     /**
@@ -60,7 +106,7 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
      * @param int|string|Mage_Core_Model_Website $website
      * @return bool
      */
-    public function isApiTokenCredentialExists($website = 0)
+    public function apiTokenCredentialExists($website = 0)
     {
         $token = Mage::getModel('diglin_ricento/api_token')
             ->loadByWebsiteAndTokenType(Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite($website)->getId());
@@ -75,7 +121,6 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
     public function calculateSessionExpirationDate($sessionDuration, $time = null)
     {
         $sessionDuration *= 60;
-
         if (is_null($time)) {
             return time() + $sessionDuration;
         }
@@ -102,8 +147,37 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
     public function getValidationUrl($websiteId = 0)
     {
         return Mage::getSingleton('diglin_ricento/api_services_security')
-//@fixme there is issue with getting credential token in multi shop so for real website support start to fix here - not planned at the moment
-//            ->setCurrentWebsite($websiteId)
+            //@fixme there is issue with getting credential token in multi shop so for real website support start to fix here - not planned at the moment
+            //            ->setCurrentWebsite($websiteId)
             ->getValidationUrl();
+    }
+
+    /**
+     * @param int $website
+     * @return bool
+     * @throws Mage_Core_Exception
+     */
+    public function isMerchantNotifiedApiAuthorization($website = 0)
+    {
+        $token = Mage::getModel('diglin_ricento/api_token')
+            ->loadByWebsiteAndTokenType(Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite($website)->getId());
+
+        if ($token->getId() && $token->getMerchantNotified()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $website
+     * @return string
+     */
+    public function getAntiforgeryToken($website = 0)
+    {
+        return Mage::getSingleton('diglin_ricento/api_services_security')
+            ->setCurrentWebsite($website)
+            ->getServiceModel()
+            ->getAntiforgeryToken();
     }
 }

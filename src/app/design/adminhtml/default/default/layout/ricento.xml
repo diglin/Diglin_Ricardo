@@ -6,7 +6,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  */
 -->
 <layout>
@@ -28,6 +28,12 @@
         </reference>
     </default>
 
+    <ricento>
+        <reference name="before_body_end">
+            <block type="adminhtml/template" name="stats" as="stats" template="ricento/stats.phtml" />
+        </reference>
+    </ricento>
+
     <ricento_scripts>
         <reference name="head">
             <action method="addItem"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>
@@ -39,7 +45,7 @@
 
     <ricento_dashboard_index>
         <reference name="content">
-            <block type="core/template" name="ricento_dashboard" as="ricento.dashboard"
+            <block type="adminhtml/template" name="ricento_dashboard" as="ricento.dashboard"
                    template="ricento/dashboard.phtml">
                 <block type="core/text_list" name="ricento_dashboard_left" as="ricento.dashboard.left">
                     <block type="adminhtml/template" name="ricento_dashboard_toolbar" as="ricento.dashboard.toolbar"
@@ -54,14 +60,12 @@
                            template="ricento/dashboard/news.phtml"/>
                 </block>
                 <block type="core/text_list" name="ricento_dashboard_right" as="ricento.dashboard.right">
-                    <block type="diglin_ricento/adminhtml_dashboard_lifetime" name="ricento_dashboard_lifetime"
-                           as="ricento.dashboard.lifetime"
-                           template="ricento/dashboard/lifeturnover.phtml"/>
-                    <block type="adminhtml/template" name="ricento_dashboard_turnover" as="ricento.dashboard.turnover"
-                           template="ricento/dashboard/turnover.phtml">
-                        <block type="diglin_ricento/adminhtml_dashboard_turnover" name="ricento_dashboard_turnover_graph" as="ricento.dashboard.turnover.graph" />
+                    <block type="diglin_ricento/adminhtml_dashboard_banner" name="plp_banner" as="plp.banner" template="ricento/dashboard/banner.phtml"/>
+                    <block type="diglin_ricento/adminhtml_dashboard_lifetime" name="ricento_dashboard_lifetime" as="ricento.dashboard.lifetime" template="ricento/dashboard/lifeturnover.phtml"/>
+                    <block type="adminhtml/template" name="ricento_dashboard_turnover" as="ricento.dashboard.turnover" template="ricento/dashboard/turnover.phtml">
+                        <block type="diglin_ricento/adminhtml_dashboard_turnover" name="ricento_dashboard_turnover_graph" as="ricento.dashboard.turnover.graph"/>
                     </block>
-                    <block type="core/template" name="ricento_dashboard_bestsellers" as="ricento.dashboard.bestsellers"
+                    <block type="adminhtml/template" name="ricento_dashboard_bestsellers" as="ricento.dashboard.bestsellers"
                            template="ricento/dashboard/bestsellers.phtml">
                         <block type="diglin_ricento/adminhtml_dashboard_bestsellers"
                                name="ricento_dashboard_bestsellers_grid"
@@ -91,7 +95,7 @@
             <block type="diglin_ricento/adminhtml_products_listing_edit_tabs" name="products_listing_edit_tabs" />
         </reference>
     </ricento_products_listing_edit>
-    
+
     <ricento_products_listing_addproductspopup>
         <update handle="overlay_popup" />
         <remove name="footer" />
@@ -128,7 +132,9 @@
         <update handle="overlay_popup" />
         <remove name="footer" />
         <reference name="content">
-            <block type="diglin_ricento/adminhtml_products_category_mapping" name="category_mapping" template="ricento/products/category/mapping.phtml"/>
+            <block type="diglin_ricento/adminhtml_products_category_mapping" name="category_mapping">
+                <block type="diglin_ricento/adminhtml_products_category_mapping_tree" name="category_tree" as="category_tree" />
+            </block>
         </reference>
     </ricento_products_category_mapping>
 
@@ -140,7 +146,7 @@
     <adminhtml_catalog_category_edit>
         <update handle="ricento_scripts" />
     </adminhtml_catalog_category_edit>
-    
+
     <ricento_products_category_showcategoriestree>
         <update handle="overlay_popup" />
         <remove name="footer" />

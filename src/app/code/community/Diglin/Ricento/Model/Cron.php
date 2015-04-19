@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -15,15 +15,14 @@
 class Diglin_Ricento_Model_Cron
 {
     protected $_syncProcess = array(
-        //Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST, //** Check list before to sync to ricardo.ch - @deprecated move to Diglin_Ricento_Adminhtml_Products_ListingController to start quickly the check
         Diglin_Ricento_Model_Sync_Job::TYPE_LIST, //** List to ricardo.ch
         Diglin_Ricento_Model_Sync_Job::TYPE_STOP, //** Stop the list on ricardo.ch if needed
-        //Diglin_Ricento_Model_Sync_Job::TYPE_RELIST //** Relist to ricardo.ch
     );
 
     protected $_asyncProcess = array(
         Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST, //** Sync List before getting orders
-        Diglin_Ricento_Model_Sync_Job::TYPE_ORDER //** Get new orders
+        Diglin_Ricento_Model_Sync_Job::TYPE_ORDER, //** Get new orders
+        Diglin_Ricento_Model_Sync_Job::TYPE_CLOSED //** Close articles which are not anymore open
     );
 
     /**
@@ -32,7 +31,7 @@ class Diglin_Ricento_Model_Cron
     public function process()
     {
         $helper = Mage::helper('diglin_ricento');
-        if (!$helper->isEnabled()) {
+        if (!$helper->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
@@ -40,13 +39,11 @@ class Diglin_Ricento_Model_Cron
             ini_set('memory_limit', '512M');
         }
 
-        //** Launch Pending Jobs
-
-        // @todo check that the API token is not expired or that an error may occur, in this case send only once an email to the admin
+        register_shutdown_function(array($this, 'handleError'));
 
         try {
             foreach ($this->_syncProcess as $jobType) {
-                $this->dispatch($jobType);
+                $this->_dispatch($jobType);
             }
         } catch (Exception $e) {
             Mage::logException($e);
@@ -59,7 +56,7 @@ class Diglin_Ricento_Model_Cron
     public function async()
     {
         $helper = Mage::helper('diglin_ricento');
-        if (!$helper->isEnabled()) {
+        if (!$helper->isEnabled() || $this->_isTokenExpired()) {
             return;
         }
 
@@ -67,15 +64,15 @@ class Diglin_Ricento_Model_Cron
             ini_set('memory_limit', '512M');
         }
 
+        register_shutdown_function(array($this, 'handleError'));
+
         try {
             foreach ($this->_asyncProcess as $jobType) {
-                $this->dispatch($jobType);
+                $this->_dispatch($jobType);
             }
         } catch (Exception $e) {
             Mage::logException($e);
         }
-
-        //** Cleanup
 
         $this->_processCleanupJobs();
     }
@@ -110,7 +107,7 @@ class Diglin_Ricento_Model_Cron
     /**
      * @return Diglin_Ricento_Model_Dispatcher
      */
-    protected function _getDisptacher()
+    private function _getDisptacher()
     {
         return Mage::getSingleton('diglin_ricento/dispatcher');
     }
@@ -119,8 +116,66 @@ class Diglin_Ricento_Model_Cron
      * @param int $type
      * @return $this
      */
-    protected function dispatch($type)
+    private function _dispatch($type)
     {
         return $this->_getDisptacher()->dispatch($type)->proceed();
+    }
+
+    /**
+     * @return bool
+     */
+    private function _isTokenExpired()
+    {
+        $helper = Mage::helper('diglin_ricento/api');
+
+        // @todo in case of real multi website support, add website parameter
+
+        if ($helper->apiTokenCredentialValidation() && !$helper->isMerchantNotifiedApiAuthorization()) {
+            $helperTools = Mage::helper('diglin_ricento/tools');
+            $helperTools->sendMerchantAuthorizationNotification(array(
+                'shop_url' => Mage::helper('adminhtml')->getUrl('adminhtml')
+            ));
+
+            /* @var $token Diglin_Ricento_Model_Api_Token */
+            $token = Mage::getModel('diglin_ricento/api_token')
+                ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
+
+            if ($token->getId()) {
+                $token
+                    ->setMerchantNotified(1)
+                    ->save();
+            }
+        }
+
+        if ($helper->apiExpired()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Handle Error in case of "ghosts" PHP error
+     *
+     * @return $this
+     */
+    public function handleError()
+    {
+        $error = error_get_last();
+
+        if( $error !== NULL) {
+            if (function_exists('mageDebugBacktrace')) {
+                $error = array_merge($error, (array) mageDebugBacktrace(false, false));
+            }
+
+//            $errno   = $error["type"];
+//            $errfile = $error["file"];
+//            $errline = $error["line"];
+//            $errstr  = $error["message"];
+
+            Mage::log(print_r($error, true), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+        }
+
+        return $this;
     }
 }

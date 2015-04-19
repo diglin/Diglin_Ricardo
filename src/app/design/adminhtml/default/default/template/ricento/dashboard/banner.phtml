@@ -1,0 +1,19 @@
+<?php
+/**
+ * ricardo.ch AG - Switzerland
+ *
+ * @author      Sylvain Rayé <support at diglin.com>
+ * @category    Diglin
+ * @package     Diglin_Ricento
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/** @var $this Diglin_Ricento_Block_Adminhtml_Dashboard_Banner */
+
+?>
+<?php if ($this->isEnabled() && $this->getBannerSrc()): ?>
+<div class="entry-edit">
+    <a href="<?php echo $this->getBannerUrl() ?>" target="_blank"><img class="banner" src="<?php echo $this->getBannerSrc(); ?>" title="<?php echo $this->getBannerTitle() ?>" alt="<?php echo $this->getBannerTitle() ?>" height="90px" width="728px" /></a>
+</div>
+<?php endif; ?>

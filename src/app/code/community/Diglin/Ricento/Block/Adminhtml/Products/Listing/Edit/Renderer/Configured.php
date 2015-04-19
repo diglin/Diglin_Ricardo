@@ -5,16 +5,16 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Customoptions
+ * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Configured
  *
  * Renderer for column with configured rules or sales
  */
-class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Configured
+class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Configured
     extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
     /**

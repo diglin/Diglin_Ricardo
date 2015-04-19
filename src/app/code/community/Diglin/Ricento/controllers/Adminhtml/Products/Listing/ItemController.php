@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -31,10 +31,12 @@ class Diglin_Ricento_Adminhtml_Products_Listing_ItemController extends Diglin_Ri
         }
 
         if ($this->_itemIds) {
-            $itemCollection->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
+            $itemCollection
+                ->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
                 ->addFieldToFilter('item_id', array('in' => $this->_itemIds));
         } else {
-            $itemCollection->addFieldToFilter('item_id', array('in' => explode(',', $this->getRequest()->getPost('item_ids'))));
+            $itemCollection
+                ->addFieldToFilter('item_id', array('in' => explode(',', $this->getRequest()->getPost('item_ids'))));
             $this->_itemIds = $itemCollection->getColumnValues('item_id');
         }
 

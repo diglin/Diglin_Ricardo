@@ -20,7 +20,7 @@ Some classes and javascript contain a MIT license.
 - Knowledge Base & FAQ: [https://diglin.zendesk.com](https://diglin.zendesk.com)
 - PDF Documentation [https://raw.githubusercontent.com/diglin/ricento/master/doc/Documentation.pdf](https://raw.githubusercontent.com/diglin/ricento/master/doc/Documentation.pdf)
 - Pull Requests: [https://github.com/diglin/ricento/issues](https://github.com/diglin/ricento/issues)
-- Submit tickets - Contact (fee may apply if it's not a bug, we will inform you): support /at/ diglin.com - [read more about it](https://diglin.zendesk.com/hc/en-us/articles/201655882-Is-the-extension-free-)
+- Submit tickets - Contact (fee may apply, we will inform you how): support /at/ diglin.com - [read more about it](https://diglin.zendesk.com/hc/en-us/articles/201655882-Is-the-extension-free-)
 
 ## System requirements
 
@@ -29,12 +29,22 @@ Some classes and javascript contain a MIT license.
 - Magento CE >= 1.6.x to 1.9.x (for EE, please contact us)
 - Minimum memory: 256MB - Highly Recommended: 512MB
 - PHP >= 5.3.2
-- PHP Curl Library
+- PHP Curl, GD Library
 - Cron enabled and configured for Magento (set your cron at server level to a period of 5 min to launch internal task related to the rircardo extension
 */5 * * * * php path/to/my/magento/cron.php)
-- Base currency: CHF / Swiss Franc (currency conversion is not yet supported)
 
 ## Features
+
+#### Version 1.1
+- Add button to export configuration into a tar.gz archive to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files
+- Support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
+- While selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
+- Display a popup window with a summary of the fees for the current product list before to proceed "Check and List". Data of the form are saved when relevant before to display these fees
+- Allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that - Default "disabled"
+- Support Magento Watermark Pictures
+- Add ricardo banner in the dashboard of the extension
+
+Check RELEASE_NOTES.txt file for further information
 
 #### Version 1.0
 

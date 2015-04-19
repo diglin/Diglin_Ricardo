@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -29,7 +29,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid_Renderer_Total
         $total = $readAdapter->select()
             ->from($resourceModel->getTable('diglin_ricento/products_listing_item'), new Zend_Db_Expr('COUNT(*)'))
             ->where('products_listing_id = ?', $row->getId())
-            ->where('parent_item_id IS NULL');
+            ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
 
         return $readAdapter->fetchOne($total);
     }

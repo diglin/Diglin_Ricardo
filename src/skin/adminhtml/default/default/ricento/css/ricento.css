@@ -57,9 +57,6 @@ input[type="radio"] {
     font-weight: bold;
     color: red;
 }
-#sales_options_price_change_type {
-    width: auto;
-}
 #diglin_ricento_price_change {
     width: 30px;
 }
@@ -92,6 +89,13 @@ input[type="radio"] {
 }
 
 /********** Category Mapping views **********/
+
+#ricento_popup_content .error-msg {
+    width: 100%;
+    text-indent: 40px;
+    line-height: 36px;
+    margin-bottom: 10px;
+}
 
 #ricardo_categories {}
 #ricardo_categories nav {
@@ -153,6 +157,20 @@ input[type="radio"] {
     font-weight: bold;
 }
 
+.category-suggestion input {
+    line-height: 20px;
+    width: 300px;
+    margin-bottom:20px;
+    padding: 0 4px;
+}
+
+#ricardo_categories .suggested a {
+    color: #FFA500;
+}
+#ricardo_categories .selected a,
+#ricardo_categories .suggested a:hover {
+    color: #000;
+}
 /********** Add missing Magento core pictures **********/
 
 .magento_minimize { background:url('images/window_minimize.png') 0 0 no-repeat !important;}
@@ -164,7 +182,9 @@ input[type="radio"] {
 .ricento-products-listing-item-configure .form-list {
 }
 .ricento-products-listing-edit .form-list td.value,
-.ricento-products-listing-item-configure .form-list td.value {
+.ricento-products-listing-item-configure .form-list td.value,
+.ricento-products-listing-edit .form-list  .product-listing-select,
+.ricento-products-listing-item-configure .product-listing-select {
     width: auto !important;
 }
 
@@ -420,6 +440,9 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
 .ricento_dashboard .right {
     width: 66%;
 }
+.ricento_dashboard .right .banner {
+    width: 100%;
+}
 
 .ricento_toolbar {
     margin-bottom: 20px;
@@ -537,6 +560,7 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
 }
 .ricento_news_description img {width:30%}
 
+/*********** Product Page ***********/
 .ricardo-support div img{
     width: 31%;
     margin: 1%;
@@ -563,3 +587,34 @@ table.allowed-combinations td {width: 50%; padding: 5px;}
 .ricardo-diglin .ricardo-imprint, .ricardo-diglin .diglin-imprint {width: 200px; height: 150px;}
 .ricardo-diglin .ricardo-imprint {float: left; margin-right: 50px}
 .ricardo-diglin .diglin-imprint {margin-left: 200px}
+
+
+/*********** Confirmation Popup ***********/
+
+#ricento_popup_confirmation_content table {
+    width: 100%;
+    padding: 5px;
+}
+
+#ricento_popup_confirmation_content table thead tr {
+    background-color: #f1f1f1;
+}
+#ricento_popup_confirmation_content table th,
+#ricento_popup_confirmation_content table td {
+    padding: 5px;
+}
+
+#ricento_popup_confirmation_content table tfoot td {
+    font-weight: bold;
+}
+
+#ricento_popup_confirmation_content .terms {
+    padding: 10px;
+    margin-bottom: 15px;
+}
+#ricento_popup_confirmation_content button {
+    float: right;
+    margin-right: 20px;
+}
+
+

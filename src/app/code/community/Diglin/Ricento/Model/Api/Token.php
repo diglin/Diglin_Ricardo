@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -15,17 +15,19 @@
  * @method string   getToken()
  * @method string   getTokenType()
  * @method int      getWebsiteId()
- * @method string getExpirationDate()
+ * @method string   getExpirationDate()
  * @method int      getSessionDuration()
- * @method string getSessionExpirationDate()
- * @method string getCreatedAt()
- * @method string getUpdatedAt()
+ * @method string   getSessionExpirationDate()
+ * @method int      getMerchantNotified()
+ * @method string   getCreatedAt()
+ * @method string   getUpdatedAt()
  * @method Diglin_Ricento_Model_Api_Token setToken(string $token)
  * @method Diglin_Ricento_Model_Api_Token setTokenType(string $tokenType)
  * @method Diglin_Ricento_Model_Api_Token setWebsiteId(int $websiteId)
  * @method Diglin_Ricento_Model_Api_Token setSessionDuration(int $sessionDuration)
  * @method Diglin_Ricento_Model_Api_Token setExpirationDate(string $expirationDate)
  * @method Diglin_Ricento_Model_Api_Token setSessionExpirationDate(string $expirationDate)
+ * @method Diglin_Ricento_Model_Api_Token setMerchantNotified(int $merchantNotified)
  * @method Diglin_Ricento_Model_Api_Token setCreatedAt(string $createdAt)
  * @method Diglin_Ricento_Model_Api_Token setUpdatedAt(string $updateAt)
  */
@@ -66,7 +68,7 @@ class Diglin_Ricento_Model_Api_Token extends Mage_Core_Model_Abstract
     /**
      * @param string $tokenType
      * @param int $websiteId
-     * @return $this | Diglin_Ricento_Model_Api_Token
+     * @return Diglin_Ricento_Model_Api_Token
      */
     public function loadByWebsiteAndTokenType($tokenType = Security::TOKEN_TYPE_IDENTIFIED, $websiteId = 0)
     {

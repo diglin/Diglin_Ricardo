@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -14,11 +14,12 @@
  *
  * Represents a Ricardo category
  *
- * @method string getCategoryId() getCategoryId()
- * @method string getCategoryName() getCategoryName()
- * @method string getIsFinal() getIsFinal()
- * @method string getLevel() getLevel()
- * @method string getParentId() getParentId()
+ * @method string getCategoryId()
+ * @method string getCategoryName()
+ * @method string getIsFinal()
+ * @method string getLevel()
+ * @method string getParentId()
+ * @method string getPath()
  */
 class Diglin_Ricento_Model_Products_Category extends Varien_Object
 {

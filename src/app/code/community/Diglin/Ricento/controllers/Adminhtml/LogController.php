@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -29,7 +29,7 @@ class Diglin_Ricento_Adminhtml_LogController extends Diglin_Ricento_Controller_A
 
     public function indexAction()
     {
-        $this->_redirect('*/*/listing');
+        $this->_redirect('*/*/sync');
     }
 
     /**
@@ -38,17 +38,6 @@ class Diglin_Ricento_Adminhtml_LogController extends Diglin_Ricento_Controller_A
     public function listingAction()
     {
         $this->_initAction();
-
-//        $productsListing = null;
-//        if ($this->getRequest()->getParam('id')) {
-//            $productsListing = $this->_initListing();
-//            $id = $productsListing->getId();
-//        }
-
-//        if ($productsListing && !empty($id)) {
-//            $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_log');
-//        } else {
-//        }
 
         $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_log', 'ricento_logs_tabs',
             array('active_tab' => Diglin_Ricento_Block_Adminhtml_Log_Tabs::TAB_LISTING)

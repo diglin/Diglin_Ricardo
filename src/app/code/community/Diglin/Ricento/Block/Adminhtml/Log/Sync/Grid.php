@@ -5,10 +5,10 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_Widget_Grid
+class Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     public function __construct()
     {
@@ -24,6 +24,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
         /* @var $collection Diglin_Ricento_Model_Resource_Sync_Job_Collection */
         $collection = Mage::getResourceModel('diglin_ricento/sync_job_collection');
         $collection
+            ->addFieldToFilter('job_type', array('nin' => array(Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST, Diglin_Ricento_Model_Sync_Job::TYPE_CLOSED)))
             ->join(array('sjl' => 'diglin_ricento/sync_job_listing'), 'sjl.job_id = main_table.job_id', 'products_listing_id')
             ->join(array('pl' => 'diglin_ricento/products_listing'), 'pl.entity_id = sjl.products_listing_id', 'title');
 
@@ -38,7 +39,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
             'align' => 'left',
             'index' => 'job_id',
             'type' => 'number',
-            'filter'    => false,
+            'filter' => false,
             'width' => 50
         ));
 
@@ -48,7 +49,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
             'index' => 'job_type',
             'type' => 'options',
             'width' => 150,
-            'options'   => Mage::getSingleton('diglin_ricento/config_source_sync_type')->toOptionHash()
+            'options' => Mage::getSingleton('diglin_ricento/config_source_sync_type')->toOptionHash()
         ));
 
         $this->addColumn('title', array(
@@ -57,7 +58,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
             'index' => 'title',
             'type' => 'text',
             'width' => 150,
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_sync_log_grid_renderer_title')
+            'renderer' => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_log_sync_grid_renderer_title')
         ));
 
         $this->addColumn('job_message', array(
@@ -75,7 +76,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
             'sortable'  => false,
             'filter'    => false,
             'width'     => 150,
-            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_sync_log_grid_renderer_progress')
+            'renderer'  => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_log_sync_grid_renderer_progress')
         ));
 
         $this->addColumn('job_status', array(
@@ -132,7 +133,7 @@ class Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid extends Mage_Adminhtml_Block_
     /**
      * Prepare the mass action drop down menu
      *
-     * @return Diglin_Ricento_Block_Adminhtml_Sync_Log_Grid
+     * @return Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid
      */
     protected function _prepareMassaction()
     {

@@ -1,11 +1,11 @@
 <?php
-/*
+/**
  * ricardo.ch AG - Switzerland
  *
  * @author Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -59,9 +59,9 @@ class Diglin_Ricento_Block_Adminhtml_Dashboard_Bestsellers extends Mage_Adminhtm
         $this->addColumn('price', array(
             'header'    => $helper->__('Price'),
             'sortable'  => false,
-            'type'      => 'currency',
-            'currency_code' => (string) Mage::getStoreConfig(Mage_Directory_Model_Currency::XML_PATH_CURRENCY_BASE),
-            'index'     => 'product_price'
+            'type'      => 'number',
+            'index'     => 'product_price',
+            'renderer'    => Mage::getConfig()->getBlockClassName('diglin_ricento/adminhtml_dashboard_renderer_price')
         ));
 
         $this->addColumn('qty', array(

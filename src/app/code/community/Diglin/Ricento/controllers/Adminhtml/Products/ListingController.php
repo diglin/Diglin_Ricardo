@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -192,6 +192,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             try {
                 $listing->save();
                 if ($this->saveConfiguration($data)) {
+                    $this->_prepareConfigurableProduct();
                     $this->_getSession()->addSuccess($this->__('The listing has been saved.'));
                 } else {
                     $error = true;
@@ -281,13 +282,16 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             $this->_redirectUrl($this->_getRefererUrl());
             return;
         }
-        $productIds = (array) $this->getRequest()->getPost('product', array());
+        $productIds = (array)$this->getRequest()->getPost('product', array());
         $productsAdded = 0;
         foreach ($productIds as $productId) {
             if ($this->_getListing()->addProduct((int)$productId)) {
                 ++$productsAdded;
             }
         }
+
+        $this->_prepareConfigurableProduct();
+
         $this->_getSession()->addSuccess($this->__('%d product(s) added to the listing', $productsAdded));
         $this->_redirect('*/*/edit', array('id' => $this->_getListing()->getId()));
     }
@@ -304,12 +308,12 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         if ($this->getRequest()->isPost()) {
-            $productIds = array_map('intval', (array) $this->getRequest()->getPost('item', array()));
+            $itemIds = array_map('intval', (array)$this->getRequest()->getPost('item', array()));
         } else {
-            $productIds = array_map('intval', (array) $this->getRequest()->getParam('item', array()));
+            $itemIds = array_map('intval', (array)$this->getRequest()->getParam('item', array()));
         }
 
-        list($productsRemoved, $productsNotRemoved) = $this->_getListing()->removeProductsByItemIds($productIds);
+        list($productsRemoved, $productsNotRemoved) = $this->_getListing()->removeProductsByItemIds($itemIds);
 
         if ($productsRemoved) {
             $this->_getSession()->addSuccess($this->__('%d products removed from listing', $productsRemoved));
@@ -317,6 +321,10 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
         if ($productsNotRemoved) {
             $this->_getSession()->addNotice($this->__('%d products are listed and could not be removed', $productsNotRemoved));
+        }
+
+        if (!$productsRemoved && !$productsNotRemoved) {
+            $this->_getSession()->addWarning($this->__('No product found'));
         }
 
         $this->_redirect('*/*/edit', array('id' => $this->_getListing()->getId()));
@@ -330,7 +338,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
     {
         $productListing = $this->_getListing();
 
-        if (!$this->isApiReady()) {
+        if (!$this->_isApiReady()) {
             $this->_getSession()->addError($this->__('The API token and configuration are not ready to allow this action. Please, check that your token is enabled and not going to expire.'));
             $this->_redirectUrl($this->_getRefererUrl());
             return;
@@ -360,13 +368,14 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 return;
             }
 
-            // Create a job to prepare the sync to Ricardo.ch
-
+            /**
+             * Create a job to prepare the sync to Ricardo.ch
+             */
             $job = Mage::getModel('diglin_ricento/sync_job');
             $job
                 ->setJobType($jobType)
                 ->setProgress(Diglin_Ricento_Model_Sync_Job::PROGRESS_PENDING)
-                ->setJobMessage( (is_array($job->getJobMessage())) ? $job->getJobMessage() : array($job->getJobMessage()))
+                ->setJobMessage((is_array($job->getJobMessage())) ? $job->getJobMessage() : array($job->getJobMessage()))
                 ->save();
 
             $jobListing = Mage::getModel('diglin_ricento/sync_job_listing');
@@ -414,11 +423,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        if ($productListing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
-            $this->_redirect('*/*/edit', array('id' => $productListing->getId()));
-            return;
-        }
-
         $countPendingItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countPendingItems($productListing->getId());
 
         if ($countPendingItems == 0) {
@@ -431,11 +435,13 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST, $countPendingItems);
     }
 
+    /**
+     * Start to check list after the display of the job progress
+     */
     public function checkAjaxAction()
     {
         $return = true;
         try {
-
             Mage::getSingleton('diglin_ricento/dispatcher')
                 ->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST)
                 ->proceed();
@@ -467,7 +473,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
         $countReadyToList = Mage::getResourceModel('diglin_ricento/products_listing_item')->coundReadyTolist($productListing->getId());
 
-        if ($countReadyToList == 0) {
+        if ($countReadyToList <= 0) {
             $this->_getSession()->addError($this->__('There is no product ready to be listed. Please, add products to your products listing "%s".', $productListing->getTitle()));
             $this->_redirect('*/*/index');
             return;
@@ -477,32 +483,6 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             . '<br>'
             . $this->__('You can check the progression below.');
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_LIST, $countReadyToList);
-    }
-
-    /**
-     * Start to list the product listing on ricardo platform if those was already listed and sold
-     *
-     * @deprecated since 18.09.2014
-     */
-    public function relistAction()
-    {
-        $productListing = $this->_initListing();
-
-        if (!$productListing) {
-            $this->_getSession()->addError('Products Listing not found.');
-            $this->_redirectUrl($this->_getRefererUrl());
-            return;
-        }
-
-        $countSoldItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countSoldItems($productListing->getId());
-
-        if ($countSoldItems == 0) {
-            $this->_getSession()->addError($this->__('There is no item to relist. Only products who have been sold on ricardo.ch can be relisted for the products listing %d.', $productListing->getId()));
-            $this->_redirect('*/*/index');
-            return;
-        }
-        $this->_successMessage = $this->_getSuccessMesageList();
-        $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_RELIST, $countSoldItems);
     }
 
     /**
@@ -535,7 +515,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        $this->_successMessage = $this->__('The job to stop to list your products will start in few minutes.') . $this->__('You can check the progression below.');
+        $this->_successMessage = $this->__('The job to stop to list your products will start in few minutes.') . '&nbsp;' . $this->__('You can check the progression below.');
         $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_STOP, $countListedItem);
     }
 
@@ -561,7 +541,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
                 $notDeleted = array_diff($productListings, $goingToBeDeleted);
                 if ($notDeleted) {
-                    $this->_getSession()->addNotice($this->__('The following products listings IDs have not been deleted because they are still listed on ricardo.ch: ' . implode(',', $notDeleted)));
+                    $this->_getSession()->addNotice($this->__("The following products listings IDs have not been deleted because they are still listed on ricardo.ch: %s", implode(',', $notDeleted)));
                 }
             }
         } catch (Exception $e) {
@@ -570,5 +550,81 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         $this->_redirect('*/*/index');
+    }
+
+    /**
+     * Display the confirmation window before to check and list
+     */
+    public function confirmationAction()
+    {
+        $error = false;
+
+        $listing = $this->_initListing();
+        if (!$listing) {
+            $this->_getSession()->addError($this->__('Products Listing not found.'));
+            $error = true;
+        }
+
+        try {
+            if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
+                $error = true;
+            }
+
+            $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
+
+            if (!$error) {
+                $articleDetails = array();
+                $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+                $itemsCollection
+                    ->addFieldToFilter('products_listing_id', $listing->getId())
+                    ->addFieldToFilter('status', array('nin' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)));
+
+                /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
+                foreach ($itemsCollection->getItems() as $item) {
+                    if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+                        $articleDetails[] = $item->getArticleFeeDetails();
+                    }
+                }
+
+                $sell = Mage::getModel('diglin_ricento/api_services_sell');
+                $fees = $sell->getArticlesFee($articleDetails);
+
+                if ($fees) {
+
+                    $storeCurrency = Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore()->getBaseCurrencyCode();
+                    if ($storeCurrency !== Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
+
+                        $rate = Mage::helper('diglin_ricento/price')
+                            ->getCurrency($storeCurrency)
+                            ->getRate(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+
+                        if (empty($rate)) {
+                            $this->_getSession()->addError($this->__('Currency Rate not configured'));
+                        }
+                    }
+
+                    $this->_initLayoutMessages('adminhtml/session');
+                    $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
+                    echo $block->toHtml();
+                    return;
+                } else {
+                    $this->_getSession()->addError($this->__('Sorry, no product found for fees calculation.'));
+                    $error = true;
+                }
+            }
+
+            if ($error) {
+                $this->_getSession()->addNotice($this->__('Please, close this popup window and fix the errors before to be allowed to list your products on ricardo.ch.'));
+                $this->_initLayoutMessages('adminhtml/session');
+                $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
+                return;
+            }
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->_getSession()->addError($this->__('An error occurred %s', $e->getMessage()));
+            $this->_initLayoutMessages('adminhtml/session');
+            $this->getResponse()->setBody($this->getLayout()->getMessagesBlock()->toHtml());
+            return;
+        }
     }
 }

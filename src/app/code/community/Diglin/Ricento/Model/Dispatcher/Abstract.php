@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -97,6 +97,11 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
     protected $_totalError = 0;
 
     /**
+     * @var null | Mage_Directory_Model_Currency
+     */
+    protected $_currency = null;
+
+    /**
      * @return $this
      */
     public function proceed()
@@ -160,7 +165,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         $itemCollection
             ->addFieldToFilter('status', array('in' => $statuses))
             ->addFieldToFilter('products_listing_id', array('eq' => $this->_productsListingId))
-            ->addFieldToFilter('item_id', array('gt' => (int) $lastItemId));
+            ->addFieldToFilter('item_id', array('gt' => (int) $lastItemId))
+            ->addFieldToFilter('type', array('nin' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE));
 
         if ($this->_limit) {
             $itemCollection->setPageSize($this->_limit);
@@ -192,6 +198,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $this->_currentJobListing = Mage::getModel('diglin_ricento/sync_job_listing')->load($this->_currentJob->getId(), 'job_id');
                 $this->_productsListingId = (int) $this->_currentJobListing->getProductsListingId();
                 $this->_totalProceed = (int) $this->_currentJobListing->getTotalProceed();
+                $this->_totalSuccess = (int) $this->_currentJobListing->getTotalSuccess();
+                $this->_totalError = (int) $this->_currentJobListing->getTotalError();
 
                 if (!$this->_productsListingId) {
                     return $this;
@@ -219,7 +227,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $end = microtime(true);
 
                 if ($helper->isDebugEnabled()) {
-                    Mage::log('Time to run the job id ' . $this->_currentJob->getId() . ' in ' . ($end - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+                    Mage::log('Time to run the job id ' . $this->_currentJob->getId() . ' in ' . ($end - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
                 }
 
                 if ($this->_jobHasError || $this->_currentJob->getJobStatus() == Diglin_Ricento_Model_Sync_Job::STATUS_ERROR) {
@@ -244,6 +252,8 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
 
                     $this->_currentJobListing
                         ->setLastItemId(null)
+                        ->setTotalError($this->_totalError)
+                        ->setTotalSuccess($this->_totalSuccess)
                         ->setTotalProceed($this->_totalProceed)
                         ->save();
 
@@ -286,7 +296,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $this->_jobHasWarning = false;
             }
         } catch (Exception $e) {
-            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE);
+            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
             $this->_currentJob = (isset($this->_currentJob)) ? $this->_currentJob : null;
             $this->_setJobError($e);
         }
@@ -400,10 +410,10 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
      */
     protected function _handleException(Exception $e, $lastService = null)
     {
-        Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE);
+        Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
 
         if ($lastService instanceof Diglin_Ricento_Model_Api_Services_Abstract) {
-            Mage::log($lastService->getLastApiDebug(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+            Mage::log($lastService->getLastApiDebug(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
         }
 
         $message = $this->_getHelper()->__($e->getMessage());
@@ -418,6 +428,26 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         ++$this->_totalError;
 
         return $this;
+    }
+
+    /**
+     * @param $errorType
+     * @param array $errorCodes
+     * @return array
+     */
+    protected function _handleErrorCodes($errorType, array $errorCodes)
+    {
+        $labels = array();
+
+        /* @var $classname Diglin\Ricardo\Enums\AbstractEnums */
+        $classname = '\Diglin\Ricardo\Enums\\' . $errorType;
+        if (class_exists($classname)) {
+            foreach ($errorCodes as $errorCode) {
+                $labels[] = $classname::getLabel($errorCode);
+            }
+        }
+
+        return $labels;
     }
 
     /**
@@ -475,5 +505,17 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         return Mage::getSingleton('diglin_ricento/api_services_selleraccount')
             ->setCanUseCache(false)
             ->setCurrentWebsite($this->_getListing()->getWebsiteId());
+    }
+
+    /**
+     * @return Mage_Directory_Model_Currency
+     */
+    protected function _getCurrency()
+    {
+        if (!$this->_currency) {
+            $this->_currency = Mage::getModel('directory/currency')->load(Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY);
+        }
+
+        return $this->_currency;
     }
 }

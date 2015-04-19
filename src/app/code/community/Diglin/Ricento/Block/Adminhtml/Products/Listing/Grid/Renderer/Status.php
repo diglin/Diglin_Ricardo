@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -29,25 +29,23 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid_Renderer_Status
         $sqlListed = $readAdapter->select()
             ->from($resourceModel->getTable('diglin_ricento/products_listing_item'), new Zend_Db_Expr('COUNT(*)'))
             ->where('products_listing_id = ?', $row->getId())
-            ->where('status = ?', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->where('parent_item_id IS NULL');
+            ->where('status = ?', Diglin_Ricento_Helper_Data::STATUS_LISTED);
 
         $sqlNotListed = $readAdapter->select()
             ->from($resourceModel->getTable('diglin_ricento/products_listing_item'), new Zend_Db_Expr('COUNT(*)'))
             ->where('products_listing_id = ?', $row->getId())
-            ->where('status != ?', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-            ->where('parent_item_id IS NULL');
-
+            ->where('status <> ? ', Diglin_Ricento_Helper_Data::STATUS_LISTED)
+            ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
 
         $totalListed = $readAdapter->fetchOne($sqlListed);
         $totalUnlisted = $readAdapter->fetchOne($sqlNotListed);
 
         $html = '';
-        $html .= '<strong>' . $this->_getValue($row) . '</strong>';
+        $html .= '<strong>' . $this->__(ucwords($this->_getValue($row))) . '</strong>';
         $html .= '<dl class="diglin_ricento_status_info">';
-        $html .= '<dt>' . $this->__('Listed products:') . '</dt>';
+        $html .= '<dt>' . $this->__('Listed products:') . '&nbsp;</dt>';
         $html .= '<dd>' . (int) $totalListed . '</dd>';
-        $html .= '<dt>' . $this->__('Not listed products:') . '</dt>';
+        $html .= '<dt>' . $this->__('Not listed products:') . '&nbsp;</dt>';
         $html .= '<dd>' . (int) $totalUnlisted . '</dd>';
         $html .= '</dl>';
         return $html;

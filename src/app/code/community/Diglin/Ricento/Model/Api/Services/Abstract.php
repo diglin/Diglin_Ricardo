@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -165,15 +165,15 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
     {
         $data = array();
         $helper = Mage::helper('diglin_ricento');
-        $key = $this->_underscore(substr($method,3));
+        $key = $this->_underscore(substr($method, 3));
         $cacheKey = $key . Mage::registry('ricardo_api_lang');
         $profilerName = $this->_profilerPrefix . strtoupper($key);
         $serviceModel = $this->getServiceModel();
 
         try {
-            switch (substr($method, 0, 3)) {
-                case 'get' :
-                    if (method_exists($serviceModel, $method) && is_callable(array($serviceModel, $method), true)) {
+            if (method_exists($serviceModel, $method) && is_callable(array($serviceModel, $method), true)) {
+                switch (substr($method, 0, 3)) {
+                    case 'get' :
 
                         Varien_Profiler::start($profilerName);
 
@@ -198,11 +198,8 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
                         Varien_Profiler::stop($profilerName);
 
                         return $data;
-                    }
-                    break;
-                case 'set':
-                    if (method_exists($serviceModel, $method) && is_callable(array($serviceModel, $method), true)) {
-
+                        break;
+                    case 'set':
                         Varien_Profiler::start($profilerName);
 
                         $this->_prepareCredentialToken();
@@ -214,11 +211,8 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
                         Varien_Profiler::stop($profilerName);
 
                         return $this;
-                    }
-                    break;
-                default:
-                    if (method_exists($serviceModel, $method) && is_callable(array($serviceModel, $method), true)) {
-
+                        break;
+                    default:
                         Varien_Profiler::start($profilerName);
 
                         $this->_prepareCredentialToken();
@@ -230,8 +224,8 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
                         Varien_Profiler::stop($profilerName);
 
                         return $data;
-                    }
-                    break;
+                        break;
+                }
             }
         } catch (\Diglin\Ricardo\Exceptions\CurlException $e) {
             Mage::logException($e);
@@ -252,7 +246,7 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
      */
     public function setCanUseCache($canUseCache)
     {
-        $this->_canUseCache = (bool) $canUseCache;
+        $this->_canUseCache = (bool)$canUseCache;
         return $this;
     }
 
@@ -372,8 +366,8 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
             ->setWebsiteId($this->getCurrentWebsite()->getId())
             ->setTokenType(ServiceAbstract::TOKEN_TYPE_TEMPORARY)
             ->setExpirationDate(
-                    Mage::helper('diglin_ricento/api')->calculateSessionExpirationDate($security->getCredentialTokenSessionDuration(), $security->getCredentialTokenSessionStart())
-                )
+                Mage::helper('diglin_ricento/api')->calculateSessionExpirationDate($security->getCredentialTokenSessionDuration(), $security->getCredentialTokenSessionStart())
+            )
             ->save();
 
         return $this;

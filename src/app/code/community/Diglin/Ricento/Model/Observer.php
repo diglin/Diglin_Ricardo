@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -206,5 +206,19 @@ class Diglin_Ricento_Model_Observer
             $product->setSkipCheckRequiredOption(true);
         }
         return $this;
+    }
+
+    /**
+     * Event
+     * - controller_action_layout_load_before
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function addLayoutHandle(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        if (strpos($event->getAction()->getFullActionName(), 'ricento') !== false) {
+            $event->getLayout()->getUpdate()->addHandle('ricento');
+        }
     }
 }

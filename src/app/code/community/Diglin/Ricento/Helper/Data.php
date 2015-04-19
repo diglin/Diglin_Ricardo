@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -34,7 +34,8 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_RICARDO_PARTNERKEY            = 'ricento/api_config/partner_key_';
     const CFG_RICARDO_PARTNERPASS           = 'ricento/api_config/partner_pass_';
     const CFG_EXPIRATION_NOTIFICATION_DELAY = 'ricento/api_config/expiration_notification_delay'; // in day
-    const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification'; // in day
+    const CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY = 'ricento/api_config/expiration_notification_validation_delay'; // in day
+    const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification';
 
     const CFG_SUPPORTED_LANG                = 'ricento/api_config/lang';
     const DEFAULT_SUPPORTED_LANG            = 'de';
@@ -50,6 +51,18 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_ORDER_CREATION_EMAIL          = 'ricento/global/email_order_creation';
     const CFG_MERGE_ORDER                   = 'ricento/global/merge_order';
     const CFG_DECREASE_INVENTORY            = 'ricento/global/decrease_inventory';
+    const CFG_BANNER                        = 'ricento/global/banner/enabled';
+    const CFG_BANNER_XML                    = 'ricento/global/banner/xml';
+    const CFG_STATS                         = 'ricento/global/stats';
+    const CFG_STATS_TEST_MODE               = 'ricento/global/stats_test_mode';
+    const CFG_STATS_APPID                   = 'ricento/global/stats_app_id';
+    const CFG_STATS_APPID_TEST              = 'ricento/global/stats_app_id_test';
+
+    /**
+     * Listing config
+     */
+    const CFG_MERGE_DESCRIPTIONS            = 'ricento/listing/merge_descriptions';
+    const CFG_NL2BR                         = 'ricento/listing/nl2br';
 
     /**
      * Cleanup Job config
@@ -69,8 +82,15 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
 
     const LOG_FILE          = 'ricento.log';
 
-    const RICARDO_URL       = 'http://www.ricardo.ch';
-    const RICARDO_URL_HELP_PROMOTION = 'http://www.ricardo.ch/ueber-uns/gebühren/einstelloptionen'; //@todo make it for french too
+    const RICARDO_URL                      = 'http://www.ricardo.ch';
+    const RICARDO_URL_HELP_PROMOTION_DE    = 'http://www.ricardo.ch/ueber-uns/gebühren/einstelloptionen';
+    const RICARDO_URL_HELP_PROMOTION_FR    = 'http://www.fr.ricardo.ch/ueber-uns/fr-fr/frais/optionsdepublication';
+    const RICARDO_URL_TERMS_DE             = 'http://www.ricardo.ch/ueber-uns/de-ch/reglemente.aspx';
+    const RICARDO_URL_TERMS_FR             = 'http://www.fr.ricardo.ch/ueber-uns/fr-fr/règlements';
+    const RICARDO_URL_PRIVACY_DE           = self::RICARDO_URL_TERMS_DE;
+    const RICARDO_URL_PRIVACY_FR           = self::RICARDO_URL_TERMS_FR;
+    const RICARDO_URL_FEES_DE              = self::RICARDO_URL_TERMS_DE;
+    const RICARDO_URL_FEES_FR              = self::RICARDO_URL_TERMS_FR;
 
     const NODE_DISPATCHER_TYPES     = 'global/ricento/dispatcher/types';
     const NODE_PRODUCT_TYPES        = 'global/ricento/allow_product_types';
@@ -78,7 +98,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Payment Config
      */
-    const PAYMENT_CURRENCY          = 'payment/ricento/currency';
     const PAYMENT_BANK_INFO         = 'payment/ricento/bank_transfer_instructions';
 
     /**
@@ -86,6 +105,12 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
      */
     const ORDER_STATUS_PENDING      = 'pending_ricento';
     const ORDER_STATUS_CANCEL       = 'canceled_ricento';
+
+    /**
+     * Stock Management
+     */
+    const INVENTORY_QTY_TYPE_FIX        = 'fix';
+    const INVENTORY_QTY_TYPE_PERCENT    = 'percent';
 
     /**
      * @var Mage_Directory_Model_Currency
@@ -364,6 +389,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Get the default supported lang depending if the partner key is set or not
+     *
      * @return string
      */
     public function getDefaultSupportedLang()
@@ -413,6 +439,17 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function getExpirationNotificationDelay($store = 0)
     {
         return Mage::getStoreConfig(self::CFG_EXPIRATION_NOTIFICATION_DELAY, $store);
+    }
+
+    /**
+     * Get the delay in days to notify the owner that the API authorisation must be triggered
+     *
+     * @param int $store
+     * @return mixed
+     */
+    public function getExpirationNotificationValidationDelay($store = 0)
+    {
+        return Mage::getStoreConfig(self::CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY, $store);
     }
 
     /**
@@ -492,7 +529,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             foreach ($supportedLang as $lang) {
 
                 // Prevent to have the default language twice
-
                 if (strtolower($lang) == strtolower($defaultLang)) {
                     continue;
                 }
@@ -711,5 +747,106 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             $imageInfo['bits'] = 8;
         }
         return round(($imageInfo[0] * $imageInfo[1] * $imageInfo['bits'] * $imageInfo['channels'] / 8 + Pow(2, 16)) * 1.65);
+    }
+
+    /**
+     * @param int $storeId
+     * @return mixed
+     */
+    public function canMergeDescriptions($storeId = 0)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_MERGE_DESCRIPTIONS, $storeId);
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     * @return int|string
+     */
+    public function getStartingDate(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
+        if ($item->getSalesOptions()->getScheduleOverwriteProductDateStart()) {
+            $startDate = $item->getProductsListing()->getSalesOptions()->getScheduleDateStart();
+        } else {
+            $startDate = $item->getSalesOptions()->getScheduleDateStart();
+        }
+
+        if (!is_null($startDate) || $item->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
+            $startDate = strtotime($startDate);
+        }
+
+        // ricardo.ch constrains, starting date must be in 1 hour in future
+        if (is_null($startDate) || $startDate < (time() + 3600)) {
+            $startDate = time() + 3600;
+        }
+
+        return $startDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFeesRulesUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_FEES_FR;
+        } else {
+            return self::RICARDO_URL_FEES_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTermsUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_TERMS_FR;
+        } else {
+            return self::RICARDO_URL_TERMS_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivacyUrl()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_PRIVACY_FR;
+        } else {
+            return self::RICARDO_URL_PRIVACY_DE;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelpPromotion()
+    {
+        if ($this->_getLocaleCodeForApiConfig() == 'fr') {
+            return self::RICARDO_URL_HELP_PROMOTION_FR;
+        } else {
+            return self::RICARDO_URL_HELP_PROMOTION_DE;
+        }
+    }
+
+    /**
+     * @return Varien_Object
+     */
+    public function getRicardoShippingRegistry()
+    {
+        if(!Mage::registry('ricardo_shipping')) {
+            Mage::register('ricardo_shipping', new Varien_Object());
+        };
+
+        return Mage::registry('ricardo_shipping');
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSendEmailNotification()
+    {
+        return Mage::getStoreConfigFlag(self::CFG_EMAIL_NOTIFICATION);
     }
 }

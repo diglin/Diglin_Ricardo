@@ -5,7 +5,7 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -45,6 +45,7 @@ class Diglin_Ricento_Model_Products_Listing_Log extends Mage_Core_Model_Abstract
     const LOG_TYPE_RELIST       = 3;
     const LOG_TYPE_SYNCLIST     = 4;
     const LOG_TYPE_ORDER        = 5;
+    const LOG_TYPE_CLOSED       = 6;
 
     /**
      * Prefix of model events names
