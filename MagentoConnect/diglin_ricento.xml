@@ -1,5 +1,5 @@
 <_>
-   <form_key>wSjHfzJhzFyqbjjd</form_key>
+   <form_key>pAAhKRJDk7uibB0I</form_key>
    <name>diglin_ricento</name>
    <channel>community</channel>
    <version_ids>
@@ -38,10 +38,37 @@
 				&lt;h2&gt;About Diglin&lt;/h2&gt;
 				&lt;p&gt;&lt;a href=&quot;http://www.diglin.com&quot;&gt;Diglin&lt;/a&gt; is the Swiss eCommerce Agency per excellence, realizing your eCommerce project with success. It will accompany along the whole life of your eCommerce project at any levels: conception, realization, design, marketing, logistic, data treatment and management, resource optimization, cost efficiency, increase in turnover, etc. Diglin concentrates its activities mainly with the solutions Magento (eCommerce), OroCRM (CRM) and Akeneo (PIM) and work with its partners highly qualified to provide you the best solutions regarding your needs. &lt;/p&gt;</description>
    <license>OSL v3.0</license>
-   <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.0.18</version>
+   <license_uri/>
+   <version>1.1.0</version>
    <stability>stable</stability>
-   <notes>## Version 1.0.18
+   <notes>## Version 1.1.0
+- NEW: add buttons to export configuration into a tar.gz archive and/or send it to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files. No customer information are saved.
+- NEW: support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
+- NEW: while selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
+- NEW: display a popup window with a summary of the fees for the current product list before to proceed &quot;Check and List&quot;. Data of the form are saved when relevant before to display these fees
+- NEW: allow to merge short and description if ricardo description is missing at product level and if the extension is configured for that - Default &quot;disabled&quot;
+- NEW: support Magento Watermark Pictures
+- NEW: add ricardo banner in the dashboard of the extension
+- ENHANCEMENT: make description with carriage return to &lt;br&gt; HTML Tag configurable - default is 0
+- ENHANCEMENT: refactor order import process to reduce potential issues
+- ENHANCEMENT: add a new dispatcher to close articles properly for those which are not anymore available on ricardo.ch
+- ENHANCEMENT: global performance improvement with the ricardo API and product pictures (&gt; X MB - image attribute and media gallery)
+- ENHANCEMENT: configurable products and their options having price are computed differently, it fixes some issues with price calculation but also allow Fees calculation
+- ENHANCEMENT: links of the backend user interface depending on the user language are correctly defined (french or german)
+- ENHANCEMENT: related products of configurable products are displayed in the products grid of a list after a product is added or after the products listing is saved instead to wait that the product listing is checked
+- ENHANCEMENT: cleanup, factorize and perform code related to configurable products
+- ENHANCEMENT: set auto increment value of auction sales type to 1 per default
+- ENHANCEMENT: the inventory column in the products grid of the products listing has several meaning: 1) if the product is already listed, the value displayed is the quantity of product sent and still available on ricardo, 2) if the product is not yet listed, the quantity displayed is calculated based on the configuration at the product list or the product level, it will be automatically refreshed if the stock of the product changed before it is listed.
+- FIX: issue with price calculation when price scope is per website instead global
+- FIX: issue with grouped product quantity - default is 1 if related products don&apos;t have quantity defined
+- FIX: issue with order synchronization on Magento 1.7 and the ricardo payment method
+- FIX: issue with Internet Explorer when configuring a product and using defaults values are not expected
+- FIX: some translations issue
+- FIX: issue with shipping description while editing the configuration at product level into a products listing
+- FIX: memory issue due to pictures too big and API requirements (bytes array)
+- FIX: issue with MagentoConnect install
+
+## Version 1.0.18
 - Add improvements brought by the ricardo library
 
 ## Version 1.0.17
@@ -200,7 +227,7 @@
             <max/>
          </max>
          <files>
-            <files>                                      </files>
+            <files>        </files>
          </files>
       </package>
       <extension>
@@ -218,18 +245,18 @@
    <contents>
       <target>
          <target>magelocal</target>
+         <target>magecommunity</target>
+         <target>magelib</target>
          <target>mageetc</target>
+         <target>mageweb</target>
          <target>magedesign</target>
          <target>magedesign</target>
          <target>magedesign</target>
          <target>mageskin</target>
-         <target>magecommunity</target>
          <target>magelocale</target>
          <target>magelocale</target>
          <target>magelocale</target>
          <target>magelocale</target>
-         <target>mageweb</target>
-         <target>magelib</target>
          <target>magelocale</target>
          <target>magelocale</target>
          <target>magelocale</target>
@@ -237,18 +264,18 @@
       </target>
       <path>
          <path/>
+         <path>Diglin/Ricento</path>
+         <path>Diglin/Ricardo</path>
          <path>modules/Diglin_Ricento.xml</path>
+         <path>js/ricento</path>
          <path>adminhtml/default/default/layout/ricento.xml</path>
          <path>adminhtml/default/default/template/ricento</path>
          <path>frontend/base/default/template/ricento</path>
          <path>adminhtml/default/default/ricento</path>
-         <path>Diglin/Ricento</path>
          <path>en_US/Diglin_Ricento.csv</path>
          <path>en_US/template/email/ricento</path>
          <path>fr_FR/Diglin_Ricento.csv</path>
          <path>fr_FR/template/email/ricento</path>
-         <path>js/ricento</path>
-         <path>Diglin/Ricardo</path>
          <path>de_DE/Diglin_Ricento.csv</path>
          <path>de_DE/template/email/ricento</path>
          <path>de_CH/Diglin_Ricento.csv</path>
@@ -256,10 +283,6 @@
       </path>
       <type>
          <type>file</type>
-         <type>file</type>
-         <type>file</type>
-         <type>dir</type>
-         <type>dir</type>
          <type>dir</type>
          <type>dir</type>
          <type>file</type>
@@ -267,6 +290,10 @@
          <type>file</type>
          <type>dir</type>
          <type>dir</type>
+         <type>dir</type>
+         <type>file</type>
+         <type>dir</type>
+         <type>file</type>
          <type>dir</type>
          <type>file</type>
          <type>dir</type>
@@ -296,19 +323,19 @@
          <ignore/>
          <ignore/>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
          <ignore/>
-         <ignore>#^.svn|.git|.DS_Store#</ignore>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+         <ignore/>
          <ignore/>
       </ignore>
    </contents>
