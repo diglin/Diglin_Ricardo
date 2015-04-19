@@ -5,7 +5,7 @@
  * @author Sylvain Rayé <support at diglin.com>
  * @category    Ricento
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  */
 /* @var $installer Mage_Catalog_Model_Resource_Setup */
 $installer = $this;
