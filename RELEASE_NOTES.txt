@@ -23,6 +23,7 @@
 - FIX: some translations issue
 - FIX: issue with shipping description while editing the configuration at product level into a products listing
 - FIX: memory issue due to pictures too big and API requirements (bytes array)
+- FIX: issue with MagentoConnect install
 
 ## Version 1.0.15
 - 8cc97f0 [ENHANCE] Delete old jobs in the SQL way (no collection), speed up the delete and may prevent mysql error
