@@ -5,16 +5,16 @@
  * @author      Sylvain Rayé <support at diglin.com>
  * @category    Diglin
  * @package     Diglin_Ricento
- * @copyright   Copyright (c) 2014 ricardo.ch AG (http://www.ricardo.ch)
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
- * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Name
+ * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Article
  *
- * Renderer for column name for configurable product
+ * Renderer for column ricardo article id for configurable product
  */
-class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Renderer_Name
+class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Article
     extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
     /**
@@ -28,15 +28,12 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products_Rendere
             $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
             $itemCollection->addFieldToFilter('parent_item_id', $row->getItemId());
 
-            $subtitles = array();
+            $articles = array('&nbsp;');
             foreach ($itemCollection->getItems() as $item) {
-                $subtitle = $item->getProductSubtitle();
-                if (isset($subtitle)) {
-                    $subtitles[] = '<li>' . $subtitle . '</li>';
-                }
+                $articles[] = '<li>' . (($item->getRicardoArticleId()) ? $item->getRicardoArticleId() : '&nbsp;') . '</li>';
             }
 
-            $value = $value . '<ul>' . implode($subtitles) . '</ul>';
+            $value = $value . '<ul>' . implode($articles) . '</ul>';
         }
         return $value;
     }
