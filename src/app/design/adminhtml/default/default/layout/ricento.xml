@@ -30,7 +30,7 @@
 
     <ricento>
         <reference name="before_body_end">
-            <block type="core/template" name="stats" as="stats" template="ricento/stats.phtml" />
+            <block type="adminhtml/template" name="stats" as="stats" template="ricento/stats.phtml" />
         </reference>
     </ricento>
 
@@ -45,7 +45,7 @@
 
     <ricento_dashboard_index>
         <reference name="content">
-            <block type="core/template" name="ricento_dashboard" as="ricento.dashboard"
+            <block type="adminhtml/template" name="ricento_dashboard" as="ricento.dashboard"
                    template="ricento/dashboard.phtml">
                 <block type="core/text_list" name="ricento_dashboard_left" as="ricento.dashboard.left">
                     <block type="adminhtml/template" name="ricento_dashboard_toolbar" as="ricento.dashboard.toolbar"
@@ -65,7 +65,7 @@
                     <block type="adminhtml/template" name="ricento_dashboard_turnover" as="ricento.dashboard.turnover" template="ricento/dashboard/turnover.phtml">
                         <block type="diglin_ricento/adminhtml_dashboard_turnover" name="ricento_dashboard_turnover_graph" as="ricento.dashboard.turnover.graph"/>
                     </block>
-                    <block type="core/template" name="ricento_dashboard_bestsellers" as="ricento.dashboard.bestsellers"
+                    <block type="adminhtml/template" name="ricento_dashboard_bestsellers" as="ricento.dashboard.bestsellers"
                            template="ricento/dashboard/bestsellers.phtml">
                         <block type="diglin_ricento/adminhtml_dashboard_bestsellers"
                                name="ricento_dashboard_bestsellers_grid"

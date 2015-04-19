@@ -60,5 +60,6 @@ $listingFees = $this->getListingFees();
 </div>
 <form id="confirmation_fee" name="confirmation_fee" enctype="application/x-www-form-urlencoded" action="<?php echo $this->getFormUrl(); ?>">
     <input type="hidden" name="id" id="id" value="<?php echo $this->getProductsListingId(); ?>" />
+    <input name="form_key" type="hidden" value="<?php echo $this->getFormKey(); ?>" />
     <button class="scalable save"><span><span><?php echo $this->__('Confirm, check and List') ?></span></span></button>
 </form>

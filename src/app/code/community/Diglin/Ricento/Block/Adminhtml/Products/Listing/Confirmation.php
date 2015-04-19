@@ -14,7 +14,7 @@ use Diglin\Ricardo\Enums\Article\PromotionCode;
 /**
  * Class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation
  */
-class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation extends Mage_Core_Block_Template
+class Diglin_Ricento_Block_Adminhtml_Products_Listing_Confirmation extends Mage_Adminhtml_Block_Template
 {
     /**
      * @var string
