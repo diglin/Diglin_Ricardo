@@ -111,6 +111,9 @@
                             <config translate="title" module="diglin_ricento">
                                 <title>Configuration</title>
                             </config>
+                            <support translate="title" module="diglin_ricento">
+                                <title>Support</title>
+                            </support>
                         </children>
                     </ricento>
                 </children>
