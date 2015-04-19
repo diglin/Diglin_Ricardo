@@ -39,6 +39,8 @@ class Diglin_Ricento_Model_Cron
             ini_set('memory_limit', '512M');
         }
 
+        register_shutdown_function(array($this, 'handleError'));
+
         try {
             foreach ($this->_syncProcess as $jobType) {
                 $this->_dispatch($jobType);
@@ -61,6 +63,8 @@ class Diglin_Ricento_Model_Cron
         if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
             ini_set('memory_limit', '512M');
         }
+
+        register_shutdown_function(array($this, 'handleError'));
 
         try {
             foreach ($this->_asyncProcess as $jobType) {
@@ -148,5 +152,30 @@ class Diglin_Ricento_Model_Cron
         }
 
         return false;
+    }
+
+    /**
+     * Handle Error in case of "ghosts" PHP error
+     *
+     * @return $this
+     */
+    public function handleError()
+    {
+        $error = error_get_last();
+
+        if( $error !== NULL) {
+            if (function_exists('mageDebugBacktrace')) {
+                $error = array_merge($error, (array) mageDebugBacktrace(false, false));
+            }
+
+//            $errno   = $error["type"];
+//            $errfile = $error["file"];
+//            $errline = $error["line"];
+//            $errstr  = $error["message"];
+
+            Mage::log(print_r($error, true), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+        }
+
+        return $this;
     }
 }

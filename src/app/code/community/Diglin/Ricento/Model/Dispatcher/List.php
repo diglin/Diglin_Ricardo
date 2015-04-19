@@ -107,7 +107,7 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
         }
 
         if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
-            Mage::log('Max Memory Usage After Total Insert ' . $this->_getHelper()->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+            Mage::log('Max Memory Usage After Total Insert ' . $this->_getHelper()->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
         }
 
         unset($insertArticles);

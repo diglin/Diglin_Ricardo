@@ -227,7 +227,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $end = microtime(true);
 
                 if ($helper->isDebugEnabled()) {
-                    Mage::log('Time to run the job id ' . $this->_currentJob->getId() . ' in ' . ($end - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+                    Mage::log('Time to run the job id ' . $this->_currentJob->getId() . ' in ' . ($end - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
                 }
 
                 if ($this->_jobHasError || $this->_currentJob->getJobStatus() == Diglin_Ricento_Model_Sync_Job::STATUS_ERROR) {
@@ -296,7 +296,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
                 $this->_jobHasWarning = false;
             }
         } catch (Exception $e) {
-            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE);
+            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
             $this->_currentJob = (isset($this->_currentJob)) ? $this->_currentJob : null;
             $this->_setJobError($e);
         }

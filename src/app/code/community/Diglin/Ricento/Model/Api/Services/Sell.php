@@ -64,6 +64,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
     public function insertArticle(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $articleResult = array();
+        $insertArticle = null;
 
         try {
             $start = microtime(true);
@@ -75,9 +76,9 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
                 Mage::log('Time to insert article ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
             }
         } catch (ExceptionAbstract $e) {
-            if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
+            if (Mage::helper('diglin_ricento')->isDebugEnabled() && $insertArticle instanceof InsertArticlesParameter) {
                 $insertArticle->setPictures(null, true); // remove picture otherwise log is extremely long
-                Mage::log($insertArticle->getDataProperties(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+                Mage::log($insertArticle->getDataProperties(), Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
             }
             Mage::logException($e);
             $this->_updateCredentialToken();
@@ -106,8 +107,8 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             $articlesResult = parent::insertArticles($insertArticlesParameter);
 
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
-                Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
-                Mage::log('Max Memory Usage ' . Mage::helper('diglin_ricento')->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
+                Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+                Mage::log('Max Memory Usage ' . Mage::helper('diglin_ricento')->getMemoryUsage() . ' bytes', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
             }
         } catch (ExceptionAbstract $e) {
             Mage::logException($e);
