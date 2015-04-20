@@ -160,6 +160,22 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             }
         }
 
+        // Warm picture cache to prevent memory consumption while listing items
+        $imageHelper = Mage::helper('diglin_ricento/image');
+        $images = (array) $this->getProduct()->getImages($this->getBaseProductId());
+        foreach ($images as $image) {
+
+            if (isset($image['filepath'])) {
+                $imageHelper
+                    ->init(new Mage_Catalog_Model_Product(), 'image', $image['filepath'])
+                    ->keepAspectRatio(true)
+                    ->keepFrame(false)
+                    ->setQuality(90)
+                    ->resize(600)
+                    ->__toString();
+            }
+        }
+
         return parent::_afterSave();
     }
 
@@ -567,13 +583,15 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
                     ->setQuality(90)
                     ->resize(600);
 
+                $filename = $imageHelper->__toString();
+
                 // Prepare picture to set the content as byte array for the webservice
-                $imageExtension = Helper::getPictureExtension($imageHelper);
+                $imageExtension = Helper::getPictureExtension($filename);
                 if ($imageExtension) {
                     $picture = new ArticlePictureParameter();
                     $picture
                         // we encode in Json to minimize memory consumption
-                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($imageHelper)))))
+                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($filename)))))
                         ->setPictureExtension($imageExtension)
                         ->setPictureIndex(++$i);
 
