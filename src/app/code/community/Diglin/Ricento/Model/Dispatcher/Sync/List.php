@@ -198,7 +198,7 @@ class Diglin_Ricento_Model_Dispatcher_Sync_List extends Diglin_Ricento_Model_Dis
      * @param $item
      * @return null|Varien_Object
      */
-    protected function _getSoldArticles($item)
+    protected function _getSoldArticles(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $article = null;
         $soldArticlesParameter = new SoldArticlesParameter();
@@ -212,7 +212,7 @@ class Diglin_Ricento_Model_Dispatcher_Sync_List extends Diglin_Ricento_Model_Dis
             ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - (1 * 24 * 60 * 60)));
 
         $articles = $this->_getSellerAccount()->getSoldArticles($soldArticlesParameter);
-        if (!is_null($articles) && is_array($articles) && isset($articles[0])) {
+        if (!is_null($articles) && is_array($articles['SoldArticles']) && isset($articles['SoldArticles'][0])) {
             $article = $this->_getHelper()->extractData($articles[0]);
         }
 
