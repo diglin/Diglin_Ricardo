@@ -1,5 +1,5 @@
 <_>
-   <form_key>5ZMIAgsn79bAnpcY</form_key>
+   <form_key>FPkBjmFqPB6OjkCt</form_key>
    <name>diglin_ricento</name>
    <channel>community</channel>
    <version_ids>
@@ -39,7 +39,7 @@
 				&lt;p&gt;&lt;a href=&quot;http://www.diglin.com&quot;&gt;Diglin&lt;/a&gt; is the Swiss eCommerce Agency per excellence, realizing your eCommerce project with success. It will accompany along the whole life of your eCommerce project at any levels: conception, realization, design, marketing, logistic, data treatment and management, resource optimization, cost efficiency, increase in turnover, etc. Diglin concentrates its activities mainly with the solutions Magento (eCommerce), OroCRM (CRM) and Akeneo (PIM) and work with its partners highly qualified to provide you the best solutions regarding your needs. &lt;/p&gt;</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.1.0.2</version>
+   <version>1.1.1</version>
    <stability>stable</stability>
    <notes>## Version 1.1.0
 - NEW: add buttons to export configuration into a tar.gz archive and/or send it to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files. No customer information are saved.
@@ -227,7 +227,7 @@
             <max/>
          </max>
          <files>
-            <files>           </files>
+            <files>            </files>
          </files>
       </package>
       <extension>
