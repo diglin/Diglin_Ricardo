@@ -58,6 +58,7 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
                 $file = $model->saveFile()->getNewFile();
             }
         } catch (Exception $e) {
+            Mage::logException($e);
             $file = Mage::getDesign()->getSkinUrl($this->getPlaceholder());
         }
         return $file;
