@@ -490,7 +490,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
             ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - (1 * 24 * 60 * 60)));
 
         $articles = $this->_getSellerAccount()->getUnsoldArticles($unsoldArticlesParameter);
-        if (count($articles) > 0 && isset($articles[0]) && is_array($articles[0])) {
+        if (!is_null($articles) && is_array($articles['UnsoldArticles']) && isset($articles['UnsoldArticles'][0])) {
             $article = $this->_getHelper()->extractData($articles[0]);
         }
 
