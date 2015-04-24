@@ -849,4 +849,20 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfigFlag(self::CFG_EMAIL_NOTIFICATION);
     }
+
+    /**
+     * @param null $websiteId
+     * @return Mage_Core_Model_Store
+     * @throws Mage_Core_Exception
+     */
+    public function getDefaultStore($websiteId = null)
+    {
+        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
+        if (is_null($store)) {
+            $storeIds = Mage::app()->getWebsite($websiteId)->getStoreIds();
+            $store = Mage::app()->getStore($storeIds[0]);
+        }
+
+        return $store;
+    }
 }

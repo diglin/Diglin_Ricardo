@@ -31,7 +31,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
     {
         $this->startCurrencyEmulation($websiteId);
 
-        $value = Mage::app()->getWebsite($websiteId)->getDefaultStore()->formatPrice($value);
+        $value = Mage::helper('diglin_ricento')->getDefaultStore($websiteId)->formatPrice($value);
 
         $this->stopCurrencyEmulation($websiteId);
 
@@ -56,7 +56,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
 //            $ricardoCurrency = Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY;
 //        }
 
-        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
+        $store = Mage::helper('diglin_ricento')->getDefaultStore($websiteId);
 
         if ($store->getCurrentCurrency()->getCode() != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
             $this->_oldCurrency = $store->getCurrentCurrency();
@@ -74,7 +74,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
      */
     public function stopCurrencyEmulation($websiteId = null)
     {
-        Mage::app()->getWebsite($websiteId)->getDefaultStore()->setCurrentCurrency($this->_oldCurrency);
+        Mage::helper('diglin_ricento')->getDefaultStore($websiteId)->setCurrentCurrency($this->_oldCurrency);
         $this->_oldCurrency = null;
 
         return $this;
@@ -141,7 +141,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
     {
         $priceCurrentCurrency = null;
         $formattedPrice = array();
-        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
+        $store = Mage::helper('diglin_ricento')->getDefaultStore($websiteId);
 
         if ($defaultCurrency == Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
             // CHF Currency
@@ -177,7 +177,7 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
     public function convert($price, $from, $to = null, $websiteId = null)
     {
         $priceCurrency = null;
-        $store = Mage::app()->getWebsite($websiteId)->getDefaultStore();
+        $store = Mage::helper('diglin_ricento')->getDefaultStore($websiteId);
 
         try {
             if ($from == Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY && $to == $store->getBaseCurrencyCode()) {
