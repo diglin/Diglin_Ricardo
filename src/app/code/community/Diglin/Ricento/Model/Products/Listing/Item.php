@@ -568,6 +568,10 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         foreach ($images as $image) {
 
+            if ($image['filepath'] == 'no_selection') {
+                continue;
+            }
+
             if ($i >= 10) {
                 break;
             }; // Do not set more than 10 pictures
