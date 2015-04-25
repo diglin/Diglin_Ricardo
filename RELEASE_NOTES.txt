@@ -9,7 +9,7 @@
 - ENHANCEMENT: warm up the cache of picture after a product is inserted in the product list
 - FIX: issue with logic to get sold and unsold articles necessary when articles were planned then publicly available and in the meantime has been sold without that the extension knows about the new article ID
 
-## Version 1.1
+## Version 1.1.0
 - NEW: add buttons to export configuration into a tar.gz archive and/or send it to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files. No customer information are saved.
 - NEW: support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
 - NEW: while selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
