@@ -32,10 +32,11 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         $this->getMagentoConfig($folder);
 
         $exceptionFile = Mage::getStoreConfig(Mage_Core_Model_Session_Abstract::XML_PATH_LOG_EXCEPTION_FILE);
-//        $systemFile = Mage::getStoreConfig('dev/log/file');
+        $systemFile = Mage::getStoreConfig('dev/log/file');
 
         $io->cp(Mage::getBaseDir('var') . DS . 'log' . DS . Diglin_Ricento_Helper_Data::LOG_FILE, $folder . DS . Diglin_Ricento_Helper_Data::LOG_FILE);
         $io->cp(Mage::getBaseDir('var') . DS . 'log' . DS . $exceptionFile, $folder . DS . $exceptionFile);
+        $io->cp(Mage::getBaseDir('var') . DS . 'log' . DS . $systemFile, $folder . DS . $systemFile);
 
         $destination = $folder . 'tar';
         $tar = new Mage_Archive_Tar();
@@ -51,7 +52,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getPhpInfo($destination)
@@ -61,7 +62,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getRicentoConfig($destination)
@@ -71,7 +72,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getDeveloperConfig($destination)
@@ -81,7 +82,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return array
      */
     public function getRicentoTables($destination)
@@ -111,7 +112,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
 
             // Anonymize
             $cols = array('*');
-            if (in_array($key, array('entity_id_010', 'entity_id_010'))) {
+            if (in_array($key, array('entity_id_010', 'entity_id_012'))) {
                 $cols = $read->fetchCol('describe ' . $table);
                 $found = array_search('customer_email', $cols);
                 if ($found !== false) {
@@ -133,8 +134,6 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
                 ->limit(500)
                 ->order(array( substr($key, 0, -4) . ' DESC'));
 
-
-
             $object = new Varien_Object($read->fetchAll($select));
             $files[] = $this->writeFile($destination, $table . '.csv', $object->toArray(), true);
         }
@@ -143,7 +142,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getPhpExtensions($destination)
@@ -153,7 +152,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getMagentoConfig($destination)
@@ -182,7 +181,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return mixed
      */
     public function getMagentoModules($destination)
@@ -200,7 +199,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @param $content
      * @return mixed
      * @throws Exception
@@ -279,6 +278,12 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         return $pi;
     }
 
+    /**
+     * @param $content
+     * @param string $filename
+     * @param string $replyTo
+     * @param string $message
+     */
     public function sendConfigurationFile($content, $filename = 'ricardo_support.tar.gz', $replyTo = '', $message = '')
     {
         $template = 'ricento_support';
@@ -333,6 +338,9 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         return;
     }
 
+    /**
+     * @return mixed
+     */
     public function getSupportEmail()
     {
         return str_replace('[/at/]', '@', Mage::getStoreConfig('support/email'));
