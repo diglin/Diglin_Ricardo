@@ -138,13 +138,13 @@ class Diglin_Ricento_Model_Cron
 
             /* @var $token Diglin_Ricento_Model_Api_Token */
             $token = Mage::getModel('diglin_ricento/api_token')
-                ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
+                        ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
 
-            if ($token->getId()) {
-                $token
-                    ->setMerchantNotified(1)
-                    ->save();
-            }
+            $token
+                ->setTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED)
+                ->setWebsiteId(Mage::app()->getWebsite()->getId())
+                ->setMerchantNotified(1)
+                ->save();
         }
 
         if ($helper->apiExpired()) {

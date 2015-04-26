@@ -9,8 +9,10 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use \Diglin\Ricardo\Services\Security;
+
 /**
- * Api_Token Model
+ * Class Diglin_Ricento_Model_Api_Token
  *
  * @method string   getToken()
  * @method string   getTokenType()
@@ -30,12 +32,6 @@
  * @method Diglin_Ricento_Model_Api_Token setMerchantNotified(int $merchantNotified)
  * @method Diglin_Ricento_Model_Api_Token setCreatedAt(string $createdAt)
  * @method Diglin_Ricento_Model_Api_Token setUpdatedAt(string $updateAt)
- */
-
-use \Diglin\Ricardo\Services\Security;
-
-/**
- * Class Diglin_Ricento_Model_Api_Token
  */
 class Diglin_Ricento_Model_Api_Token extends Mage_Core_Model_Abstract
 {
