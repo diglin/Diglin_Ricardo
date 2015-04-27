@@ -87,7 +87,6 @@ class Diglin_Ricento_Model_Sales_Method_Shipping
         /** @var Mage_Shipping_Model_Rate_Result $result */
         $result = Mage::getModel('shipping/rate_result');
 
-
         $description = $helper->getRicardoShippingRegistry()->getRicardoShippingDescription();
         $shippingMethod = $helper->getRicardoShippingRegistry()->getRicardoShippingMethod();
 

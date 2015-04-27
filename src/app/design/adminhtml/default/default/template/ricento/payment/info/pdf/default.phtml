@@ -24,7 +24,7 @@
     <?php echo $_value ?>{{pdf_row_separator}}
 <?php endforeach; ?>
 <?php if (isset($_specificInfo['information'])): ?>
-    <?php echo $_specificInfo['information']; ?>{{pdf_row_separator}}
+    <?php echo $this->stripTags($_specificInfo['information']); ?>{{pdf_row_separator}}
 <?php endif; ?>
 
 <?php endif;?>

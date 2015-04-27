@@ -112,16 +112,21 @@ class Diglin_Ricento_Model_Dispatcher_Sync_List extends Diglin_Ricento_Model_Dis
 
             $article = null;
             $isUnsold =  false;
+            $openArticles = array();
             $openParameter = new OpenArticlesParameter();
             $openParameter->setInternalReferenceFilter($item->getInternalReference());
 
             try {
-                $openArticles = $this->_getSellerAccount()->getOpenArticles($openParameter);
+                try {
+                    $openArticles = $this->_getSellerAccount()->getOpenArticles($openParameter);
+                } catch (\Diglin\Ricardo\Exceptions\TechnicalException $e) {
+                    Mage::log($e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+                }
 
                 /**
                  * Get Article information from OpenArticles method
                  */
-                if (count($openArticles['OpenArticles']) > 0) {
+                if (isset($openArticles['OpenArticles']) && count($openArticles['OpenArticles']) > 0) {
                     $article = Mage::helper('diglin_ricento')->extractData($openArticles['OpenArticles'][0]); // Only one element expected but more may come
                 }
 

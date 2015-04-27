@@ -645,6 +645,10 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             return false;
         }
 
+        if ($stockItem->getIsInStock() && !$stockItem->getManageStock()) {
+            return (!is_null($stockItem->getMinSaleQty()) ? $stockItem->getMinSaleQty() : 1);
+        }
+
         return $stockItem->getQty();
     }
 
