@@ -1,5 +1,5 @@
 <_>
-   <form_key>FPkBjmFqPB6OjkCt</form_key>
+   <form_key>y4Rek8PDsUNzLDHm</form_key>
    <name>diglin_ricento</name>
    <channel>community</channel>
    <version_ids>
@@ -38,10 +38,23 @@
 				&lt;h2&gt;About Diglin&lt;/h2&gt;
 				&lt;p&gt;&lt;a href=&quot;http://www.diglin.com&quot;&gt;Diglin&lt;/a&gt; is the Swiss eCommerce Agency per excellence, realizing your eCommerce project with success. It will accompany along the whole life of your eCommerce project at any levels: conception, realization, design, marketing, logistic, data treatment and management, resource optimization, cost efficiency, increase in turnover, etc. Diglin concentrates its activities mainly with the solutions Magento (eCommerce), OroCRM (CRM) and Akeneo (PIM) and work with its partners highly qualified to provide you the best solutions regarding your needs. &lt;/p&gt;</description>
    <license>OSL v3.0</license>
-   <license_uri/>
-   <version>1.1.1</version>
+   <license_uri>http://opensource.org/licenses/osl-3.0</license_uri>
+   <version>1.1.2</version>
    <stability>stable</stability>
-   <notes>## Version 1.1.0
+   <notes>## Version 1.1.2
+- ENHANCEMENT: allow html code for payment information
+- ENHANCEMENT: prevent unwanted email sending
+- ENHANCEMENT: add system.log in the configuration export for assistance purpose
+- FIX: issue with quantity to use when publishing on ricardo.ch if the product inventory is not managed
+- FIX: prevent to use default Magento picture if an article do not set base picture for a product
+- FIX: add missing french token expiration email template
+- FIX: issue with some store configuration having several store views but no default store (made some issue to get current currency value)
+
+## Version 1.1.1
+- ENHANCEMENT: warm up the cache of picture after a product is inserted in the product list
+- FIX: issue with logic to get sold and unsold articles necessary when articles were planned then publicly available and in the meantime has been sold without that the extension knows about the new article ID
+
+## Version 1.1.0
 - NEW: add buttons to export configuration into a tar.gz archive and/or send it to support shop owner in case of issue with all necessary information: php, magento, installed modules version, ricardo and latest order tables from the database, log files. No customer information are saved.
 - NEW: support currency conversion based on the defined Magento currencies rate. It sets prices in CHF to ricardo.ch, products with price catalog in EUR/USD/... and does the opposite while importing a ricardo order in Magento (CHF to EUR/USD/...). Magento Currency Rates must be configured to work.
 - NEW: while selecting a ricardo category, you can now provide the product name to get a suggestion of the category/ies you may use
@@ -227,7 +240,7 @@
             <max/>
          </max>
          <files>
-            <files>            </files>
+            <files>               </files>
          </files>
       </package>
       <extension>

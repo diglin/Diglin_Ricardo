@@ -1,4 +1,6 @@
 ## Version 1.1.2
+- ENHANCEMENT: allow html code for payment information
+- ENHANCEMENT: prevent unwanted email sending
 - ENHANCEMENT: add system.log in the configuration export for assistance purpose
 - FIX: issue with quantity to use when publishing on ricardo.ch if the product inventory is not managed
 - FIX: prevent to use default Magento picture if an article do not set base picture for a product
