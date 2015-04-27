@@ -84,7 +84,7 @@ class Diglin_Ricento_Model_Api_Token extends Mage_Core_Model_Abstract
 
         // token example:  4a8b285e-417b-431e-bc91-4295793c0d71
         preg_match('/[^.]{8}-[^.]{4}-[^.]{4}-[^.]{4}-[^.]{12}/', $this->getToken(), $matches);
-        if (count($matches) != 1) {
+        if ($this->getToken() && count($matches) != 1) {
             Mage::throwException($helper->__('The format of the token is invalid'));
         }
 

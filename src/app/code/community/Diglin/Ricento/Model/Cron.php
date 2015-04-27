@@ -127,10 +127,10 @@ class Diglin_Ricento_Model_Cron
     private function _isTokenExpired()
     {
         $helper = Mage::helper('diglin_ricento/api');
+        $helperData = Mage::helper('diglin_ricento');
+        $websiteId = Mage::app()->getWebsite()->getId();
 
-        // @todo in case of real multi website support, add website parameter
-
-        if ($helper->apiTokenCredentialValidation() && !$helper->isMerchantNotifiedApiAuthorization()) {
+        if ($helper->apiTokenCredentialValidation($websiteId) && !$helper->isMerchantNotifiedApiAuthorization($websiteId) && $helperData->canSendEmailNotification()) {
             $helperTools = Mage::helper('diglin_ricento/tools');
             $helperTools->sendMerchantAuthorizationNotification(array(
                 'shop_url' => Mage::helper('adminhtml')->getUrl('adminhtml')
@@ -138,11 +138,11 @@ class Diglin_Ricento_Model_Cron
 
             /* @var $token Diglin_Ricento_Model_Api_Token */
             $token = Mage::getModel('diglin_ricento/api_token')
-                        ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, Mage::app()->getWebsite()->getId());
+                        ->loadByWebsiteAndTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED, $websiteId);
 
             $token
                 ->setTokenType(Diglin\Ricardo\Services\Security::TOKEN_TYPE_IDENTIFIED)
-                ->setWebsiteId(Mage::app()->getWebsite()->getId())
+                ->setWebsiteId($websiteId)
                 ->setMerchantNotified(1)
                 ->save();
         }

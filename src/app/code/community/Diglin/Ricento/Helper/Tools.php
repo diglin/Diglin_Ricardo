@@ -117,7 +117,10 @@ class Diglin_Ricento_Helper_Tools extends Mage_Core_Helper_Abstract
             $translate->setTranslateInline(true);
         } catch (Exception $e) {
             Mage::logException($e);
-            self::sendAdminNotification($e->__toString());
+
+            if (Mage::helper('diglin_ricento')->canSendEmailNotification()) {
+                self::sendAdminNotification($e->__toString());
+            }
         }
     }
 }
