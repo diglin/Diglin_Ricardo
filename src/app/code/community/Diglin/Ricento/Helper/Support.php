@@ -111,30 +111,28 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         foreach ($tables as $key => $table) {
 
             // Anonymize
-            $cols = array('*');
-            if (in_array($key, array('entity_id_010', 'entity_id_012'))) {
-                $cols = $read->fetchCol('describe ' . $table);
-                $found = array_search('customer_email', $cols);
-                if ($found !== false) {
-                    unset($cols[$found]);
-                }
-                $found = array_search('customer_firstname', $cols);
-                if ($found !== false) {
-                    unset($cols[$found]);
-                }
-                $found = array_search('customer_lastname', $cols);
-                if ($found !== false) {
-                    unset($cols[$found]);
-                }
+            $cols = $read->fetchCol('describe ' . $table);
+            $found = array_search('customer_email', $cols);
+            if ($found !== false) {
+                unset($cols[$found]);
+            }
+            $found = array_search('customer_firstname', $cols);
+            if ($found !== false) {
+                unset($cols[$found]);
+            }
+            $found = array_search('customer_lastname', $cols);
+            if ($found !== false) {
+                unset($cols[$found]);
             }
 
             $select = $read
                 ->select()
                 ->from($table, $cols)
-                ->limit(500)
+                ->limit(2000)
                 ->order(array( substr($key, 0, -4) . ' DESC'));
 
             $object = new Varien_Object($read->fetchAll($select));
+            $this->writeFile($destination, $table . '.csv', array($cols), true);
             $files[] = $this->writeFile($destination, $table . '.csv', $object->toArray(), true);
         }
 
@@ -209,7 +207,7 @@ class Diglin_Ricento_Helper_Support extends Mage_Core_Helper_Abstract
         $file = $destination . DS . $filename;
         $ioFile = new Varien_Io_File();
         $ioFile->cd($destination);
-        $ioFile->streamOpen($file);
+        $ioFile->streamOpen($file, 'a+');
         if ($csv) {
             foreach ($content as $row) {
                 $ioFile->streamWriteCsv($row);
