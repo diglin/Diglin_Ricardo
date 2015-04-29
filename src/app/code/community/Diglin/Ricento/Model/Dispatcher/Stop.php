@@ -47,6 +47,11 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
             return $this;
         }
 
+        // Get new orders before to stop
+        $dispatcher = Mage::getSingleton('diglin_ricento/dispatcher');
+        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST)->proceed();
+        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_ORDER)->proceed();
+
         $sell = Mage::getSingleton('diglin_ricento/api_services_sell');
         $sell->setCurrentWebsite($this->_getListing()->getWebsiteId());
 
