@@ -101,7 +101,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countReadyTolist
          */
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED), $this->_currentJobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
         $itemCollection->addFieldToFilter('is_planned', 0);
         $totalItems = $itemCollection->getSize();
         $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
