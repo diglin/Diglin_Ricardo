@@ -120,7 +120,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         parent::_beforeSave();
 
         if ($this->hasDataChanges() && !$this->dataHasChangedFor('status')
-            && $this->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED
+            && !in_array($this->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))
         ) {
             $this->setStatus(Diglin_Ricento_Helper_Data::STATUS_PENDING);
         }
