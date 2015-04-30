@@ -28,7 +28,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
     /**
      * @var array
      */
-    protected $_stoppedRicardoArticleIds = array();
+    protected $_openRicardoArticleIds = array();
 
     public function proceed()
     {
@@ -106,7 +106,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         $totalItems = $itemCollection->getSize();
         $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
         $lastItem = $itemCollection->getLastItem();
-        $soldArticlesResult = $stoppedArticles = array();
+        $openArticlesResult = $stoppedArticles = array();
 
         if (!$totalItems) {
             $this->_currentJob->setJobMessage(array($this->_getNoItemMessage()));
@@ -123,15 +123,15 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
 
         try {
-            $soldArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+            $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
         } catch (Exception $e) {
             $this->_handleException($e);
             $e = null;
             // keep going for the next item - no break
         }
 
-        if (isset($soldArticlesResult['OpenArticles'])) {
-            $this->_stoppedRicardoArticleIds = $soldArticlesResult['OpenArticles'];
+        if (isset($openArticlesResult['OpenArticles'])) {
+            $this->_openRicardoArticleIds = $openArticlesResult['OpenArticles'];
             $stoppedArticles = array_filter($ricardoArticleIds, array($this, 'pullArticleToClose'));
             if (count($stoppedArticles)) {
                 $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
@@ -139,20 +139,43 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
                 foreach ($itemCollection->getItems() as $item) {
 
-                    $item
-                        ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
-                        ->save();
+                    // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
+                    try {
+                        $openArticlesParameter = new OpenArticlesParameter();
+                        $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
 
-                    $this->_getListingLog()->saveLog(array(
-                        'job_id' => $this->_currentJob->getId(),
-                        'product_id' => $item->getProductId(),
-                        'product_title' => $item->getProductTitle(),
-                        'products_listing_id' => $this->_productsListingId,
-                        'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
-                        'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
-                        'log_type' => $this->_logType,
-                        'created_at' => Mage::getSingleton('core/date')->gmtDate()
-                    ));
+                        $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                    } catch (Exception $e) {
+                        $this->_handleException($e);
+                        $e = null;
+                        continue;
+                        // keep going for the next item - no break
+                    }
+
+                    // We do not stop anything if the article ID has just been changed and the product is still open
+                    if (isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
+                        $articleId = $openArticleResult['OpenArticles'][0]['ArticleId'];
+                        if ($item->getRicardoArticleId() != $articleId) {
+                            $item
+                                ->setRicardoArticleId($articleId)
+                                ->save();
+                        }
+                    } else {
+                        $item
+                            ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
+                            ->save();
+
+                        $this->_getListingLog()->saveLog(array(
+                            'job_id' => $this->_currentJob->getId(),
+                            'product_id' => $item->getProductId(),
+                            'product_title' => $item->getProductTitle(),
+                            'products_listing_id' => $this->_productsListingId,
+                            'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
+                            'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
+                            'log_type' => $this->_logType,
+                            'created_at' => Mage::getSingleton('core/date')->gmtDate()
+                        ));
+                    }
                 }
             }
         }
@@ -186,7 +209,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
     public function pullArticleToClose($var)
     {
         $return = true;
-        foreach ($this->_stoppedRicardoArticleIds as $articleId) {
+        foreach ($this->_openRicardoArticleIds as $articleId) {
             if ($var == $articleId['ArticleId']) {
                 return false;
             }
