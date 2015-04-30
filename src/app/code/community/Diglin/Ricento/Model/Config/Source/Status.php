@@ -48,6 +48,10 @@ class Diglin_Ricento_Model_Config_Source_Status extends Diglin_Ricento_Model_Con
             array(
                 'value' => Diglin_Ricento_Helper_Data::STATUS_READY,
                 'label' => $helper->__('Ready to list')
+            ),
+            array(
+                'value' => Diglin_Ricento_Helper_Data::STATUS_SOLD,
+                'label' => $helper->__('Sold')
             )
         );
     }

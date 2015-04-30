@@ -47,7 +47,7 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
             return $this;
         }
 
-        // Get new orders before to stop
+        // Get new orders before to stop - @todo sync and get order only from the current list
         $dispatcher = Mage::getSingleton('diglin_ricento/dispatcher');
         $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST)->proceed();
         $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_ORDER)->proceed();
