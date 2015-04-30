@@ -227,7 +227,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     $productItem->setLoadFallbackOptions(true);
                 }
 
-                if (!$productItem->getId() || $productItem->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+                if (!$productItem->getId() || (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))) {
                     continue;
                 }
 
