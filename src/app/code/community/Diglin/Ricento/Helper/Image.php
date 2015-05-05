@@ -15,6 +15,32 @@
 class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
 {
     /**
+     * @param Mage_Catalog_Model_Product $product
+     * @param string $attributeName
+     * @param null $imageFile
+     * @return $this
+     */
+    public function init(Mage_Catalog_Model_Product $product, $attributeName, $imageFile=null)
+    {
+        parent::init($product, $attributeName, $imageFile);
+
+        $this->setWatermark(
+            Mage::getStoreConfig("ricento/listing/watermark_image")
+        );
+        $this->setWatermarkImageOpacity(
+            Mage::getStoreConfig("ricento/listing/watermark_imageOpacity")
+        );
+        $this->setWatermarkPosition(
+            Mage::getStoreConfig("ricento/listing/watermark_position")
+        );
+        $this->setWatermarkSize(
+            Mage::getStoreConfig("ricento/listing/watermark_size")
+        );
+
+        return $this;
+    }
+
+    /**
      * @return int
      */
     protected function getWatermarkImageOpacity()
