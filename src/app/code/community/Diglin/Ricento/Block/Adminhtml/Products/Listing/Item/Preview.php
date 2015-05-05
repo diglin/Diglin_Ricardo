@@ -340,24 +340,31 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Item_Preview extends Mage_
     public function getProductImage()
     {
         try {
-            return '<img src="' . Mage::helper('catalog/image')->init($this->getProduct(), 'image')->resize(265). '" />';
+            return '<img src="' . Mage::helper('diglin_ricento/image')->init($this->getProduct(), 'image')->resize(600)->getUrl(). '" width="265px" />';
         } catch (Exception $e) {
             Mage::logException($e);
-            Mage::getSingleton('adminhtml/session')->addError($e->__toString());
+            $galleryImages = $this->getGalleryImages();
+            if (count($galleryImages)) {
+                $image = array_shift($galleryImages->getItems());
+                if ($image instanceof Varien_Object) {
+                    return '<img src="' . Mage::helper('diglin_ricento/image')->init($this->getProduct(), 'image', $image->getFile())->resize(600)->getUrl(). '" width="265px" />';
+                }
+            }
+            return $e->getMessage();
         }
-
-        return '';
     }
 
-    public function getProductImageThumbnail($_image)
+    /**
+     * @param Varien_Object $_image
+     * @return string
+     */
+    public function getProductImageThumbnail(Varien_Object $_image)
     {
         try {
-            return '<img src="' . $this->helper('catalog/image')->init($this->getProduct(), 'thumbnail', $_image->getFile())->resize(56) . '" width="56" height="56" alt="' . $this->escapeHtml($_image->getLabel()) . '" />';
+            return '<img src="' . $this->helper('diglin_ricento/image')->init($this->getProduct(), 'thumbnail', $_image->getFile())->resize(600)->getUrl() . '" width="56" height="56" alt="' . $this->escapeHtml($_image->getLabel()) . '" />';
         } catch (Exception $e) {
             Mage::logException($e);
-            Mage::getSingleton('adminhtml/session')->addError($e->__toString());
+            return $e->getMessage();
         }
-
-        return '';
     }
 }

@@ -63,52 +63,85 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </nl2br>
-
-                        <watermark module="diglin_ricento" translate="label">
-                            <label>Watermark - Picture with domain name extension (e.g. My-Company.ch) are forbidden</label>
-                            <frontend_model>diglin_ricento/adminhtml_config_source_heading</frontend_model>
+                        <placeholder_allowed>
+                            <label>Allow Image Placeholder</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[In case of problem while sending product's picture (e.g. memory problem, missing picture file on your server, etc) into ricardo.ch, do you want to allow to use your default image placeholder? If no, no image will be sent to ricardo.ch in case of error.]]></comment>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
+                        </placeholder_allowed>
+
+                        <watermark translate="label" module="catalog">
+                            <label>Watermark - Watermark with domain name extension (e.g. My-Company.ch) included are forbidden</label>
+                            <frontend_model>diglin_ricento/adminhtml_config_source_heading</frontend_model>
+                            <sort_order>35</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                         </watermark>
-                        <watermark_size translate="label">
-                            <label>Watermark Default Size</label>
-                            <frontend_type>text</frontend_type>
+                        <watermark_enabled>
+                            <label>Allow Watermark</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>diglin_ricento/config_source_watermark</source_model>
+                            <comment><![CDATA[Yes: fill the other options to provide a correct watermark. No: no watermark will be used at all. Use Default Design Configuration: your default watermark will be used. You can check the result while previewing a product in the product listing.]]></comment>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Example format: 200x300. Be aware: Size maximum of a product's picture is 600x600px on ricardo.ch</comment>
-                        </watermark_size>
-                        <watermark_imageOpacity translate="label">
-                            <label>Watermark Opacity, Percent</label>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </watermark_enabled>
+                        <watermark_size translate="label comment" module="diglin_ricento">
+                            <label>Watermark Default Size</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </watermark_imageOpacity>
-                        <watermark_image translate="label">
-                            <label>Watermark</label>
-                            <frontend_type>image</frontend_type>
-                            <backend_model>adminhtml/system_config_backend_image</backend_model>
-                            <upload_dir config="system/filesystem/media" scope_info="1">catalog/product/watermark</upload_dir>
-                            <base_url type="media" scope_info="1">catalog/product/watermark</base_url>
+                            <comment>Example format: 200x300. Be aware: Size maximum of a product's picture is 600x600px on ricardo.ch</comment>
+                            <depends>
+                                <watermark_enabled>1</watermark_enabled>
+                            </depends>
+                        </watermark_size>
+                        <watermark_imageOpacity translate="label comment" module="catalog">
+                            <label>Watermark Opacity, Percent</label>
+                            <frontend_type>text</frontend_type>
                             <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Allowed file types: jpeg, gif, png.</comment>
-                        </watermark_image>
-                        <watermark_position translate="label">
-                            <label>Watermark Position</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_watermark_position</source_model>
+                            <validate>validate-digits validate-digits-range digits-range-0-100</validate>
+                            <depends>
+                                <watermark_enabled>1</watermark_enabled>
+                            </depends>
+                        </watermark_imageOpacity>
+                        <watermark_image translate="label comment" module="catalog">
+                            <label>Watermark</label>
+                            <frontend_type>image</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_image</backend_model>
+                            <upload_dir config="system/filesystem/media" scope_info="1">catalog/product/watermark/ricento</upload_dir>
+                            <base_url type="media" scope_info="1">catalog/product/watermark/ricento</base_url>
                             <sort_order>70</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <comment>Allowed file types: jpeg, gif, png.</comment>
+                            <depends>
+                                <watermark_enabled>1</watermark_enabled>
+                            </depends>
+                        </watermark_image>
+                        <watermark_position translate="label comment" module="catalog">
+                            <label>Watermark Position</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_watermark_position</source_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <watermark_enabled>1</watermark_enabled>
+                            </depends>
                         </watermark_position>
                     </fields>
                 </listing>

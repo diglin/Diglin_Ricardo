@@ -676,3 +676,11 @@
 "Send us your configuration","Envoyez nous votre configuration"
 "Export your configuration","Exporter votre configuration"
 "Receive email notification in case of error? Email are sent to the main shop contact and are related to API errors, Token expiration, etc...","Voulez-vous recevoir un email de notification en cas d'erreur? Les emails sont envoyés au contact principal de la boutique en cas d'erreur avec l'API ou que le token expire, etc..."
+
+"Allow Image Placeholder","Utiliser image par défaut"
+"In case of problem while sending product's picture (e.g. memory problem, missing picture file on your server, etc) into ricardo.ch, do you want to allow to use your default image placeholder? If no, no image will be sent to ricardo.ch in case of error.","En cas de problème lors de l'envoi des images d'un produit vers ricardo.ch (expl. mémoire saturée, fichier manquant sur le serveur, etc), voulez-vous utiliser à la place votre image par défaut. Si non, aucune image ne sera envoyé vers ricardo.ch en cas de problème."
+"Watermark - Watermark with domain name extension (e.g. My-Company.ch) included are forbidden","Filigrane - les filigranes avec un nom de domaine (expl. My-Company.ch) incorporé sont interdites"
+"Yes: fill the other options to provide a alternative watermark for the ricardo.ch platform. No: no watermark will be used at all. Use Default Design Configuration: your default watermark will be used. You can check the result while previewing a product in the product listing.","Oui: remplissez les autres options pour fournir un filigrane spécifique à la plateforme ricardo.ch. Non: aucun filigrane sera utilisé. Utiliser la configuration du design par défaut: le filigrane de votre boutique par défaut sera utilisé. Vous pouvez vérifier le résultat en prévisualisant un produit depuis la liste des produits."
+"Watermark Default Size","Taille par défaut du filigrane"
+"Example format: 200x300. Be aware: Size maximum of a product's picture is 600x600px on ricardo.ch","Example de format: 200x300. Veuillez prendre en compte que la taille de l'image d'un produit sur ricardo.ch est de 600x600px"
+"Use default store configuration","Utiliser la configuration par défaut de la boutique"

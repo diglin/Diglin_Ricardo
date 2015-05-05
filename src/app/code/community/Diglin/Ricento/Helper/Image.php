@@ -24,18 +24,22 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     {
         parent::init($product, $attributeName, $imageFile);
 
-        $this->setWatermark(
-            Mage::getStoreConfig("ricento/listing/watermark_image")
-        );
-        $this->setWatermarkImageOpacity(
-            Mage::getStoreConfig("ricento/listing/watermark_imageOpacity")
-        );
-        $this->setWatermarkPosition(
-            Mage::getStoreConfig("ricento/listing/watermark_position")
-        );
-        $this->setWatermarkSize(
-            Mage::getStoreConfig("ricento/listing/watermark_size")
-        );
+        if ($attributeName == 'image' && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::YES) {
+            $this->setWatermark(
+                Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK)
+            );
+            $this->setWatermarkImageOpacity(
+                Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_OPACITY)
+            );
+            $this->setWatermarkPosition(
+                Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_POSITION)
+            );
+            $this->setWatermarkSize(
+                Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_SIZE)
+            );
+        } else if ($attributeName == 'image' && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::NO) {
+            $this->setWatermark(null);
+        }
 
         return $this;
     }
@@ -57,6 +61,8 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
      */
     public function __toString()
     {
+        $file = '';
+
         try {
             $model = $this->_getModel();
 
@@ -85,8 +91,19 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
             }
         } catch (Exception $e) {
             Mage::logException($e);
-            $file = Mage::getDesign()->getSkinUrl($this->getPlaceholder());
+
+            if (Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_IMAGE_PLACEHOLDER)) {
+                $file = Mage::getDesign()->getSkinUrl($this->getPlaceholder());
+            }
         }
         return $file;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return parent::__toString();
     }
 }
