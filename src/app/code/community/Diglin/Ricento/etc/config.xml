@@ -31,6 +31,11 @@
         </system>
 
         <ricento>
+            <adminnotification>
+                <feed_url>notifications.diglin.com/externals/magento.rss</feed_url>
+                <use_https>0</use_https>
+                <frequency>1</frequency>
+            </adminnotification>
             <listing>
                 <merge_descriptions>0</merge_descriptions>
                 <nl2br>0</nl2br>
@@ -359,6 +364,16 @@
                     </ricardo_customer_fields>
                 </observers>
             </adminhtml_block_html_before>
+
+            <controller_action_predispatch>
+                <observers>
+                    <ricento_news>
+                        <type>singleton</type>
+                        <class>Diglin_Ricento_Model_Feed</class>
+                        <method>check</method>
+                    </ricento_news>
+                </observers>
+            </controller_action_predispatch>
         </events>
     </adminhtml>
 
