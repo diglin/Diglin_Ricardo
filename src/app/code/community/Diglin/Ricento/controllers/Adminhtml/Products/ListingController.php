@@ -566,11 +566,12 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         try {
+
             if ($listing->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED && !$this->saveAction()) {
                 $error = true;
             }
 
-            $this->getResponse()->clearHeader('Location'); // reset the header came from the saveAction
+            $this->getResponse()->clearHeader('Location')->setHttpResponseCode(200); // reset the header came from the saveAction
 
             if (!$error) {
                 $articleDetails = array();
@@ -605,7 +606,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
                     $this->_initLayoutMessages('adminhtml/session');
                     $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
-                    echo $block->toHtml();
+                    $this->getResponse()->setBody($block->toHtml());
                     return;
                 } else {
                     $this->_getSession()->addError($this->__('Sorry, no product found for fees calculation.'));
