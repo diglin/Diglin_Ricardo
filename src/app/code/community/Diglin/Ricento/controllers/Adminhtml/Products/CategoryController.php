@@ -90,11 +90,8 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
                 ->setCategoryId($categoryId)
                 ->setSuggestedCategoriesId($suggestedCategoriesId);
 
-//            array_shift($categories);
-
             $response
                 ->setCategoryId($categoryId)
-//                ->setOtherSuggestions($categories)
                 ->setContent($block->toHtml())
                 ->setLevels($block->getLevels()) // must be after $block->toHtml()
                 ->setChildrenUrl($this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')));
