@@ -59,14 +59,14 @@ class Diglin_Ricento_Model_Dispatcher_List extends Diglin_Ricento_Model_Dispatch
 
             $baseInsert = $item->getBaseInsertArticleWithTracking();
             $correlationItems[$baseInsert->getCorrelationKey()] = array(
-                'item_id' => $item->getId(),
+                'item_id'       => $item->getId(),
                 'product_title' => $item->getProductTitle(),
-                'product_id' => $item->getProductId(),
-                'product_qty' => $item->getProductQty(),
-                'skipped' => (bool) ($item->getRicardoArticleId())
+                'product_id'    => $item->getProductId(),
+                'product_qty'   => $item->getProductQty(),
+                'skipped'       => (bool) ($item->getRicardoArticleId())
             );
 
-            if (!$item->getRicardoArticleId()) {
+            if (!$item->getRicardoArticleId()) { // skip still live article
                 $insertArticles->setArticles($baseInsert, $flush);
             }
 

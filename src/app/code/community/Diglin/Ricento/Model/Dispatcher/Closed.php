@@ -103,6 +103,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
          */
         $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
         $itemCollection->addFieldToFilter('is_planned', 0);
+
         $totalItems = $itemCollection->getSize();
         $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
         $lastItem = $itemCollection->getLastItem();
@@ -114,15 +115,15 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
             return $this;
         }
 
-        $openArticlesParameter = new OpenArticlesParameter();
-        $openArticlesParameter
-            ->setPageSize($this->_limit) // if not defined, default is 10
-            ->setArticleIdsFilter($ricardoArticleIds);
-
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
         $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
 
         try {
+            $openArticlesParameter = new OpenArticlesParameter();
+            $openArticlesParameter
+                ->setPageSize($this->_limit) // if not defined, default is 10
+                ->setArticleIdsFilter($ricardoArticleIds);
+
             $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
         } catch (Exception $e) {
             $this->_handleException($e);
@@ -131,16 +132,18 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         }
 
         if (isset($openArticlesResult['OpenArticles'])) {
+
             $this->_openRicardoArticleIds = $openArticlesResult['OpenArticles'];
             $stoppedArticles = array_filter($ricardoArticleIds, array($this, 'pullArticleToClose'));
+
             if (count($stoppedArticles)) {
                 $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemCollection->addFieldToFilter('ricardo_article_id', array('in' => $stoppedArticles));
 
                 foreach ($itemCollection->getItems() as $item) {
 
-                    // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
                     try {
+                        // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
                         $openArticlesParameter = new OpenArticlesParameter();
                         $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
 

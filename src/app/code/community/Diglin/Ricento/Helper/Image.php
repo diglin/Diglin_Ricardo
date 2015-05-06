@@ -20,7 +20,7 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
      * @param null $imageFile
      * @return $this
      */
-    public function init(Mage_Catalog_Model_Product $product, $attributeName, $imageFile=null)
+    public function init(Mage_Catalog_Model_Product $product, $attributeName, $imageFile = null)
     {
         parent::init($product, $attributeName, $imageFile);
 
@@ -50,10 +50,10 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     protected function getWatermarkImageOpacity()
     {
         if ($this->_watermarkImageOpacity) {
-            return (int) $this->_watermarkImageOpacity;
+            return (int)$this->_watermarkImageOpacity;
         }
 
-        return (int) $this->_getModel()->getWatermarkImageOpacity();
+        return (int)$this->_getModel()->getWatermarkImageOpacity();
     }
 
     /**
