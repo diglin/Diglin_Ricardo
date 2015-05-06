@@ -27,7 +27,8 @@ Some classes and javascript contain a MIT license.
 - [ricardo.ch](http://www.ricardo.ch/) account
 - ricardo.ch API Token: please visit the [Ricardo API website](http://www.ricardo.ch/interface/)
 - Magento CE >= 1.6.x to 1.9.x (for EE, please contact us)
-- Minimum memory: 256MB - Highly Recommended: 512MB
+- Minimum server memory: 256MB - Highly Recommended: 512MB
+- Browser supported: IE 9+, Chrome, Safari, Firefox
 - PHP >= 5.3.2
 - PHP Curl, GD Library
 - Cron enabled and configured for Magento (set your cron at server level to a period of 5 min to launch internal task related to the rircardo extension
