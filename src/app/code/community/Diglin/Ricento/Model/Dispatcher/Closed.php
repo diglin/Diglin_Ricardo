@@ -165,6 +165,9 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                         }
                     } else {
                         $item
+                            ->setRicardoArticleId(null)
+                            ->setQtyInventory(null)
+                            ->setIsPlanned(null)
                             ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
                             ->save();
 
