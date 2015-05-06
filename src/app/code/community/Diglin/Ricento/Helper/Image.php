@@ -108,16 +108,21 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     }
 
     /**
-     * @param $filepath
-     * @return string
+     * @param string $filepath
+     * @param Mage_Catalog_Model_Product $product
+     * @return bool|string
      */
-    public function prepareRicardoPicture($filepath)
+    public function prepareRicardoPicture($filepath, Mage_Catalog_Model_Product $product = null)
     {
         if ($filepath == 'no_selection') {
             return false;
         }
 
-        return $this->init(new Mage_Catalog_Model_Product(), 'image', $filepath)
+        if (is_null($product)) {
+            $product = new Mage_Catalog_Model_Product();
+        }
+
+        return $this->init($product, 'image', $filepath)
             ->keepAspectRatio(true)
             ->keepFrame(false)
             ->setQuality(90)
