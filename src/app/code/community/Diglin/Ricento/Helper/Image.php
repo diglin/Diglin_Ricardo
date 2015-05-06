@@ -106,4 +106,22 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     {
         return parent::__toString();
     }
+
+    /**
+     * @param $filepath
+     * @return string
+     */
+    public function prepareRicardoPicture($filepath)
+    {
+        if ($filepath == 'no_selection') {
+            return false;
+        }
+
+        return $this->init(new Mage_Catalog_Model_Product(), 'image', $filepath)
+            ->keepAspectRatio(true)
+            ->keepFrame(false)
+            ->setQuality(90)
+            ->resize(600)
+            ->__toString();
+    }
 }

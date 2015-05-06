@@ -161,18 +161,11 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         }
 
         // Warm picture cache to prevent memory consumption while listing items
-        $imageHelper = Mage::helper('diglin_ricento/image');
         $images = (array) $this->getProduct()->getImages($this->getBaseProductId());
-        foreach ($images as $image) {
 
+        foreach ($images as $image) {
             if (isset($image['filepath'])) {
-                $imageHelper
-                    ->init(new Mage_Catalog_Model_Product(), 'image', $image['filepath'])
-                    ->keepAspectRatio(true)
-                    ->keepFrame(false)
-                    ->setQuality(90)
-                    ->resize(600)
-                    ->__toString();
+                Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
             }
         }
 
@@ -568,29 +561,25 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         foreach ($images as $image) {
 
-            if ($image['filepath'] == 'no_selection') {
+            $filename = false;
+            if (isset($image['filepath'])) {
+                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+            }
+
+            if (!$filename) {
                 continue;
             }
 
-            if ($i >= 10) {
+            if ($i >= 10) { // Do not set more than 10 pictures
                 break;
-            }; // Do not set more than 10 pictures
+            };
 
             $hashImage = md5($image['filepath']);
-            if (isset($image['filepath']) && !isset($hash[$hashImage])) {
-
-                $imageHelper = Mage::helper('diglin_ricento/image');
-                $imageHelper
-                    ->init(new Mage_Catalog_Model_Product(), 'image', $image['filepath'])
-                    ->keepAspectRatio(true)
-                    ->keepFrame(false)
-                    ->setQuality(90)
-                    ->resize(600);
-
-                $filename = $imageHelper->__toString();
+            if (!isset($hash[$hashImage])) {
 
                 // Prepare picture to set the content as byte array for the webservice
                 $imageExtension = Helper::getPictureExtension($filename);
+
                 if ($imageExtension) {
                     $picture = new ArticlePictureParameter();
                     $picture
