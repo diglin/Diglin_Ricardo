@@ -75,7 +75,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Products_Listing extends Digl
         }
         if (!empty($data['sales_options']['schedule_date_start_immediately'])) {
             $data['sales_options']['schedule_date_start'] = null;
-        } else {
+        } else if (isset($data['sales_options']['schedule_date_start'])) {
             $data['sales_options']['schedule_date_start'] = Mage::app()->getLocale()->utcDate(null, $data['sales_options']['schedule_date_start'], true)->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
         }
         if (!empty($data['sales_options']['schedule_period_use_end_date'])) {
