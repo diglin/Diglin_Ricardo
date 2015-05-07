@@ -566,9 +566,6 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 //                        $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, Diglin_Ricento_Helper_Data::ORDER_STATUS_CANCEL, $this->_getHelper()->__('Order canceled on ricardo.ch side'), false);
 //                    }
 
-//                    $quote->setIsActive(false);
-//                    $quote->save();
-
                     /**
                      * Save the new order id to the ricardo transaction
                      */
@@ -659,7 +656,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             ->setIsRicardo(true)
             ->setRicardoTransactionId($transaction->getId())
             ->setShippingCumulativeFee($transaction->getShippingCumulativeFee())
-            ->setShippingFee($this->getShippingFee($transaction, $store->getId()));
+            ->setShippingFee($this->getShippingFee($transaction, $store, $quote));
 
         $product = Mage::getModel('catalog/product')
             ->setStoreId($store->getId())
@@ -677,27 +674,37 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             Mage::throwException($quoteItem);
         }
 
+        $totalBidPrice = Mage::helper('diglin_ricento/price')
+            ->getPriceWithOrWithoutTax($product, $transaction->getTotalBidPrice(), $store, $quote);
+
         $quoteItem
             // Set unit custom price
-            ->setCustomPrice($transaction->getTotalBidPrice())
-            ->setOriginalCustomPrice($transaction->getTotalBidPrice());
+            ->setCustomPrice($totalBidPrice )
+            ->setOriginalCustomPrice($totalBidPrice);
 
         return true;
     }
 
     /**
      * @param Diglin_Ricento_Model_Sales_Transaction $transaction
-     * @param int|Mage_Core_Model_Store $storeId
+     * @param Mage_Core_Model_Store $store
      * @return float|int|null
      */
-    public function getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, $storeId = null)
+    public function getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store, Mage_Sales_Model_Quote $quote)
     {
         $currency = $this->_getCurrency();
         $shippingFee = $transaction->getShippingFee();
-        $baseCurrencyCode = Mage::app()->getStore($storeId)->getBaseCurrencyCode();
+        $helperPrice = Mage::helper('diglin_ricento/price');
+
+        // To trick Magento tax calculation while creating the order, add tax to Shipping price if shop is outside Switzerland
+        $pseudoProduct = new Varien_Object();
+        $pseudoProduct->setTaxClassId(Mage::helper('tax')->getShippingTaxClass($store));
+        $shippingFee = $helperPrice->getPriceWithOrWithoutTax($pseudoProduct, $shippingFee, $store, $quote);
+
+        $baseCurrencyCode = Mage::app()->getStore($store)->getBaseCurrencyCode();
 
         if ($baseCurrencyCode != $currency->getCode()) {
-            $shippingFee = Mage::helper('diglin_ricento/price')->convert($shippingFee, $currency->getCode(), $baseCurrencyCode);
+            $shippingFee = $helperPrice->convert($shippingFee, $currency->getCode(), $baseCurrencyCode);
         }
 
         return $shippingFee;

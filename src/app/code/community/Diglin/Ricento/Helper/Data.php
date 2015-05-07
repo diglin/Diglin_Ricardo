@@ -42,6 +42,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const LANG_ALL                          = 'all';
 
     const ALLOWED_CURRENCY                  = 'CHF';
+    const DEFAULT_COUNTRY_CODE              = 'CH';
 
     /**
      * Global config

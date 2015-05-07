@@ -200,8 +200,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
          * Stop the list if all products listing items are stopped
          */
         if ($this->_productsListingId) {
-            $listResource = Mage::getResourceModel('diglin_ricento/products_listing');
-            $listResource->setStatusStop($this->_productsListingId);
+            Mage::getResourceModel('diglin_ricento/products_listing')->setStatusStop($this->_productsListingId);
         }
 
         unset($itemCollection);
