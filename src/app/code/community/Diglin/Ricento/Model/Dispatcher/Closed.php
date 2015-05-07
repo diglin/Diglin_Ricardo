@@ -45,9 +45,10 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                 ->select()
                 ->from(array('pli' => $plResource->getTable('diglin_ricento/products_listing_item')), 'item_id')
                 ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-                ->where('products_listing_id = :id AND status = :status AND is_planned = 0');
+                ->where('products_listing_id = :id AND is_planned = 0')
+                ->where('status IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD));
 
-            $binds = array('id' => $listingId, 'status' => Diglin_Ricento_Helper_Data::STATUS_LISTED);
+            $binds = array('id' => $listingId);
             $countListedItems = count($readConnection->fetchAll($select, $binds));
 
             if ($countListedItems == 0) {
@@ -105,15 +106,15 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         $itemCollection->addFieldToFilter('is_planned', 0);
 
         $totalItems = $itemCollection->getSize();
-        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem = $itemCollection->getLastItem();
-        $openArticlesResult = $stoppedArticles = array();
-
         if (!$totalItems) {
             $this->_currentJob->setJobMessage(array($this->_getNoItemMessage()));
             $this->_progressStatus = Diglin_Ricento_Model_Sync_Job::PROGRESS_COMPLETED;
             return $this;
         }
+
+        $ricardoArticleIds  = $itemCollection->getColumnValues('ricardo_article_id');
+        $lastItem           = $itemCollection->getLastItem();
+        $openArticlesResult = $stoppedArticles = array();
 
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
         $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());

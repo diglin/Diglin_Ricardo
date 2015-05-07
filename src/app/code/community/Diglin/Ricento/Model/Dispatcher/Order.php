@@ -46,9 +46,10 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 ->select()
                 ->from(array('pli' => $plResource->getTable('diglin_ricento/products_listing_item')), 'item_id')
                 ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-                ->where('products_listing_id = :id AND status = :status AND is_planned = 0');
+                ->where('products_listing_id = :id AND is_planned = 0')
+                ->where('status IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD));
 
-            $binds = array('id' => $listingId, 'status' => Diglin_Ricento_Helper_Data::STATUS_LISTED);
+            $binds = array('id' => $listingId);
             $countListedItems = count($readConnection->fetchAll($select, $binds));
 
             if ($countListedItems == 0) {
@@ -728,20 +729,18 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             ->setShippingMethod(Diglin_Ricento_Model_Sales_Method_Shipping::SHIPPING_CODE . '_' . $shippingTransactionMethod)
             ->collectShippingRates();
 
-        $quote
-            ->getPayment()
-            ->importData(
-                array(
-                    'method' => Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE,
-                    'additional_data' => Mage::helper('core')->jsonEncode(array(
-                            'is_ricardo' => true,
-                            'ricardo_payment_methods' => $paymentMethods,
-                            'ricardo_transaction_ids' => implode(',', $dispatchedTransactions),
-                            'ricardo_bid_ids' => implode(',', array_keys($dispatchedTransactions)),
-                        )
+        $quote->getPayment()->importData(
+            array(
+                'method' => Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE,
+                'additional_data' => Mage::helper('core')->jsonEncode(array(
+                        'is_ricardo' => true,
+                        'ricardo_payment_methods' => $paymentMethods,
+                        'ricardo_transaction_ids' => implode(',', $dispatchedTransactions),
+                        'ricardo_bid_ids' => implode(',', array_keys($dispatchedTransactions)),
                     )
                 )
-            );
+            )
+        );
 
         $quote
             ->addData(
