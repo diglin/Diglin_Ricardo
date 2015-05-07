@@ -29,12 +29,12 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid_Renderer_Status
         $sqlListed = $readAdapter->select()
             ->from($resourceModel->getTable('diglin_ricento/products_listing_item'), new Zend_Db_Expr('COUNT(*)'))
             ->where('products_listing_id = ?', $row->getId())
-            ->where('status = ?', Diglin_Ricento_Helper_Data::STATUS_LISTED);
+            ->where('status IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD));
 
         $sqlNotListed = $readAdapter->select()
             ->from($resourceModel->getTable('diglin_ricento/products_listing_item'), new Zend_Db_Expr('COUNT(*)'))
             ->where('products_listing_id = ?', $row->getId())
-            ->where('status <> ? ', Diglin_Ricento_Helper_Data::STATUS_LISTED)
+            ->where('status NOT IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))
             ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE);
 
         $totalListed = $readAdapter->fetchOne($sqlListed);

@@ -497,9 +497,10 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        $countListedItem = Mage::getResourceModel('diglin_ricento/products_listing_item')->countListedItems($this->_getListing()->getId());
+        $countListedItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countListedItems($this->_getListing()->getId());
+        $countSoldItems = Mage::getResourceModel('diglin_ricento/products_listing_item')->countSoldItems($this->_getListing()->getId());
 
-        if ($countListedItem == 0 && $listing->getStatus() == Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+        if (($countListedItems + $countSoldItems) == 0 && $listing->getStatus() == Diglin_Ricento_Helper_Data::STATUS_LISTED) {
             $listing
                 ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
                 ->save();
@@ -509,14 +510,14 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
             return;
         }
 
-        if ($countListedItem == 0) {
+        if (($countListedItems + $countSoldItems) == 0) {
             $this->_getSession()->addError($this->__('Only listed product items can be stopped.'));
             $this->_redirectUrl($this->_getRefererUrl());
             return;
         }
 
         $this->_successMessage = $this->__('The job to stop to list your products will start in few minutes.') . '&nbsp;' . $this->__('You can check the progression below.');
-        $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_STOP, $countListedItem);
+        $this->_startJobList(Diglin_Ricento_Model_Sync_Job::TYPE_STOP, ($countListedItems + $countSoldItems) );
     }
 
     /**

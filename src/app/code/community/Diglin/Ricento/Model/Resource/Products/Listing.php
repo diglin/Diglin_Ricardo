@@ -75,7 +75,7 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
             if ($row['item_status'] == Diglin_Ricento_Helper_Data::STATUS_STOPPED) {
                 $lists[$row['entity_id']]['stopped'] = true;
             }
-            if ($row['item_status'] == Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+            if ($row['item_status'] == Diglin_Ricento_Helper_Data::STATUS_LISTED || $row['item_status'] == Diglin_Ricento_Helper_Data::STATUS_SOLD) {
                 $lists[$row['entity_id']]['listed'] = true;
             }
         }
@@ -123,11 +123,11 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
         $itemsToRemove = clone $items;
 
         $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $itemId)
-            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('in' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
             ->getSize();
 
         $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $itemId)
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('nin' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
             ->count();
 
         $this->beginTransaction();
@@ -151,9 +151,8 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
 
             $childrenCount = $items->addFieldToFilter('products_listing_id', $itemId)
                 ->addFieldToFilter('parent_product_id', $productId)
-                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->addFieldToFilter('status', array('in' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
                 ->getSize();
-
 
             if (!$childrenCount) {
                 $this->beginTransaction();
@@ -202,11 +201,11 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
         $itemsToRemove = clone $items;
 
         $numberOfListedItems = $items->addFieldToFilter('products_listing_id', $itemId)
-            ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('in' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
             ->getSize();
 
         $numberOfItemsToDelete = $itemsToRemove->addFieldToFilter('products_listing_id', $itemId)
-            ->addFieldToFilter('status', array('neq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+            ->addFieldToFilter('status', array('nin' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
             ->count();
 
         $this->beginTransaction();
@@ -230,7 +229,7 @@ class Diglin_Ricento_Model_Resource_Products_Listing extends Mage_Core_Model_Res
 
             $childrenCount = $items->addFieldToFilter('products_listing_id', $itemId)
                 ->addFieldToFilter('parent_item_id', $itemId)
-                ->addFieldToFilter('status', array('eq' => Diglin_Ricento_Helper_Data::STATUS_LISTED))
+                ->addFieldToFilter('status', array('in' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
                 ->getSize();
 
             if (!$childrenCount) {
