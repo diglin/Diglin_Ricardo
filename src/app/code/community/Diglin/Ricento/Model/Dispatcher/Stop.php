@@ -39,13 +39,18 @@ class Diglin_Ricento_Model_Dispatcher_Stop extends Diglin_Ricento_Model_Dispatch
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countListedItems
          */
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED), $jobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $jobListing->getLastItemId());
 
         if ($itemCollection->count() == 0) {
             $job->setJobMessage(array($this->_getNoItemMessage()));
             $this->_progressStatus = Diglin_Ricento_Model_Sync_Job::PROGRESS_COMPLETED;
             return $this;
         }
+
+        // Get new orders before to stop - @todo sync and get order only from the current list
+        $dispatcher = Mage::getSingleton('diglin_ricento/dispatcher');
+        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST)->proceed();
+        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_ORDER)->proceed();
 
         $sell = Mage::getSingleton('diglin_ricento/api_services_sell');
         $sell->setCurrentWebsite($this->_getListing()->getWebsiteId());

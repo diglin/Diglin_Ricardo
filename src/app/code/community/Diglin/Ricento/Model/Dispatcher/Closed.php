@@ -1,11 +1,12 @@
 <?php
 /**
- * Diglin GmbH - Switzerland
+ * ricardo.ch AG - Switzerland
  *
- * @author      Sylvain Rayé <sylvain.raye at diglin.com>
- * @category    Ricento
- * @package     Ricento
- * @copyright   Copyright (c) 2011-2014 Diglin (http://www.diglin.com)
+ * @author      Sylvain Rayé <support at diglin.com>
+ * @category    Diglin
+ * @package     Diglin_Ricento
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 use \Diglin\Ricardo\Managers\SellerAccount\Parameter\OpenArticlesParameter;
@@ -28,7 +29,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
     /**
      * @var array
      */
-    protected $_stoppedRicardoArticleIds = array();
+    protected $_openRicardoArticleIds = array();
 
     public function proceed()
     {
@@ -45,9 +46,10 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                 ->select()
                 ->from(array('pli' => $plResource->getTable('diglin_ricento/products_listing_item')), 'item_id')
                 ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-                ->where('products_listing_id = :id AND status = :status AND is_planned = 0');
+                ->where('products_listing_id = :id AND is_planned = 0')
+                ->where('status IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD));
 
-            $binds = array('id' => $listingId, 'status' => Diglin_Ricento_Helper_Data::STATUS_LISTED);
+            $binds = array('id' => $listingId);
             $countListedItems = count($readConnection->fetchAll($select, $binds));
 
             if ($countListedItems == 0) {
@@ -101,58 +103,87 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countReadyTolist
          */
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED), $this->_currentJobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
         $itemCollection->addFieldToFilter('is_planned', 0);
-        $totalItems = $itemCollection->getSize();
-        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem = $itemCollection->getLastItem();
-        $soldArticlesResult = $stoppedArticles = array();
 
+        $totalItems = $itemCollection->getSize();
         if (!$totalItems) {
             $this->_currentJob->setJobMessage(array($this->_getNoItemMessage()));
             $this->_progressStatus = Diglin_Ricento_Model_Sync_Job::PROGRESS_COMPLETED;
             return $this;
         }
 
-        $openArticlesParameter = new OpenArticlesParameter();
-        $openArticlesParameter
-            ->setPageSize($this->_limit) // if not defined, default is 10
-            ->setArticleIdsFilter($ricardoArticleIds);
+        $ricardoArticleIds  = $itemCollection->getColumnValues('ricardo_article_id');
+        $lastItem           = $itemCollection->getLastItem();
+        $openArticlesResult = $stoppedArticles = array();
 
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
         $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
 
         try {
-            $soldArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+            $openArticlesParameter = new OpenArticlesParameter();
+            $openArticlesParameter
+                ->setPageSize($this->_limit) // if not defined, default is 10
+                ->setArticleIdsFilter($ricardoArticleIds);
+
+            $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
         } catch (Exception $e) {
             $this->_handleException($e);
             $e = null;
             // keep going for the next item - no break
         }
 
-        if (isset($soldArticlesResult['OpenArticles'])) {
-            $this->_stoppedRicardoArticleIds = $soldArticlesResult['OpenArticles'];
+        if (isset($openArticlesResult['OpenArticles'])) {
+
+            $this->_openRicardoArticleIds = $openArticlesResult['OpenArticles'];
             $stoppedArticles = array_filter($ricardoArticleIds, array($this, 'pullArticleToClose'));
+
             if (count($stoppedArticles)) {
                 $itemCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemCollection->addFieldToFilter('ricardo_article_id', array('in' => $stoppedArticles));
 
                 foreach ($itemCollection->getItems() as $item) {
 
-                    $item
-                        ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
-                        ->save();
+                    try {
+                        // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
+                        $openArticlesParameter = new OpenArticlesParameter();
+                        $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
 
-                    $this->_getListingLog()->saveLog(array(
-                        'job_id' => $this->_currentJob->getId(),
-                        'product_id' => $item->getProductId(),
-                        'product_title' => $item->getProductTitle(),
-                        'products_listing_id' => $this->_productsListingId,
-                        'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
-                        'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
-                        'log_type' => $this->_logType,
-                        'created_at' => Mage::getSingleton('core/date')->gmtDate()
-                    ));
+                        $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                    } catch (Exception $e) {
+                        $this->_handleException($e);
+                        $e = null;
+                        continue;
+                        // keep going for the next item - no break
+                    }
+
+                    // We do not stop anything if the article ID has just been changed and the product is still open
+                    if (isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
+                        $articleId = $openArticleResult['OpenArticles'][0]['ArticleId'];
+                        if ($item->getRicardoArticleId() != $articleId) {
+                            $item
+                                ->setRicardoArticleId($articleId)
+                                ->save();
+                        }
+                    } else {
+                        $item
+                            ->setRicardoArticleId(null)
+                            ->setQtyInventory(null)
+                            ->setIsPlanned(null)
+                            ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
+                            ->save();
+
+                        $this->_getListingLog()->saveLog(array(
+                            'job_id' => $this->_currentJob->getId(),
+                            'product_id' => $item->getProductId(),
+                            'product_title' => $item->getProductTitle(),
+                            'products_listing_id' => $this->_productsListingId,
+                            'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
+                            'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
+                            'log_type' => $this->_logType,
+                            'created_at' => Mage::getSingleton('core/date')->gmtDate()
+                        ));
+                    }
                 }
             }
         }
@@ -170,8 +201,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
          * Stop the list if all products listing items are stopped
          */
         if ($this->_productsListingId) {
-            $listResource = Mage::getResourceModel('diglin_ricento/products_listing');
-            $listResource->setStatusStop($this->_productsListingId);
+            Mage::getResourceModel('diglin_ricento/products_listing')->setStatusStop($this->_productsListingId);
         }
 
         unset($itemCollection);
@@ -186,7 +216,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
     public function pullArticleToClose($var)
     {
         $return = true;
-        foreach ($this->_stoppedRicardoArticleIds as $articleId) {
+        foreach ($this->_openRicardoArticleIds as $articleId) {
             if ($var == $articleId['ArticleId']) {
                 return false;
             }

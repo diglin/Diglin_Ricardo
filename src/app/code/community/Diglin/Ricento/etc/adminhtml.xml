@@ -87,14 +87,14 @@
                             <config>
                                 <children>
                                     <ricento translate="title" module="diglin_ricento">
-                                        <title>Ricento by Diglin GmbH</title>
+                                        <title>ricardo.ch Extension by Diglin GmbH</title>
                                     </ricento>
                                 </children>
                             </config>
                         </children>
                     </system>
                     <ricento translate="title" module="diglin_ricento">
-                        <title>Ricento by Diglin GmbH</title>
+                        <title>ricardo.ch Extension by Diglin GmbH</title>
                         <children>
                             <dashboard translate="title" module="diglin_ricento">
                                 <title>Dashboard</title>
@@ -113,6 +113,14 @@
                             </config>
                             <support translate="title" module="diglin_ricento">
                                 <title>Support</title>
+                                <children>
+                                    <contact translate="title" module="diglin_ricento">
+                                        <title>Contact</title>
+                                    </contact>
+                                    <export translate="title" module="diglin_ricento">
+                                        <title>Export Configuration for support (no customer data are sent)</title>
+                                    </export>
+                                </children>
                             </support>
                         </children>
                     </ricento>

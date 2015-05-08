@@ -563,9 +563,9 @@ Ricento.CategoryMappper.prototype = {
     },
 
     onCategoryClick: function(event) {
-        var link = event.currentTarget;
-        this.hideLevel(link.dataset.updatePrefix, link.dataset.updateLevel);
-        if (link.dataset.isFinal) {
+        var link = (event.currentTarget) ? event.currentTarget : Event.element(event);
+        this.hideLevel(link.getAttribute('data-update-prefix'), link.getAttribute('data-update-level'));
+        if (link.getAttribute('data-is-final')) {
             this.chooseCategory(link);
         } else {
             this.loadChildren(link);
@@ -593,7 +593,7 @@ Ricento.CategoryMappper.prototype = {
         $(link.parentNode).select('input').each(function(input) {
             input.checked = true;
         });
-        $('ricardo_category_selected_title').value = link.dataset.text;
+        $('ricardo_category_selected_title').value = link.getAttribute('data-text');
         $('ricardo_categories_button_save')
             .enable()
             .removeClassName('disabled');
@@ -620,15 +620,15 @@ Ricento.CategoryMappper.prototype = {
             new Ajax.Updater(
                 'ricardo_children',
                 this.loadChildrenUrl
-                    .replace('#ID#', link.dataset.categoryId)
-                    .replace('#LVL#', link.dataset.updateLevel),
+                    .replace('#ID#', link.getAttribute('data-category-id'))
+                    .replace('#LVL#', link.getAttribute('data-update-level')),
                 {
                     insertion: 'bottom',
                     onComplete: function() {
-                        if (link.dataset.updateLevel >= self.resizeAtLevel) {
+                        if (link.getAttribute('data-update-level') >= self.resizeAtLevel) {
                             $(self.wrapperElement).addClassName('ricardo_categories_resized');
                         }
-                        $$('#' + link.dataset.updatePrefix + link.dataset.updateLevel + ' a').each(function(item) {
+                        $$('#' + link.getAttribute('data-update-prefix') + link.getAttribute('data-update-level') + ' a').each(function(item) {
                             item.observe('click', self.onCategoryClick.bind(self));
                         });
                         self.categoriesLoading = false;
@@ -674,7 +674,6 @@ Ricento.CategoryMappper.prototype = {
                                 }
 
                                 var json = transport.responseText.evalJSON();
-                                //var suggestions = '';
 
                                 Element.hide('loading-mask');
                                 clearTimeout = 0;

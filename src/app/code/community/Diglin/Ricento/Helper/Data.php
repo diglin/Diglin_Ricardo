@@ -42,6 +42,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const LANG_ALL                          = 'all';
 
     const ALLOWED_CURRENCY                  = 'CHF';
+    const DEFAULT_COUNTRY_CODE              = 'CH';
 
     /**
      * Global config
@@ -57,12 +58,19 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_STATS_TEST_MODE               = 'ricento/global/stats_test_mode';
     const CFG_STATS_APPID                   = 'ricento/global/stats_app_id';
     const CFG_STATS_APPID_TEST              = 'ricento/global/stats_app_id_test';
+    const CFG_UPDATE_NOTIFICATION           = 'ricento/global/update_notification';
 
     /**
      * Listing config
      */
     const CFG_MERGE_DESCRIPTIONS            = 'ricento/listing/merge_descriptions';
     const CFG_NL2BR                         = 'ricento/listing/nl2br';
+    const CFG_WATERMARK_ENABLED             = 'ricento/listing/watermark_enabled';
+    const CFG_WATERMARK                     = 'ricento/listing/watermark_image';
+    const CFG_WATERMARK_OPACITY             = 'ricento/listing/watermark_imageOpacity';
+    const CFG_WATERMARK_POSITION            = 'ricento/listing/watermark_position';
+    const CFG_WATERMARK_SIZE                = 'ricento/listing/watermark_size';
+    const CFG_IMAGE_PLACEHOLDER             = 'ricento/listing/placeholder_allowed';
 
     /**
      * Cleanup Job config
@@ -864,5 +872,14 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return $store;
+    }
+
+    /**
+     * @param null $store
+     * @return bool
+     */
+    public function canNotifyUpdate($store = null)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_UPDATE_NOTIFICATION, $store);
     }
 }

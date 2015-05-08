@@ -46,16 +46,6 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
      */
     public function startCurrencyEmulation($websiteId = null)
     {
-//        $partnerConfiguration = Mage::getSingleton('diglin_ricento/api_services_system')
-//            ->setCurrentWebsite($websiteId)
-//            ->getPartnerConfigurations();
-//
-//        if (isset($partnerConfiguration['CurrencyPrefix'])) {
-//            $ricardoCurrency = $partnerConfiguration['CurrencyPrefix'];
-//        } else {
-//            $ricardoCurrency = Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY;
-//        }
-
         $store = Mage::helper('diglin_ricento')->getDefaultStore($websiteId);
 
         if ($store->getCurrentCurrency()->getCode() != Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
@@ -215,5 +205,40 @@ class Diglin_Ricento_Helper_Price extends Mage_Core_Helper_Abstract
         }
 
         return $this->_currencyCache[$currencyCode];
+    }
+
+    /**
+     * Method to trick Magento Price calculation during order creation
+     * because the tax is subtracted from ricardo.ch prices when the shop is outside Switzerland and customer is Swiss
+     * although sold price doesn't have to be modified
+     *
+     * @param $product
+     * @param $price
+     * @param Mage_Core_Model_Store $store
+     * @param Mage_Sales_Model_Quote $quote
+     * @return float
+     */
+    public function getPriceWithOrWithoutTax($product, $price, Mage_Core_Model_Store $store, Mage_Sales_Model_Quote $quote)
+    {
+        $priceIncludeTax = true;
+        $defaultCountry = Mage::getStoreConfig(Mage_Tax_Model_Config::CONFIG_XML_PATH_DEFAULT_COUNTRY, $store);
+
+        if ($defaultCountry != Diglin_Ricento_Helper_Data::DEFAULT_COUNTRY_CODE
+            && $quote->getBillingAddress()->getCountryId() == Diglin_Ricento_Helper_Data::DEFAULT_COUNTRY_CODE
+        ) {
+            $priceIncludeTax = false;
+        }
+
+        return (float) Mage::helper('tax')->getPrice(
+            $product,
+            $price,
+            true, // price include tax
+            null, // Shipping Address
+            null, // Billing Address
+            $quote->getCustomer()->getTaxClassId(),
+            $store,
+            $priceIncludeTax, // return price include tax
+            false // Round Price
+        );
     }
 }

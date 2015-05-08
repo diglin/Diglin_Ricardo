@@ -46,9 +46,10 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 ->select()
                 ->from(array('pli' => $plResource->getTable('diglin_ricento/products_listing_item')), 'item_id')
                 ->where('type <> ?', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-                ->where('products_listing_id = :id AND status = :status AND is_planned = 0');
+                ->where('products_listing_id = :id AND is_planned = 0')
+                ->where('status IN (?)', array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD));
 
-            $binds = array('id' => $listingId, 'status' => Diglin_Ricento_Helper_Data::STATUS_LISTED);
+            $binds = array('id' => $listingId);
             $countListedItems = count($readConnection->fetchAll($select, $binds));
 
             if ($countListedItems == 0) {
@@ -102,7 +103,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $article = null;
         $soldArticles = array();
 
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED), $this->_currentJobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
         $itemCollection->addFieldToFilter('is_planned', 0);
 
         $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
@@ -227,7 +228,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     $productItem->setLoadFallbackOptions(true);
                 }
 
-                if (!$productItem->getId() || $productItem->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+                if (!$productItem->getId() || (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))) {
                     continue;
                 }
 
@@ -565,9 +566,6 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 //                        $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, Diglin_Ricento_Helper_Data::ORDER_STATUS_CANCEL, $this->_getHelper()->__('Order canceled on ricardo.ch side'), false);
 //                    }
 
-//                    $quote->setIsActive(false);
-//                    $quote->save();
-
                     /**
                      * Save the new order id to the ricardo transaction
                      */
@@ -658,7 +656,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             ->setIsRicardo(true)
             ->setRicardoTransactionId($transaction->getId())
             ->setShippingCumulativeFee($transaction->getShippingCumulativeFee())
-            ->setShippingFee($this->getShippingFee($transaction, $store->getId()));
+            ->setShippingFee($this->getShippingFee($transaction, $store, $quote));
 
         $product = Mage::getModel('catalog/product')
             ->setStoreId($store->getId())
@@ -676,27 +674,37 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             Mage::throwException($quoteItem);
         }
 
+        $totalBidPrice = Mage::helper('diglin_ricento/price')
+            ->getPriceWithOrWithoutTax($product, $transaction->getTotalBidPrice(), $store, $quote);
+
         $quoteItem
             // Set unit custom price
-            ->setCustomPrice($transaction->getTotalBidPrice())
-            ->setOriginalCustomPrice($transaction->getTotalBidPrice());
+            ->setCustomPrice($totalBidPrice )
+            ->setOriginalCustomPrice($totalBidPrice);
 
         return true;
     }
 
     /**
      * @param Diglin_Ricento_Model_Sales_Transaction $transaction
-     * @param int|Mage_Core_Model_Store $storeId
+     * @param Mage_Core_Model_Store $store
      * @return float|int|null
      */
-    public function getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, $storeId = null)
+    public function getShippingFee(Diglin_Ricento_Model_Sales_Transaction $transaction, Mage_Core_Model_Store $store, Mage_Sales_Model_Quote $quote)
     {
         $currency = $this->_getCurrency();
         $shippingFee = $transaction->getShippingFee();
-        $baseCurrencyCode = Mage::app()->getStore($storeId)->getBaseCurrencyCode();
+        $helperPrice = Mage::helper('diglin_ricento/price');
+
+        // To trick Magento tax calculation while creating the order, add tax to Shipping price if shop is outside Switzerland
+        $pseudoProduct = new Varien_Object();
+        $pseudoProduct->setTaxClassId(Mage::helper('tax')->getShippingTaxClass($store));
+        $shippingFee = $helperPrice->getPriceWithOrWithoutTax($pseudoProduct, $shippingFee, $store, $quote);
+
+        $baseCurrencyCode = Mage::app()->getStore($store)->getBaseCurrencyCode();
 
         if ($baseCurrencyCode != $currency->getCode()) {
-            $shippingFee = Mage::helper('diglin_ricento/price')->convert($shippingFee, $currency->getCode(), $baseCurrencyCode);
+            $shippingFee = $helperPrice->convert($shippingFee, $currency->getCode(), $baseCurrencyCode);
         }
 
         return $shippingFee;
@@ -728,20 +736,18 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
             ->setShippingMethod(Diglin_Ricento_Model_Sales_Method_Shipping::SHIPPING_CODE . '_' . $shippingTransactionMethod)
             ->collectShippingRates();
 
-        $quote
-            ->getPayment()
-            ->importData(
-                array(
-                    'method' => Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE,
-                    'additional_data' => Mage::helper('core')->jsonEncode(array(
-                            'is_ricardo' => true,
-                            'ricardo_payment_methods' => $paymentMethods,
-                            'ricardo_transaction_ids' => implode(',', $dispatchedTransactions),
-                            'ricardo_bid_ids' => implode(',', array_keys($dispatchedTransactions)),
-                        )
+        $quote->getPayment()->importData(
+            array(
+                'method' => Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE,
+                'additional_data' => Mage::helper('core')->jsonEncode(array(
+                        'is_ricardo' => true,
+                        'ricardo_payment_methods' => $paymentMethods,
+                        'ricardo_transaction_ids' => implode(',', $dispatchedTransactions),
+                        'ricardo_bid_ids' => implode(',', array_keys($dispatchedTransactions)),
                     )
                 )
-            );
+            )
+        );
 
         $quote
             ->addData(

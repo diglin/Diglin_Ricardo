@@ -127,7 +127,7 @@ class Diglin_Ricento_Adminhtml_Products_Listing_ItemController extends Diglin_Ri
     {
         foreach ($this->getSelectedItems() as $item) {
             /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
-            if ($item->getStatus() === Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+            if ($item->getStatus() === Diglin_Ricento_Helper_Data::STATUS_LISTED || $item->getStatus() === Diglin_Ricento_Helper_Data::STATUS_SOLD) {
                 return false;
             }
         }
