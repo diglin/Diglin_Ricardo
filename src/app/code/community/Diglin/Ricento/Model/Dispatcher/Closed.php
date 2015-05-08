@@ -1,11 +1,12 @@
 <?php
 /**
- * Diglin GmbH - Switzerland
+ * ricardo.ch AG - Switzerland
  *
- * @author      Sylvain Rayé <sylvain.raye at diglin.com>
- * @category    Ricento
- * @package     Ricento
- * @copyright   Copyright (c) 2011-2014 Diglin (http://www.diglin.com)
+ * @author      Sylvain Rayé <support at diglin.com>
+ * @category    Diglin
+ * @package     Diglin_Ricento
+ * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 use \Diglin\Ricardo\Managers\SellerAccount\Parameter\OpenArticlesParameter;
