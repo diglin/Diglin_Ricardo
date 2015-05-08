@@ -1,6 +1,6 @@
 ## Version 1.1.3
 - ENHANCEMENT: add notifications to get news about the extension when updates are available
-- ENHANCEMENT: add configuration options for watermark picture to publish products on ricardo.ch
+- ENHANCEMENT: add configuration options for watermark picture to publish products with a specific watermark for the ricardo.ch platform
 - ENHANCEMENT: add configuration options to allow or not to use the product image placeholder of a shop owner in case of issue with missing picture files on server or in case of memory limit error
 - FIX: missing transactions import when products were already sold
 - FIX: prevent to stop an article if it has been sold but has been automatically reactivated on ricardo.ch side
@@ -8,6 +8,7 @@
 - FIX: display of category mapping popup on IE < 9
 - FIX: confirmation fees popup on IE all versions
 - FIX: issue when trying to warm up product pictures while saving product listing items with products having no picture basic selection
+- FIX: price calculation when orders are imported into a non Swiss shop
 
 ## Version 1.1.2
 - ENHANCEMENT: allow html code for payment information
