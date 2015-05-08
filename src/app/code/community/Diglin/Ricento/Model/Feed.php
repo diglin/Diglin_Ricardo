@@ -18,9 +18,12 @@ class Diglin_Ricento_Model_Feed extends Mage_AdminNotification_Model_Feed
     const XML_FEED_URL_PATH     = 'ricento/adminnotification/feed_url';
     const XML_FREQUENCY_PATH    = 'ricento/adminnotification/frequency';
 
-    public static function check()
+    public function check()
     {
-        return Mage::getModel('diglin_ricento/feed')->checkUpdate();
+        if (Mage::helper('diglin_ricento')->canNotifyUpdate()) {
+            $this->checkUpdate();
+        }
+        return $this;
     }
 
     /**

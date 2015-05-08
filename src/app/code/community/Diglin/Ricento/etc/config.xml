@@ -57,6 +57,7 @@
                 <stats_test_mode>0</stats_test_mode>
                 <stats_app_id>bza2zlst</stats_app_id>
                 <stats_app_id_test>xce86uyp</stats_app_id_test>
+                <update_notification>1</update_notification>
             </global>
             <api_config>
                 <enabled>1</enabled>

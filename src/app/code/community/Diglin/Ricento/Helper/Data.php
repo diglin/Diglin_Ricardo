@@ -58,6 +58,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_STATS_TEST_MODE               = 'ricento/global/stats_test_mode';
     const CFG_STATS_APPID                   = 'ricento/global/stats_app_id';
     const CFG_STATS_APPID_TEST              = 'ricento/global/stats_app_id_test';
+    const CFG_UPDATE_NOTIFICATION           = 'ricento/global/update_notification';
 
     /**
      * Listing config
@@ -871,5 +872,14 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return $store;
+    }
+
+    /**
+     * @param null $store
+     * @return bool
+     */
+    public function canNotifyUpdate($store = null)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_UPDATE_NOTIFICATION, $store);
     }
 }
