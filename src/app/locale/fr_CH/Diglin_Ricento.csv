@@ -684,3 +684,5 @@
 "Watermark Default Size","Taille par défaut du filigrane"
 "Example format: 200x300. Be aware: Size maximum of a product's picture is 600x600px on ricardo.ch","Example de format: 200x300. Veuillez prendre en compte que la taille de l'image d'un produit sur ricardo.ch est de 600x600px"
 "Use default store configuration","Utiliser la configuration par défaut de la boutique"
+"Allow Update Notification","Autoriser les notifications de mise à jour"
+"If you don't want to receive any notification regarding upcoming update, set this option to ""No"".","Si vous ne souhaitez pas recevoir de notifications concernant les mises à jour futures de l'extension, sélectionnez non."

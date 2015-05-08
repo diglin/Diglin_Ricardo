@@ -683,3 +683,5 @@
 "Watermark Default Size","Wasserzeichen Standard Grösse."
 "Example format: 200x300. Be aware: Size maximum of a product's picture is 600x600px on ricardo.ch","Beispiel Format: 200x300. Achtung: Maximale Bildgrösse auf riacrdo.ch ist 600x600px."
 "Use default store configuration","Standart Shop Konfiguration verwenden."
+"Allow Update Notification","Erlauben Update Notifizierung"
+"If you don't want to receive any notification regarding upcoming update, set this option to ""No"".","Wenn Sie kein Notifizierung von neue Versionen erhalten, setzen hier ""Nein""."
