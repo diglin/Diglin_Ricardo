@@ -1,5 +1,5 @@
 ## Version 1.1.3
-- ENHANCEMENT: add notifications to get news about the extension when updates are available
+- ENHANCEMENT: add notifications to get news about the extension when updates are available. This can be via the configuration disabled.
 - ENHANCEMENT: add configuration options for watermark picture to publish products with a specific watermark for the ricardo.ch platform
 - ENHANCEMENT: add configuration options to allow or not to use the product image placeholder of a shop owner in case of issue with missing picture files on server or in case of memory limit error
 - FIX: missing transactions import when products were already sold

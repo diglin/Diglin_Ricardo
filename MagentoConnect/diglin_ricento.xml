@@ -1,5 +1,5 @@
 <_>
-   <form_key>y4Rek8PDsUNzLDHm</form_key>
+   <form_key>xTAXLNe2T9PJedh1</form_key>
    <name>diglin_ricento</name>
    <channel>community</channel>
    <version_ids>
@@ -39,9 +39,21 @@
 				&lt;p&gt;&lt;a href=&quot;http://www.diglin.com&quot;&gt;Diglin&lt;/a&gt; is the Swiss eCommerce Agency per excellence, realizing your eCommerce project with success. It will accompany along the whole life of your eCommerce project at any levels: conception, realization, design, marketing, logistic, data treatment and management, resource optimization, cost efficiency, increase in turnover, etc. Diglin concentrates its activities mainly with the solutions Magento (eCommerce), OroCRM (CRM) and Akeneo (PIM) and work with its partners highly qualified to provide you the best solutions regarding your needs. &lt;/p&gt;</description>
    <license>OSL v3.0</license>
    <license_uri>http://opensource.org/licenses/osl-3.0</license_uri>
-   <version>1.1.2</version>
+   <version>1.1.3</version>
    <stability>stable</stability>
-   <notes>## Version 1.1.2
+   <notes>## Version 1.1.3
+- ENHANCEMENT: add notifications to get news about the extension when updates are available. This can be via the configuration disabled.
+- ENHANCEMENT: add configuration options for watermark picture to publish products with a specific watermark for the ricardo.ch platform
+- ENHANCEMENT: add configuration options to allow or not to use the product image placeholder of a shop owner in case of issue with missing picture files on server or in case of memory limit error
+- FIX: missing transactions import when products were already sold
+- FIX: prevent to stop an article if it has been sold but has been automatically reactivated on ricardo.ch side
+- FIX: status of products was not correctly set when a product is sold and internally saved
+- FIX: display of category mapping popup on IE &lt; 9
+- FIX: confirmation fees popup on IE all versions
+- FIX: issue when trying to warm up product pictures while saving product listing items with products having no picture basic selection
+- FIX: price calculation when orders are imported into a non Swiss shop
+
+## Version 1.1.2
 - ENHANCEMENT: allow html code for payment information
 - ENHANCEMENT: prevent unwanted email sending
 - ENHANCEMENT: add system.log in the configuration export for assistance purpose
@@ -240,7 +252,7 @@
             <max/>
          </max>
          <files>
-            <files>               </files>
+            <files>                    </files>
          </files>
       </package>
       <extension>
