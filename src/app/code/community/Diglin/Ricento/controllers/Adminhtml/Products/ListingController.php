@@ -579,6 +579,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $i = $j = 1;
                 $fees = array();
                 $articleDetailsBucket = array();
+                
                 $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemsCollection
                     ->addFieldToFilter('products_listing_id', $listing->getId())
@@ -593,7 +594,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                     if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
                         $articleDetailsBucket[$j][] = $item->getArticleFeeDetails();
 
-                        if ($i >= 200) {
+                        if ($i >= Diglin_Ricento_Helper_Data::MAX_AMOUNT_PUSH) {
                             $i = 1;
                             $j++;
                         } else {

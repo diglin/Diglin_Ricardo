@@ -19,7 +19,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
     /**
      * @var int
      */
-    protected $_limit = 400;
+    protected $_limit = 200;
 
     /**
      * @var string

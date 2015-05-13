@@ -120,6 +120,8 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const INVENTORY_QTY_TYPE_FIX        = 'fix';
     const INVENTORY_QTY_TYPE_PERCENT    = 'percent';
 
+    const MAX_AMOUNT_PUSH               = 200;
+
     /**
      * @var Mage_Directory_Model_Currency
      */
