@@ -45,7 +45,7 @@ class Diglin_Ricento_Model_Observer
     public function addAutoloader()
     {
         if (!self::$shouldAdd) {
-            return;
+            return $this;
         }
 
         foreach ($this->_getNamespacesToRegister() as $namespace) {

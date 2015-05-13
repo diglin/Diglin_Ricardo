@@ -67,7 +67,7 @@ class Diglin_Ricento_Model_SplAutoloader extends Mage_Core_Model_Abstract
     /**
      * Gets the namespace seperator used by classes in the namespace of this class loader.
      *
-     * @return void
+     * @return string
      */
     public function getNamespaceSeparator()
     {
