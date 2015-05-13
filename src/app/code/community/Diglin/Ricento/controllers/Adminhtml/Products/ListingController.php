@@ -579,7 +579,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $i = $j = 1;
                 $fees = array();
                 $articleDetailsBucket = array();
-                
+
                 $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemsCollection
                     ->addFieldToFilter('products_listing_id', $listing->getId())

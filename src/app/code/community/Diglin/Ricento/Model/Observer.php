@@ -221,4 +221,71 @@ class Diglin_Ricento_Model_Observer
             $event->getLayout()->getUpdate()->addHandle('ricento');
         }
     }
+
+    /**
+     * Add on the fly the username attribute to the customer collection
+     *
+     * Event:
+     * - sales_order_grid_collection_load_before
+     *
+     * @param Varien_Event_Observer $observer Observer
+     */
+    public function addAttributeToCollection($observer)
+    {
+        /* @var $collection Mage_Eav_Model_Entity_Collection_Abstract */
+        $collection = $observer->getEvent()->getCollection();
+        $entity = $collection->getEntity();
+        if (!empty($entity) && $entity->getType() == 'customer') {
+            $collection->addAttributeToSelect('ricardo_username');
+        }
+    }
+
+    /**
+     * Event
+     * - core_block_abstract_to_html_before
+     *
+     * @param Varien_Event_Observer $observer Observer
+     */
+    public function addRicardoColumns(Varien_Event_Observer $observer)
+    {
+        $grid = $observer->getBlock();
+
+        /**
+         * Mage_Adminhtml_Block_Sales_Order_Grid
+         */
+        if ($grid->getId() == 'sales_order_grid' || $grid instanceof Mage_Adminhtml_Block_Sales_Order_Grid) {
+
+            if (!Mage::getStoreConfigFlag('ricento/global/order_grid')) {
+                return;
+            }
+
+            $grid->addColumnAfter(
+                'is_ricardo',
+                array(
+                    'header' => Mage::helper('diglin_ricento')->__('Is Ricardo'),
+                    'index' => 'is_ricardo',
+                    'type' => 'options',
+                    'options' => array(
+                        '1' => Mage::helper('core')->__('Yes'),
+                        '0' => Mage::helper('core')->__('No'),
+                    ),
+                ),
+                'status'
+            );
+        } else if ($grid->getId() == 'customerGrid' || $grid instanceof Mage_Adminhtml_Block_Customer_Grid) {
+
+            if (!Mage::getStoreConfigFlag('ricento/global/customer_grid')) {
+                return;
+            }
+
+            $grid->addColumnAfter(
+                'ricardo_username',
+                array(
+                    'header' => Mage::helper('diglin_ricento')->__('ricardo.ch Username'),
+                    'index' => 'ricardo_username'
+                ),
+                'email'
+            );
+        }
+    }
 }
