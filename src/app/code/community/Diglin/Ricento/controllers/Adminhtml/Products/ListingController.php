@@ -572,27 +572,43 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $error = true;
             }
 
-            $this->getResponse()->clearHeader('Location')->setHttpResponseCode(200); // reset the header came from the saveAction
+            // reset the header came from the saveAction
+            $this->getResponse()->clearHeader('Location')->setHttpResponseCode(200);
 
             if (!$error) {
-                $articleDetails = array();
+                $i = $j = 1;
+                $fees = array();
+                $articleDetailsBucket = array();
                 $itemsCollection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
                 $itemsCollection
                     ->addFieldToFilter('products_listing_id', $listing->getId())
-                    ->addFieldToFilter('status', array('nin' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)));
+                    ->addFieldToFilter('status', array(
+                        'nin' => array(
+                            Diglin_Ricento_Helper_Data::STATUS_LISTED,
+                            Diglin_Ricento_Helper_Data::STATUS_SOLD)
+                    ));
 
                 /* @var $item Diglin_Ricento_Model_Products_Listing_Item */
                 foreach ($itemsCollection->getItems() as $item) {
                     if ($item->getType() != Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-                        $articleDetails[] = $item->getArticleFeeDetails();
+                        $articleDetailsBucket[$j][] = $item->getArticleFeeDetails();
+
+                        if ($i >= 200) {
+                            $i = 1;
+                            $j++;
+                        } else {
+                            $i++;
+                        }
                     }
                 }
 
-                $sell = Mage::getModel('diglin_ricento/api_services_sell');
-                $fees = $sell->getArticlesFee($articleDetails);
+                $sell = Mage::getSingleton('diglin_ricento/api_services_sell')->setCanUseCache(false);
+                foreach ($articleDetailsBucket as $articleDetails) {
+                    $fees = array_merge($sell->getArticlesFee($articleDetails), $fees);
+                }
+                $sell->setCanUseCache(true);
 
                 if ($fees) {
-
                     $storeCurrency = Mage::app()->getWebsite($this->_getListing()->getWebsiteId())->getDefaultStore()->getBaseCurrencyCode();
                     if ($storeCurrency !== Diglin_Ricento_Helper_Data::ALLOWED_CURRENCY) {
 
@@ -606,7 +622,13 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                     }
 
                     $this->_initLayoutMessages('adminhtml/session');
-                    $block = $this->getLayout()->createBlock('diglin_ricento/adminhtml_products_listing_confirmation', 'fees_confirmation', array('article_fees' => $fees));
+                    $block = $this->getLayout()
+                        ->createBlock(
+                            'diglin_ricento/adminhtml_products_listing_confirmation',
+                            'fees_confirmation',
+                            array('article_fees' => $fees)
+                        );
+
                     $this->getResponse()->setBody($block->toHtml());
                     return;
                 } else {
