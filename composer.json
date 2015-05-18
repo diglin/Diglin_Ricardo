@@ -21,7 +21,7 @@
         "diglin/ricardo": "1.*"
     },
     "require-dev": {
-        "ivanchepurnyi/ecomdev_phpunit": "0.3.*"
+        "ivanchepurnyi/ecomdev_phpunit": "*"
     },
     "repositories":[
         {
