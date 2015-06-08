@@ -630,6 +630,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
 
         $quote = Mage::getModel('sales/quote');
         $quote
+            ->setIsSuperMode(true) // quote without restriction
             ->setStoreId($store->getId())
             ->assignCustomerWithAddressChange($customer, $quoteAddress, $quoteAddress);
 
