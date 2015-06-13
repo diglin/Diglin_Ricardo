@@ -508,7 +508,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     public function createNewOrder($transactions)
     {
         $store = $quote = null;
-        $dispatchedTransactions = array();
+        $dispatchedTransactions = $articleIds = array();
         $shippingTransactionMethod = $shippingMethodFee = $highestShippingFee = 0;
         $shippingText = $shippingDescription = '';
 
@@ -534,6 +534,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 $shippingDescription = $transaction->getShippingDescription();
 
                 $dispatchedTransactions[$transaction->getBidId()] = $transaction->getId();
+                $articleIds[] = $transaction->getRicardoArticleId();
             }
 
             if ($quote && $store) {
@@ -543,7 +544,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                     ->setRicardoShippingDescription($shippingText . "\n" . $shippingDescription)
                     ->setRicardoShippingMethod($shippingTransactionMethod);
 
-                $this->prepareQuote($quote, $dispatchedTransactions, $transaction->getPaymentMethods());
+                $this->prepareQuote($quote, $dispatchedTransactions, $transaction->getPaymentMethods(), $articleIds);
 
                 if ($quote->getId()) {
                     $orderCreateModel = $this->getOrderCreateModel();
@@ -717,7 +718,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
      * @param $paymentMethods
      * @return Mage_Sales_Model_Quote
      */
-    public function prepareQuote(Mage_Sales_Model_Quote $quote, array $dispatchedTransactions, $paymentMethods)
+    public function prepareQuote(Mage_Sales_Model_Quote $quote, array $dispatchedTransactions, $paymentMethods, $articleIds)
     {
         $shippingTransactionMethod = $this->_getHelper()
             ->getRicardoShippingRegistry()
@@ -745,6 +746,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                         'ricardo_payment_methods' => $paymentMethods,
                         'ricardo_transaction_ids' => implode(',', $dispatchedTransactions),
                         'ricardo_bid_ids' => implode(',', array_keys($dispatchedTransactions)),
+                        'ricardo_article_ids' => implode(',', $articleIds)
                     )
                 )
             )
