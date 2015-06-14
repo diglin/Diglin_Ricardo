@@ -144,7 +144,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Listing_Grid extends Mage_Adminhtml_Blo
      */
     public function addConfigureUrl($value, Varien_Object $row)
     {
-        $url = $this->getUrl('*/products_listing_item/configure', array('id' => $row->getProductsListingId(), 'product' => $row->getProductId()));
+        $url = $this->getUrl('*/products_listing_item/configure', array('id' => $row->getProductsListingId(), 'product_id' => $row->getProductId()));
         return '<a href="' . $url . '">' . $value . '</a>';
     }
 

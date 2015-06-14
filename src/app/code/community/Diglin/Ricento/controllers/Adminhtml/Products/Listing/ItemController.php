@@ -27,13 +27,19 @@ class Diglin_Ricento_Adminhtml_Products_Listing_ItemController extends Diglin_Ri
         if ($this->getRequest()->isPost()) {
             $this->_itemIds = array_map('intval', (array) $this->getRequest()->getPost('item', array()));
         } else {
-            $this->_itemIds = array_map('intval', explode(',', $this->getRequest()->getParam('item')));
+            if ($this->getRequest()->getParam('item')) {
+                $this->_itemIds = array_map('intval', explode(',', $this->getRequest()->getParam('item')));
+            }
         }
 
         if ($this->_itemIds) {
             $itemCollection
                 ->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
                 ->addFieldToFilter('item_id', array('in' => $this->_itemIds));
+        } elseif ($this->getRequest()->getParam('product_id')) {
+            $itemCollection
+                ->addFieldToFilter('products_listing_id', $this->_getListing()->getId())
+                ->addFieldToFilter('product_id', array('in' => $this->getRequest()->getParam('product_id')));
         } else {
             $itemCollection
                 ->addFieldToFilter('item_id', array('in' => explode(',', $this->getRequest()->getPost('item_ids'))));
