@@ -103,7 +103,14 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         /**
          * Status of the collection must be the same as Diglin_Ricento_Model_Resource_Products_Listing_Item::countReadyTolist
          */
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
+        $itemCollection = $this->_getItemCollection(
+            array(
+                Diglin_Ricento_Helper_Data::STATUS_LISTED,
+                Diglin_Ricento_Helper_Data::STATUS_SOLD
+            ),
+            $this->_currentJobListing->getLastItemId()
+        );
+
         $itemCollection->addFieldToFilter('is_planned', 0);
 
         $totalItems = $itemCollection->getSize();
@@ -144,21 +151,41 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
                 foreach ($itemCollection->getItems() as $item) {
 
-                    try {
-                        // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
-                        $openArticlesParameter = new OpenArticlesParameter();
-                        $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
+                    /**
+                     * Close Articles when:
+                     * - sales option "until sold" is enabled + qty_inventory < 1
+                     * - number of reactivation has been reached (date published * number_reaction * duration in days)
+                     * - all is sold
+                     * - Not found as openArticle (cause of manual stop on ricardo side or due to a moment where the reactivation break openArticle )
+                     *
+                     * Warning: article ID may change between reactivation (e.g. if some articles are sold)
+                     */
 
-                        $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
-                    } catch (Exception $e) {
-                        $this->_handleException($e);
-                        $e = null;
+                    $stopIt = false;
+                    if ($item->getQtyInventory() <= 0) {
+                        $stopIt = true;
+                    } else if ($item->getSalesOptions()->getScheduleReactivation() == Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT
+                        && $item->getQtyInventory() > 0) { // drawback with this solution: manual stop on ricardo side are not took in account
                         continue;
-                        // keep going for the next item - no break
+                    }
+
+                    if (!$stopIt) {
+                        try {
+                            // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
+                            $openArticlesParameter = new OpenArticlesParameter();
+                            $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
+
+                            $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                        } catch (Exception $e) {
+                            $this->_handleException($e);
+                            $e = null;
+                            continue;
+                            // keep going for the next item - no break
+                        }
                     }
 
                     // We do not stop anything if the article ID has just been changed and the product is still open
-                    if (isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
+                    if (!$stopIt && isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
                         $articleId = $openArticleResult['OpenArticles'][0]['ArticleId'];
                         if ($item->getRicardoArticleId() != $articleId) {
                             $item
