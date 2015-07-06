@@ -154,7 +154,8 @@ class Diglin_Ricento_Model_Observer
 
             if (!empty($label)) {
                 $transport->setData(array(
-                    'bid_ids' => (isset($additionalData->ricardo_bid_ids)) ? $additionalData->ricardo_bid_ids : null,
+//                    'bid_ids' => (isset($additionalData->ricardo_bid_ids)) ? $additionalData->ricardo_bid_ids : null,
+                    'article_ids' => (isset($additionalData->ricardo_article_ids)) ? $additionalData->ricardo_article_ids : null,
                     'methods' => $label,
                     'information' => $information));
             }
