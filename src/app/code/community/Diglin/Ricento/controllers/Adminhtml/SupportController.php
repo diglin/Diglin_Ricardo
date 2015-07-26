@@ -9,6 +9,11 @@
  */ 
 class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controller_Action
 {
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('ricento/support');
+    }
+
     public function indexAction()
     {
         $this->_redirect('*/*/contact');
@@ -35,12 +40,24 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
 
     public function exportAction()
     {
+        if (!Mage::getSingleton('admin/session')->isAllowed('ricento/support/export')) {
+            $this->_forward('denied');
+            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+            return $this;
+        }
+
         $gzDestination = Mage::helper('diglin_ricento/support')->exportAll();
         return $this->_prepareDownloadResponse('ricardo_support.tar.gz', file_get_contents($gzDestination));
     }
 
     public function sendAction()
     {
+        if (!Mage::getSingleton('admin/session')->isAllowed('ricento/support/export')) {
+            $this->_forward('denied');
+            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+            return $this;
+        }
+
         $helper = Mage::helper('diglin_ricento/support');
 
         try {

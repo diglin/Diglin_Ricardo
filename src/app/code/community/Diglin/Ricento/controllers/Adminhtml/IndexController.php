@@ -16,7 +16,4 @@ require_once 'Mage/Adminhtml/controllers/IndexController.php';
  *
  * use the adminhtml index controller for standard actions like deniedJsonAction()
  */
-class Diglin_Ricento_Adminhtml_IndexController extends Mage_Adminhtml_IndexController
-{
-
-}
+class Diglin_Ricento_Adminhtml_IndexController extends Mage_Adminhtml_IndexController {}
