@@ -236,7 +236,7 @@ class Diglin_Ricento_Model_Observer
         /* @var $collection Mage_Eav_Model_Entity_Collection_Abstract */
         $collection = $observer->getEvent()->getCollection();
         $entity = $collection->getEntity();
-        if (!empty($entity) && $entity->getType() == 'customer') {
+        if (!empty($entity) && $entity instanceof Mage_Eav_Model_Entity_Abstract && $entity->getType() == 'customer') {
             $collection->addAttributeToSelect('ricardo_username');
         }
     }
