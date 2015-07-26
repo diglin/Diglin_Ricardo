@@ -42,7 +42,6 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
     {
         if (!Mage::getSingleton('admin/session')->isAllowed('ricento/support/export')) {
             $this->_forward('denied');
-            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
             return $this;
         }
 
@@ -54,7 +53,6 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
     {
         if (!Mage::getSingleton('admin/session')->isAllowed('ricento/support/export')) {
             $this->_forward('denied');
-            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
             return $this;
         }
 
