@@ -271,7 +271,7 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
     {
         $startDate = Mage::helper('diglin_ricento')->getStartingDate($item);
 
-        if (!is_null($startDate) && $startDate < (time() + 59*60)) {
+        if (!is_null($startDate) && $startDate < (time() + 3600)) {
             // Warning - starting date must be 1 hour in future
             $this->_warnings[] = $this->getHelper()->__('The starting date must start one hour in future. It will be automatically updated to list on ricardo.');
         }

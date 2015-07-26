@@ -780,12 +780,12 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
             $startDate = $item->getSalesOptions()->getScheduleDateStart();
         }
 
-        if (!is_null($startDate) || $item->getSalesOptions()->getSalesType() == Diglin_Ricento_Model_Config_Source_Sales_Type::AUCTION) {
+        if (!is_null($startDate)) {
             $startDate = strtotime($startDate);
         }
 
         // ricardo.ch constrains, starting date must be in 1 hour in future
-        if (is_null($startDate) || $startDate < (time() + 3600)) {
+        if (!is_null($startDate) && $startDate <= time() + 3600) {
             $startDate = time() + 3600;
         }
 
