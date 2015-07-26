@@ -491,7 +491,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
 
         $articles = $this->_getSellerAccount()->getUnsoldArticles($unsoldArticlesParameter);
         if (!is_null($articles) && is_array($articles['UnsoldArticles']) && isset($articles['UnsoldArticles'][0])) {
-            $article = $this->_getHelper()->extractData($articles[0]);
+            $article = $this->_getHelper()->extractData($articles['UnsoldArticles'][0]);
         }
 
         return $article;
