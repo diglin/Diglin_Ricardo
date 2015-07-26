@@ -130,7 +130,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         try {
             $openArticlesParameter = new OpenArticlesParameter();
             $openArticlesParameter
-                ->setPageSize($this->_limit) // if not defined, default is 10
+                ->setPageSize($this->_limit) // if not defined, default is 10, currently is 200
                 ->setArticleIdsFilter($ricardoArticleIds);
 
             $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
@@ -158,7 +158,8 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                      * - all is sold
                      * - Not found as openArticle (cause of manual stop on ricardo side or due to a moment where the reactivation break openArticle )
                      *
-                     * Warning: article ID may change between reactivation (e.g. if some articles are sold)
+                     * Warning: article ID may change between reactivation (e.g. if some articles are sold), there is also a phase where articles in reactivation
+                     * are not visible in getOpenArticles
                      */
 
                     $stopIt = false;
