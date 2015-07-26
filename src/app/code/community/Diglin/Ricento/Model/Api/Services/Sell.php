@@ -70,7 +70,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             $start = microtime(true);
             $insertArticle = $item->getInsertArticleParameter();
 
-            $articleResult = parent::insertArticle($insertArticle);
+            $articleResult = parent::createArticle($insertArticle);
 
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 Mage::log('Time to insert article ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE);
@@ -104,7 +104,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
             $start = microtime(true);
 
             $insertArticlesParameter->setAntiforgeryToken($this->getServiceManager()->getSecurityManager()->getAntiforgeryToken());
-            $articlesResult = parent::insertArticles($insertArticlesParameter);
+            $articlesResult = parent::createArticles($insertArticlesParameter);
 
             if (Mage::helper('diglin_ricento')->isDebugEnabled()) {
                 Mage::log('Time to insert the articles ' . (microtime(true) - $start) . ' sec', Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
