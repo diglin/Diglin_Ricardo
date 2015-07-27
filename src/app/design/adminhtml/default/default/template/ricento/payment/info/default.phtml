@@ -17,9 +17,9 @@
 <?php echo $this->escapeHtml($this->getMethod()->getTitle()) ?>:
 
 <?php if ($_specificInfo = $this->getSpecificInformation()):?>
-<?php if (isset($_specificInfo['bid_ids'])): ?>
 <div class="ricardo-payment-info">
-<p><?php echo Mage::helper('diglin_ricento')->__('Transactions: <strong>%s</strong>', $_specificInfo['bid_ids']) ?></p>
+<?php if (isset($_specificInfo['article_ids'])): ?>
+<p><?php echo Mage::helper('diglin_ricento')->__('Articles: <strong>%s</strong>', $_specificInfo['article_ids']) ?></p>
 <?php endif; ?>
 <ul>
     <li><?php echo implode(' / ', $_specificInfo['methods']) ?></li>
