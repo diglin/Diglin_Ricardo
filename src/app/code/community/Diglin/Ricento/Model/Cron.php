@@ -21,7 +21,8 @@ class Diglin_Ricento_Model_Cron
 
     protected $_asyncProcess = array(
         Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST, //** Sync List before getting orders
-        Diglin_Ricento_Model_Sync_Job::TYPE_ORDER, //** Get new orders
+        Diglin_Ricento_Model_Sync_Job::TYPE_TRANSACTION, //** Get new transactions
+        Diglin_Ricento_Model_Sync_Job::TYPE_ORDER, //** Create new orders
         Diglin_Ricento_Model_Sync_Job::TYPE_CLOSED //** Close articles which are not anymore open
     );
 
@@ -39,7 +40,9 @@ class Diglin_Ricento_Model_Cron
             ini_set('memory_limit', '512M');
         }
 
-        register_shutdown_function(array($this, 'handleError'));
+        if ($helper->isDebugEnabled()) {
+            register_shutdown_function(array($this, 'handleError'));
+        }
 
         try {
             foreach ($this->_syncProcess as $jobType) {
@@ -64,7 +67,9 @@ class Diglin_Ricento_Model_Cron
             ini_set('memory_limit', '512M');
         }
 
-        register_shutdown_function(array($this, 'handleError'));
+        if ($helper->isDebugEnabled()) {
+            register_shutdown_function(array($this, 'handleError'));
+        }
 
         try {
             foreach ($this->_asyncProcess as $jobType) {

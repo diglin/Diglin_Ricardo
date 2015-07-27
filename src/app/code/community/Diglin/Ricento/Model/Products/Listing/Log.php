@@ -46,6 +46,7 @@ class Diglin_Ricento_Model_Products_Listing_Log extends Mage_Core_Model_Abstract
     const LOG_TYPE_SYNCLIST     = 4;
     const LOG_TYPE_ORDER        = 5;
     const LOG_TYPE_CLOSED       = 6;
+    const LOG_TYPE_TRANSACTION  = 7;
 
     /**
      * Prefix of model events names

@@ -34,6 +34,7 @@ class Diglin_Ricento_Model_Sync_Job extends Diglin_Ricento_Model_Sync_Abstract
     const TYPE_CHECK_LIST           = 'check_list';
     const TYPE_LIST                 = 'list';
     const TYPE_STOP                 = 'stop';
+    const TYPE_TRANSACTION          = 'transaction';
     const TYPE_ORDER                = 'order';
     const TYPE_SYNCLIST             = 'sync_list';
     const TYPE_CLOSED               = 'closed';
