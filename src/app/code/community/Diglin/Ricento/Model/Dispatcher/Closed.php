@@ -279,7 +279,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
             chmod($reactivationFile, 0777);
         }
 
-        $reactivationElements = (array) json_decode(file_get_contents($reactivationFile));
+        $reactivationElements = (array) json_decode(file_get_contents($reactivationFile), true);
 
         foreach ($reactivationElements as $key => $reactivationElement) {
             if ($reactivationElement['internal_reference'] == $item->getInternalReference()) {
