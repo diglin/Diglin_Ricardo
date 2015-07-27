@@ -37,7 +37,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Inventory
             $inventory = array();
             foreach ($itemCollection->getItems() as $item) {
                 $item->setLoadFallbackOptions(true);
-                if ($item->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+                if (!in_array($item->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))) {
                     $qtyInventory = $item->getProductQty();
                 } else {
                     $qtyInventory = $item->getQtyInventory();
@@ -53,7 +53,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Renderer_Inventory
         } else {
             $item = Mage::getModel('diglin_ricento/products_listing_item')->load($row->getItemId());
             $item->setLoadFallbackOptions(true);
-            if ($item->getStatus() != Diglin_Ricento_Helper_Data::STATUS_LISTED) {
+            if (!in_array($item->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))) {
                 $value = $item->getProductQty();
             } else {
                 $value = $item->getQtyInventory();
