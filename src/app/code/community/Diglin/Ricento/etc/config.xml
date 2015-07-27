@@ -273,6 +273,9 @@
                     <list>
                         <class>Diglin_Ricento_Model_Dispatcher_List</class>
                     </list>
+                    <transaction>
+                        <class>Diglin_Ricento_Model_Dispatcher_Transaction</class>
+                    </transaction>
                     <order>
                         <class>Diglin_Ricento_Model_Dispatcher_Order</class>
                     </order>
