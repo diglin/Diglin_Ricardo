@@ -27,7 +27,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
     /**
      * @return $this|mixed
      */
-    protected function _proceed()
+    public function proceed()
     {
         $customerTransactions = $timestampTransactions = array();
         $mergeOrder = Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_MERGE_ORDER);
@@ -90,6 +90,14 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         unset($transactionCollection);
         unset($customerTransactions);
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function _proceed()
+    {
         return $this;
     }
 
