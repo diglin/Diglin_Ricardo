@@ -1,3 +1,15 @@
+## Version 1.3.0
+- ENHANCEMENT: update API calls due to replacement of API methods with new methods name. Important: extension users MUST update to this version otherwise the extension won't work on 27.08.2015 cause if ricardo API update.
+- ENHANCEMENT: send pictures in base64 encoding instead using bytes array. Decrease memory used on server side
+- ENHANCEMENT: update Support controllers due to Magento security patches
+- ENHANCEMENT: change the payment information box with article ID instead of the transaction ID (users are not aware about this transaction ID)
+- ENHANCEMENT: allow to create orders with products not in stock on Magento side.
+- FIX: issue with stopped products when there were in reactivation phase on ricardo.ch side
+- FIX: issue with products which should start immediately
+- FIX: several issues depending on some shops having third party extensions which may in conflict with the logic of this extension
+- FIX: issue with links to products from the log grid
+- FIX: issue with merging of orders under certain conditions depending on when the customers ordered several products of the shop owner
+
 ## Version 1.2.0
 - FEATURE: add column into customer (ricardo username) and order grid (is ricardo order?). Configurable to show them or not from configuration page of the extension
 - FIX: amount of products to get fees is limited to 200 on ricardo.ch side. Get fees even if a shop owner has more than 200 article in the product list
