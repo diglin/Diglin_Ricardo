@@ -32,7 +32,7 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
         $customerTransactions = $timestampTransactions = array();
         $mergeOrder = Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_MERGE_ORDER);
 
-        $delay = ($mergeOrder) ? 30 : 0;
+        $delay = (($mergeOrder) ? 30 : 0) * 60;
 
         /**
          * Get transaction older than 30 or 0 minutes and when no order was created
@@ -78,13 +78,6 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                 }
                 $this->createNewOrder($transactions);
             }
-        }
-
-        /**
-         * Stop the list if all products listing items are stopped
-         */
-        if ($this->_productsListingId) {
-            Mage::getResourceModel('diglin_ricento/products_listing')->setStatusStop($this->_productsListingId);
         }
 
         unset($transactionCollection);
