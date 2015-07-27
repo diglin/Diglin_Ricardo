@@ -145,6 +145,13 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
             'last_item_id' => $lastItem->getId()
         ));
 
+        /**
+         * Stop the list if all products listing items are stopped
+         */
+        if ($this->_productsListingId) {
+            Mage::getResourceModel('diglin_ricento/products_listing')->setStatusStop($this->_productsListingId);
+        }
+
         unset($itemCollection);
 
         return $this;
