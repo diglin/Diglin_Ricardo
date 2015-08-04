@@ -11,6 +11,7 @@
 - FIX: several issues depending on some shops having third party extensions which may in conflict with the logic of this extension
 - FIX: issue with links to products from the log grid
 - FIX: issue with merging of orders under certain conditions depending on when the customers ordered several products of the shop owner
+- FIX: issue while resizing tall pictures hanging listing synchronization cause of pictures to big
 
 ## Version 1.2.0
 - FEATURE: add column into customer (ricardo username) and order grid (is ricardo order?). Configurable to show them or not from configuration page of the extension
