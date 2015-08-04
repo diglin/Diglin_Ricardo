@@ -76,6 +76,7 @@
                 <host>ws.ricardo.ch</host>
                 <host_dev>ws.betaqxl.com</host_dev>
                 <lang>de,fr</lang>
+                <memory_change>1</memory_change>
             </api_config>
             <cleanup_jobs>
                 <enabled>1</enabled>

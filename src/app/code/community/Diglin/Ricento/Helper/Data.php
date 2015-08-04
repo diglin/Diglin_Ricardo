@@ -36,6 +36,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_EXPIRATION_NOTIFICATION_DELAY = 'ricento/api_config/expiration_notification_delay'; // in day
     const CFG_EXPIRATION_NOTIFICATION_VALIDATION_DELAY = 'ricento/api_config/expiration_notification_validation_delay'; // in day
     const CFG_EMAIL_NOTIFICATION            = 'ricento/api_config/email_notification';
+    const CFG_MEMORY_CHANGE                 = 'ricento/api_config/memory_change';
 
     const CFG_SUPPORTED_LANG                = 'ricento/api_config/lang';
     const DEFAULT_SUPPORTED_LANG            = 'de';
@@ -883,5 +884,14 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function canNotifyUpdate($store = null)
     {
         return Mage::getStoreConfigFlag(self::CFG_UPDATE_NOTIFICATION, $store);
+    }
+
+    /**
+     * @param null $store
+     * @return bool
+     */
+    public function allowMemoryChange($store = null)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_MEMORY_CHANGE, $store)
     }
 }

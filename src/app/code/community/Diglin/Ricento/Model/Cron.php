@@ -36,7 +36,7 @@ class Diglin_Ricento_Model_Cron
             return;
         }
 
-        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+        if ($helper->allowMemoryChange() && $helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
             ini_set('memory_limit', '512M');
         }
 
@@ -63,7 +63,7 @@ class Diglin_Ricento_Model_Cron
             return;
         }
 
-        if ($helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
+        if ($helper->allowMemoryChange() && $helper->getMemoryLimit() > 0 && $helper->getMemoryLimit() < 512) {
             ini_set('memory_limit', '512M');
         }
 
