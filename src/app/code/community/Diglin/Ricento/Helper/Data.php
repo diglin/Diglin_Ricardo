@@ -892,6 +892,6 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function allowMemoryChange($store = null)
     {
-        return Mage::getStoreConfigFlag(self::CFG_MEMORY_CHANGE, $store)
+        return Mage::getStoreConfigFlag(self::CFG_MEMORY_CHANGE, $store);
     }
 }
