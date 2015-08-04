@@ -126,7 +126,7 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
             ->keepAspectRatio(true)
             ->keepFrame(false)
             ->setQuality(90)
-            ->resize(600)
+            ->resize(600, 600)
             ->__toString();
     }
 }
