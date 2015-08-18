@@ -193,6 +193,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
                 $listing->save();
                 if ($this->saveConfiguration($data)) {
                     $this->_prepareConfigurableProduct();
+                    $this->_warmupPictures();
                     $this->_getSession()->addSuccess($this->__('The listing has been saved.'));
                 } else {
                     $error = true;
@@ -291,6 +292,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
         }
 
         $this->_prepareConfigurableProduct();
+        $this->_warmupPictures();
 
         $this->_getSession()->addSuccess($this->__('%d product(s) added to the listing', $productsAdded));
         $this->_redirect('*/*/edit', array('id' => $this->_getListing()->getId()));
@@ -475,7 +477,7 @@ class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento
 
         if ($countReadyToList <= 0) {
             $this->_getSession()->addError($this->__('There is no product ready to be listed. Please, add products to your products listing "%s".', $productListing->getTitle()));
-            $this->_redirect('*/*/index');
+            $this->_redirect('*/*/edit', array('id' => $productListing->getId()));
             return;
         }
 

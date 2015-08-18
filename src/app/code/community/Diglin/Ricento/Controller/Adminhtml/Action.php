@@ -186,4 +186,37 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
 
         return $this;
     }
+
+    /**
+     * Create pictures needed for ricardo and set them in cache to reduce memory consumption
+     *
+     * @return $this
+     */
+    protected function _warmupPictures()
+    {
+        $productListingId = $this->_initListing()->getId();
+        $statuses = array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD);
+
+        /**
+         * Delete not listed children products of configurable product
+         */
+        $collectionListingItemChildren = Mage::getResourceModel('diglin_ricento/products_listing_item_collection');
+        $collectionListingItemChildren
+            ->addFieldToFilter('status', array('nin' => $statuses))
+            ->addFieldToFilter('products_listing_id', $productListingId);
+
+        foreach ($collectionListingItemChildren->getItems() as $item) {
+            // Warm picture cache to prevent memory consumption while listing items
+            $images = (array) $item->getProduct()->getImages($item->getBaseProductId());
+
+            $hashImage = array();
+            foreach ($images as $image) {
+                if (isset($image['filepath']) && !isset($hashImage[$image['filepath']])) {
+                    $hashImage[$image['filepath']] = true;
+                    Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+                }
+            }
+        }
+        return $this;
+    }
 }
