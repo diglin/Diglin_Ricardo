@@ -26,7 +26,7 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
 
         if ($attributeName == 'image' && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::YES) {
             $this->setWatermark(
-                Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK)
+                'ricento/' . Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK)
             );
             $this->setWatermarkImageOpacity(
                 Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_OPACITY)
