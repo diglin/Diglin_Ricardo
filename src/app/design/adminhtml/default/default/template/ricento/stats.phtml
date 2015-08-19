@@ -23,6 +23,7 @@ if ($isEnabled && $user && $user->getUsername()):
         name: "<?php echo $user->getFirstname() . ' ' . $user->getLastname(); ?>",
         email: "<?php echo $user->getEmail(); ?>",
         created_at: <?php echo strtotime($user->getCreated()); ?>,
+        "version": "<?php echo Mage::getConfig()->getModuleConfig('Diglin_Ricento')->version ?>",
         app_id: "<?php echo $appid ?>"
     };
 </script>
