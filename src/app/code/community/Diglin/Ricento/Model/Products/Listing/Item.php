@@ -552,12 +552,15 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
 
         foreach ($images as $image) {
 
-            $filename = false;
-            if (isset($image['filepath'])) {
-                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
-            }
+            $filename = $image['filepath'];
+//            if (isset($image['filepath'])) {
+//                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+//            }
+//            if (!$filename) {
+//                continue;
+//            }
 
-            if (!$filename) {
+            if ($filename == 'no_selection') {
                 continue;
             }
 
@@ -565,7 +568,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
                 break;
             };
 
-            $hashImage = md5($image['filepath']);
+            $hashImage = md5($filename);
             if (!isset($hash[$hashImage])) {
 
                 // Prepare picture to set the content as byte array for the webservice
@@ -574,9 +577,9 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
                 if ($imageExtension) {
                     $picture = new ArticlePictureParameter();
                     $picture
-//                        ->setPictureInBase64(base64_encode(file_get_contents($filename)))
+                        ->setPictureInBase64(base64_encode(file_get_contents($filename)))
                         // we encode in Json to minimize memory consumption
-                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($filename)))))
+//                        ->setPictureBytes(json_encode(array_values(unpack('C*', file_get_contents($filename)))))
                         ->setPictureExtension($imageExtension)
                         ->setPictureIndex(++$i);
 

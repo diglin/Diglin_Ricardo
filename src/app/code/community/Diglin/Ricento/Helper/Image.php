@@ -108,6 +108,7 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     }
 
     /**
+     * @deprecated
      * @param string $filepath
      * @param Mage_Catalog_Model_Product $product
      * @return bool|string

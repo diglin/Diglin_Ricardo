@@ -190,6 +190,7 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
     /**
      * Create pictures needed for ricardo and set them in cache to reduce memory consumption
      *
+     * @deprecated
      * @return $this
      */
     protected function _warmupPictures()
