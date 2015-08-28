@@ -564,12 +564,14 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
                 continue;
             }
 
+            $filename = Mage::helper('diglin_ricento/image')->init(new Mage_Catalog_Model_Product(), 'image', $filename);
+
             if ($i >= 10) { // Do not set more than 10 pictures
                 break;
             };
 
             $hashImage = md5($filename);
-            if (!isset($hash[$hashImage])) {
+            if (!isset($hash[$hashImage]) && file_exists($filename)) {
 
                 // Prepare picture to set the content as byte array for the webservice
                 $imageExtension = Helper::getPictureExtension($filename);
