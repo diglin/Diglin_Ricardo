@@ -603,20 +603,20 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _getArticleDeliveryParameter()
     {
-        // Weird by ricardo, if price = 0, you MUST set setIsDeliveryFree to false !!!
-//        $shippingPrice = $this->_shippingPaymentRule->getShippingPrice();
-//        $freeShipping = false;
-//        if (floatval($shippingPrice) <= 0) {
-//            $freeShipping = true;
-//        }
+        $shippingPrice = $this->_shippingPaymentRule->getShippingPrice();
+        $method = $this->_shippingPaymentRule->getShippingMethod();
+        $freeShipping = false;
+        if (floatval($shippingPrice) <= 0 && $method != 8) { // $method = 8 no delivery, pick up by the buyer
+            $freeShipping = true;
+        }
 
         $delivery = new ArticleDeliveryParameter();
 
         $delivery
             // required
             ->setDeliveryCost($this->_shippingPaymentRule->getShippingPrice())
-            ->setIsDeliveryFree(false)
-            ->setDeliveryId($this->_shippingPaymentRule->getShippingMethod())
+            ->setIsDeliveryFree($freeShipping)
+            ->setDeliveryId($method)
             ->setIsCumulativeShipping($this->_shippingPaymentRule->getShippingCumulativeFee())
             // optional
             ->setDeliveryPackageSizeId($this->_shippingPaymentRule->getShippingPackage());
