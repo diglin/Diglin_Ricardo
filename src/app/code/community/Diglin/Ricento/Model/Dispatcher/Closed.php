@@ -194,6 +194,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                                 ->setRicardoArticleId($articleId)
                                 ->save();
                         }
+                        $this->temporizeReactivationPhase($item, true);
                     } else {
                         /**
                          * Wait before to stop in case the product is in reactivation phase on ricardo side
@@ -267,7 +268,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @return bool
      */
-    public function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item)
+    public function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item, $clean = false)
     {
         $temporizeReactivationPhase = true;
         $found = false;
@@ -289,7 +290,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                     $temporizeReactivationPhase = false;
                 }
 
-                if ($found && !$temporizeReactivationPhase) {
+                if ($found && (!$temporizeReactivationPhase || $clean)) {
                     unset($reactivationElements[$key]);
                 }
             }
