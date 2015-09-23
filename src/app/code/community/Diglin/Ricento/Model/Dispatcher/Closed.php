@@ -166,9 +166,6 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                     $stopIt = false;
                     if ($item->getQtyInventory() <= 0) {
                         $stopIt = true;
-                    } else if ($item->getSalesOptions()->getScheduleReactivation() == Diglin_Ricento_Model_Config_Source_Sales_Reactivation::SOLDOUT
-                        && $item->getQtyInventory() > 0) { // drawback with this solution: manual stop on ricardo side are not took in account
-                        continue;
                     }
 
                     if (!$stopIt) {

@@ -329,6 +329,17 @@
                     <to_order>*</to_order>
                 </customer_ricardo_id>
             </sales_convert_quote>
+            <sales_copy_order>
+                <is_ricardo>
+                    <to_order>*</to_order>
+                </is_ricardo>
+                <customer_ricardo_username>
+                    <to_order>*</to_order>
+                </customer_ricardo_username>
+                <customer_ricardo_id>
+                    <to_order>*</to_order>
+                </customer_ricardo_id>
+            </sales_copy_order>
         </fieldsets>
     </global>
 

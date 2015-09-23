@@ -158,19 +158,30 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
     }
 
     /**
+     * @deprecated
      * @param array $articleIds
      * @return array
      */
-    private function _getSoldArticlesList(array $articleIds)
+    private function _getSoldArticlesList(array $articleIds = array())
+    {
+        return $this->getSoldArticlesList($articleIds);
+    }
+
+    /**
+     * @param array $articleIds
+     * @param int|null $minimumEndDate Default 259200 = 3 days
+     * @param int|null $maximumEndDate
+     * @return array
+     */
+    public function getSoldArticlesList(array $articleIds = null, $minimumEndDate = 259200, $maximumEndDate = null)
     {
         $soldArticlesParameter = new SoldArticlesParameter();
-        $delay = (3 * 24 * 60 * 60); // 3 days
 
         $transactionCollection = Mage::getResourceModel('diglin_ricento/sales_transaction_collection');
         $transactionCollection
             ->addFieldToFilter('order_id', new Zend_Db_Expr('NULL'))
             ->getSelect()
-            ->where('UNIX_TIMESTAMP(created_at) + (?) < UNIX_TIMESTAMP(now())', $delay);
+            ->where('UNIX_TIMESTAMP(created_at) + (?) < UNIX_TIMESTAMP(now())', $minimumEndDate);
 
         /**
          * Set minimum end date to filter e.g. last day. Do not use a higher value as the minimum sales duration is 1 day,
@@ -178,12 +189,20 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
          */
         $soldArticlesParameter
             ->setPageSize($this->_limit) // if not defined, default is 10
-            ->setArticleIdsFilter($articleIds)
             ->setExcludedTransactionIdsFilter($transactionCollection->getColumnValues('transaction_id'))
-            ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - $delay));
+            ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - $minimumEndDate));
+
+        if (!is_null($articleIds)) {
+            $soldArticlesParameter->setArticleIdsFilter($articleIds);
+        }
+        if (!is_null($maximumEndDate)) {
+            $soldArticlesParameter->setMaximumEndDate($this->_getHelper()->getJsonDate($maximumEndDate));
+        }
 
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
-        $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
+        if (!$sellerAccountService->getCurrentWebsite()) {
+            $sellerAccountService->setCurrentWebsite($this->_getListing()->getWebsiteId());
+        }
 
         $soldArticlesResult = $sellerAccountService->getSoldArticles($soldArticlesParameter);
 

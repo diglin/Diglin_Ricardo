@@ -24,6 +24,7 @@ if ($isEnabled && $user && $user->getUsername()):
         email: "<?php echo $user->getEmail(); ?>",
         created_at: <?php echo strtotime($user->getCreated()); ?>,
         "version": "<?php echo Mage::getConfig()->getModuleConfig('Diglin_Ricento')->version ?>",
+        "shop": "<?php echo Mage::getStoreConfig('web/unsecure/base_url'); ?>",
         app_id: "<?php echo $appid ?>"
     };
 </script>
