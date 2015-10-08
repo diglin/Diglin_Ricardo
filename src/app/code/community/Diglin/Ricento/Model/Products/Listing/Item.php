@@ -553,12 +553,12 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         foreach ($images as $image) {
 
             $filename = $image['filepath'];
-//            if (isset($image['filepath'])) {
-//                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
-//            }
-//            if (!$filename) {
-//                continue;
-//            }
+            if (isset($image['filepath'])) {
+                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+            }
+            if (!$filename) {
+                continue;
+            }
 
             if ($filename == 'no_selection') {
                 continue;

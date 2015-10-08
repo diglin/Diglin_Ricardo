@@ -123,11 +123,16 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
             $product = new Mage_Catalog_Model_Product();
         }
 
-        return $this->init($product, 'image', $filepath)
+        $this->init($product, 'image', $filepath)
             ->keepAspectRatio(true)
             ->keepFrame(false)
-            ->setQuality(90)
-            ->resize(600, 600)
-            ->__toString();
+            ->setQuality(90);
+
+        if ($this->_getModel()->getImageProcessor()->getOriginalWidth() > 1800
+        || $this->_getModel()->getImageProcessor()->getOriginalHeight() > 1800) {
+            $this->resize(1800, 1800);
+        }
+
+        return $this->__toString();
     }
 }

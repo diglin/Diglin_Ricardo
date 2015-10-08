@@ -202,7 +202,7 @@ class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricent
             }
 
             $this->_prepareConfigurableProduct();
-//            $this->_warmupPictures();
+            $this->_warmupPictures();
 
             $this->_getSession()->addSuccess($this->__('%d product(s) added to the listing', $productsAdded));
         } catch (Exception $e) {
