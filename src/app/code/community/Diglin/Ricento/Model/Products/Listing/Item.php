@@ -604,8 +604,9 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     protected function _getArticleDeliveryParameter()
     {
         $shippingPrice = $this->_shippingPaymentRule->getShippingPrice();
+        $method = $this->_shippingPaymentRule->getShippingMethod();
         $freeShipping = false;
-        if (floatval($shippingPrice) <= 0) {
+        if (floatval($shippingPrice) <= 0 && $method != 8) { // $method = 8 no delivery, pick up by the buyer
             $freeShipping = true;
         }
 
@@ -615,7 +616,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             // required
             ->setDeliveryCost($this->_shippingPaymentRule->getShippingPrice())
             ->setIsDeliveryFree($freeShipping)
-            ->setDeliveryId($this->_shippingPaymentRule->getShippingMethod())
+            ->setDeliveryId($method)
             ->setIsCumulativeShipping($this->_shippingPaymentRule->getShippingCumulativeFee())
             // optional
             ->setDeliveryPackageSizeId($this->_shippingPaymentRule->getShippingPackage());
