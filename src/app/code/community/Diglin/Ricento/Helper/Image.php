@@ -72,6 +72,11 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
                 $model->setBaseFile($this->getProduct()->getData($model->getDestinationSubdir()));
             }
 
+            if ($this->_getModel()->getImageProcessor()->getOriginalWidth() > 1800
+                || $this->_getModel()->getImageProcessor()->getOriginalHeight() > 1800) {
+                $this->resize(1800, 1800);
+            }
+
             if ($model->isCached()) {
                 return $model->getNewFile();
             } else {
@@ -123,16 +128,10 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
             $product = new Mage_Catalog_Model_Product();
         }
 
-        $this->init($product, 'image', $filepath)
+        return $this->init($product, 'image', $filepath)
             ->keepAspectRatio(true)
             ->keepFrame(false)
-            ->setQuality(90);
-
-        if ($this->_getModel()->getImageProcessor()->getOriginalWidth() > 1800
-        || $this->_getModel()->getImageProcessor()->getOriginalHeight() > 1800) {
-            $this->resize(1800, 1800);
-        }
-
-        return $this->__toString();
+            ->setQuality(90)
+            ->__toString();
     }
 }
