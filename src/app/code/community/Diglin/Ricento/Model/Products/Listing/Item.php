@@ -825,7 +825,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         $articleFeeParameter = new GetArticleFeeParameter();
         $articleFeeParameter
             ->setArticleCondition($this->getProductCondition())
-            ->setCategoryId($this->getCategory())
+            ->setCategoryId(Diglin_Ricento_Model_Products_Category_Mapping::ROOT_CATEGORY_ID)
             ->setExcludeListingFees($excludeListingFees)
             ->setInitialQuantity($this->getProductQty())
             ->setPictureCount(0) //@todo check if it is really relevant to send this information as we save some computation, there is no influence on final price
