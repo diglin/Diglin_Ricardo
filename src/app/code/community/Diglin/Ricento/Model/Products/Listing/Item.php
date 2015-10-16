@@ -23,6 +23,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\BaseInsertArticleWithTrackingParameter;
+use SebastianBergmann\Exporter\Exception;
 
 /**
  * Products_Listing_Item Model
@@ -553,9 +554,15 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
         foreach ($images as $image) {
 
             $filename = $image['filepath'];
-            if (isset($image['filepath'])) {
-                $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+            if (!empty($filename)) {
+                try {
+                    $filename = Mage::helper('diglin_ricento/image')->prepareRicardoPicture($filename);
+                } catch (Exception $e) {
+                    Mage::logException($e);
+                    $filename = null;
+                }
             }
+
             if (!$filename) {
                 continue;
             }
@@ -563,8 +570,6 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
             if ($filename == 'no_selection') {
                 continue;
             }
-
-            $filename = Mage::helper('diglin_ricento/image')->init(new Mage_Catalog_Model_Product(), 'image', $filename);
 
             if ($i >= 10) { // Do not set more than 10 pictures
                 break;

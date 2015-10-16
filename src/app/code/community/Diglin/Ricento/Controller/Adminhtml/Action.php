@@ -1,4 +1,5 @@
 <?php
+use SebastianBergmann\Exporter\Exception;
 
 /**
  * ricardo.ch AG - Switzerland
@@ -211,9 +212,13 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
 
             $hashImage = array();
             foreach ($images as $image) {
-                if (isset($image['filepath']) && !empty($image['filepath']) && !isset($hashImage[$image['filepath']])) {
+                if (isset($image['filepath']) && !isset($hashImage[$image['filepath']])) {
                     $hashImage[$image['filepath']] = true;
-                    Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+                    try {
+                        Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+                    } catch (Exception $e) {
+                        Mage::logException($e);
+                    }
                 }
             }
         }
