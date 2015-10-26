@@ -1,5 +1,4 @@
 <?php
-use SebastianBergmann\Exporter\Exception;
 
 /**
  * ricardo.ch AG - Switzerland
