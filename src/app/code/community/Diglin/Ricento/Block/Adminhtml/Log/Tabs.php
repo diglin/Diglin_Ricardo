@@ -44,7 +44,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Tabs extends Mage_Adminhtml_Block_Widge
         if ($this->getData('active_tab') == self::TAB_LISTING) {
             $tab['content'] = $this->getLayout()->createBlock('diglin_ricento/adminhtml_log_listing_grid', 'ricento_listing_log')->toHtml();
         } else {
-            $tab['url'] = $this->getUrl('*/log/listing');
+            $tab['url'] = $this->getUrl('*/ricento_log/listing');
         }
 
         return $tab;
@@ -61,7 +61,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Tabs extends Mage_Adminhtml_Block_Widge
         if ($this->getData('active_tab') == self::TAB_SYNCHRONIZATION) {
             $tab['content'] = $this->getLayout()->createBlock('diglin_ricento/adminhtml_log_sync_grid', 'ricento_sync_log')->toHtml();
         } else {
-            $tab['url'] = $this->getUrl('*/log/sync');
+            $tab['url'] = $this->getUrl('*/ricento_log/sync');
         }
 
         return $tab;
@@ -78,7 +78,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Tabs extends Mage_Adminhtml_Block_Widge
         if ($this->getData('active_tab') == self::TAB_ORDER) {
             $tab['content'] = $this->getLayout()->createBlock('diglin_ricento/adminhtml_order_log_grid', 'ricento_order_log')->toHtml();
         } else {
-            $tab['url'] = $this->getUrl('*/log/order');
+            $tab['url'] = $this->getUrl('*/ricento_log/order');
         }
 
         return $tab;

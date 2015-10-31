@@ -15,39 +15,39 @@
         <ricento translate="title" module="diglin_ricento">
             <title>ricardo.ch</title>
             <class>ricardo_logo</class>
-            <action>ricento/dashboard</action>
+            <action>adminhtml/ricento_dashboard</action>
             <sort_order>31</sort_order>
             <children>
                 <dashboard translate="title" module="diglin_ricento">
                     <title>Dashboard</title>
-                    <action>ricento/dashboard</action>
+                    <action>adminhtml/ricento_dashboard</action>
                     <sort_order>10</sort_order>
                 </dashboard>
                 <listing translate="title" module="diglin_ricento">
                     <title>Products Listing</title>
-                    <action>ricento/products_listing</action>
+                    <action>adminhtml/ricento_products_listing</action>
                     <sort_order>20</sort_order>
                 </listing>
                 <log translate="title" module="diglin_ricento">
                     <title>Logs</title>
-                    <action>ricento/log</action>
+                    <action>adminhtml/ricento_log</action>
                     <sort_order>30</sort_order>
                     <children>
                         <sync>
                             <title>Synchronization</title>
-                            <action>ricento/log/sync</action>
+                            <action>adminhtml/ricento_log/sync</action>
                             <sort_order>10</sort_order>
                         </sync>
                         <listing>
                             <title>Listing</title>
-                            <action>ricento/log/listing</action>
+                            <action>adminhtml/ricento_log/listing</action>
                             <sort_order>20</sort_order>
                         </listing>
                     </children>
                 </log>
                 <assistant translate="title" module="diglin_ricento">
                     <title>ricardoAssistant</title>
-                    <action>ricento/account/assistant</action>
+                    <action>adminhtml/ricento_account/assistant</action>
                     <sort_order>40</sort_order>
                 </assistant>
                 <config translate="title" module="diglin_ricento">
@@ -57,17 +57,17 @@
                 </config>
                 <support translate="title" module="diglin_ricento">
                     <title>Support</title>
-                    <action>ricento/support</action>
+                    <action>adminhtml/ricento_support</action>
                     <sort_order>200</sort_order>
                     <children>
                         <contact>
                             <title>Contact</title>
-                            <action>ricento/support/contact</action>
+                            <action>adminhtml/ricento_support/contact</action>
                             <sort_order>10</sort_order>
                         </contact>
                         <export>
                             <title>Export</title>
-                            <action>ricento/support/export</action>
+                            <action>adminhtml/ricento_support/export</action>
                             <sort_order>20</sort_order>
                         </export>
                     </children>

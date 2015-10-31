@@ -33,7 +33,7 @@
 <script type="text/javascript">
     categoryMapper = new Ricento.CategoryMappper({
         wrapperElement : 'ricardo_categories',
-        loadChildrenUrl : '<?php echo $this->getUrl('ricento/products_category/children', array('id' => '#ID#', 'level' => '#LVL#')); ?>'
+        loadChildrenUrl : '<?php echo $this->getUrl('*/ricento_products_category/children', array('id' => '#ID#', 'level' => '#LVL#')); ?>'
     });
     categoryMapper.initAutocomplete('<?php echo $this->getSuggestUrl() ?>', 'category-tree', '<?php echo $this->__('Enter product name: e.g. iphone'); ?>');
 </script>

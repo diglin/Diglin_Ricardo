@@ -68,13 +68,13 @@ class Diglin_Ricento_Block_Adminhtml_Config_Source_Hint
         }
 
         $buttonSend = '<button type="button" onclick="if(confirm(\'' . $this->__('Do you want to send us your configuration information for support?') . '\')) {window.location.href=\''
-            . $this->getUrl('ricento/support/send')
+            . $this->getUrl('*/ricento_support/send')
             . '\'}"><span><span>'
             . $this->__('Send us your configuration')
             . '</span></span></button>';
 
         $buttonExport = '<button type="button" onclick="window.location.href=\''
-            . $this->getUrl('ricento/support/export')
+            . $this->getUrl('*/ricento_support/export')
             . '\'"><span><span>'
             . $this->__('Export your configuration')
             . '</span></span></button>';

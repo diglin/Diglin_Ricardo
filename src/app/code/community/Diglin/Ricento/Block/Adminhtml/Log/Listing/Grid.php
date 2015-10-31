@@ -144,7 +144,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Listing_Grid extends Mage_Adminhtml_Blo
      */
     public function addConfigureUrl($value, Varien_Object $row)
     {
-        $url = $this->getUrl('*/products_listing_item/configure', array('id' => $row->getProductsListingId(), 'product_id' => $row->getProductId()));
+        $url = $this->getUrl('*/ricento_products_listing_item/configure', array('id' => $row->getProductsListingId(), 'product_id' => $row->getProductId()));
         return '<a href="' . $url . '">' . $value . '</a>';
     }
 
@@ -156,7 +156,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Listing_Grid extends Mage_Adminhtml_Blo
      */
     public function addListingUrl($value, Varien_Object $row, $column)
     {
-        $url = $this->getUrl('*/products_listing/edit', array('id' => $row->getProductsListingId()));
+        $url = $this->getUrl('*/ricento_products_listing/edit', array('id' => $row->getProductsListingId()));
         return '<a href="' . $url . '">' . $value . '</a>';
     }
 

@@ -23,7 +23,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing extends Mage_Adminhtml_Blo
 
         $this->addButton('sync_job', array(
             'label' => $this->__('Show Synchronization Jobs'),
-            'onclick' => 'setLocation(\''.$this->getUrl('*/log/sync').'\')',
+            'onclick' => 'setLocation(\''.$this->getUrl('*/ricento_log/sync').'\')',
         ));
 
         parent::__construct();

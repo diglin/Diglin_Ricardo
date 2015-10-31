@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_Products_Listing_ItemController
+ * Class Diglin_Ricento_Adminhtml_Ricento_Products_Listing_ItemController
  */
-class Diglin_Ricento_Adminhtml_Products_Listing_ItemController extends Diglin_Ricento_Controller_Adminhtml_Products_Listing
+class Diglin_Ricento_Adminhtml_Ricento_Products_Listing_ItemController extends Diglin_Ricento_Controller_Adminhtml_Products_Listing
 {
     protected $_itemIds = array();
 

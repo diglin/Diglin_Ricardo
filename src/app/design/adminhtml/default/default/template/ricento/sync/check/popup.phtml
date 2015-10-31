@@ -14,7 +14,7 @@ $helper = Mage::helper('diglin_ricento');
 ?>
 <div class="sync_job_popup">
     <h1><?php echo $helper->__('Latest message for the selected job'); ?></h1>
-    <p><?php echo $helper->__('<a href="%s">Edit</a> your products listing if needed', $this->getUrl('*/products_listing/edit', array('id' => $this->getProductsListingId()))); ?></p>
+    <p><?php echo $helper->__('<a href="%s">Edit</a> your products listing if needed', $this->getUrl('*/ricento_products_listing/edit', array('id' => $this->getProductsListingId()))); ?></p>
     <div id="messages">
         <ul class="messages">
             <?php if (count($messages)) { ?>

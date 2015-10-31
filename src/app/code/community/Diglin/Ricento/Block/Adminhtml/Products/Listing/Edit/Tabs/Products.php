@@ -41,7 +41,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
      */
     public function getRowUrl($item)
     {
-        return $this->getUrl('*/products_listing_item/configure', array('id' => $this->getListing()->getId(), 'product' => $item->getId(), 'item' => $item->getItemId()));
+        return $this->getUrl('*/ricento_products_listing_item/configure', array('id' => $this->getListing()->getId(), 'product' => $item->getId(), 'item' => $item->getItemId()));
     }
 
     /**
@@ -259,13 +259,13 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
 
         $this->getMassactionBlock()->addItem('remove', array(
             'label'=> $this->__('Remove from list'),
-            'url'  => $this->getUrl('*/products_listing/removeProduct', array('id' => $this->getListing()->getId())),
+            'url'  => $this->getUrl('*/ricento_products_listing/removeProduct', array('id' => $this->getListing()->getId())),
             'confirm' => $this->__('Are you sure to remove this/these product(s)?')
         ));
 
         $this->getMassactionBlock()->addItem('configure', array(
             'label' => $this->__('Configure'),
-            'url'   => $this->getUrl('*/products_listing_item/configure', array('id' => $this->getListing()->getId(), '_current' => true))
+            'url'   => $this->getUrl('*/ricento_products_listing_item/configure', array('id' => $this->getListing()->getId(), '_current' => true))
         ));
 
         return $this;

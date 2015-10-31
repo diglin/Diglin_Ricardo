@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_DashboardController
+ * Class Diglin_Ricento_Adminhtml_Ricento_DashboardController
  */
-class Diglin_Ricento_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Action
+class Diglin_Ricento_Adminhtml_Ricento_DashboardController extends Mage_Adminhtml_Controller_Action
 {
     protected function _isAllowed()
     {

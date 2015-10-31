@@ -6,8 +6,12 @@
  * @category    Ricento
  * @package     Ricento_
  * @copyright   Copyright (c) 2015 ricardo.ch AG (http://www.ricardo.ch)
- */ 
-class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controller_Action
+ */
+
+/**
+ * Class Diglin_Ricento_Adminhtml_Ricento_SupportController
+ */
+class Diglin_Ricento_Adminhtml_Ricento_SupportController extends Mage_Adminhtml_Controller_Action
 {
     protected function _isAllowed()
     {
@@ -23,7 +27,7 @@ class Diglin_Ricento_Adminhtml_SupportController extends Mage_Adminhtml_Controll
     {
         $supportLabel = $this->__('Ricento Extension Support');
 
-        $block = $this->getLayout()->createBlock('core/template');
+        $block = $this->getLayout()->createBlock('adminhtml/template');
 
         $block
             ->setTemplate('ricento/support.phtml')

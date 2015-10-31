@@ -416,16 +416,13 @@
 
     <admin>
         <routers>
-            <ricento>
-                <use>admin</use>
-                <args>
-                    <module>Diglin_Ricento</module>
-                    <frontName>ricento</frontName>
-                    <modules>
-                        <diglin_ricento before="Mage_Adminhtml">Diglin_Ricento_Adminhtml</diglin_ricento>
-                    </modules>
-                </args>
-            </ricento>
+            <adminhtml>
+				<args>
+					<modules>
+						<ricento before="Mage_Adminhtml">Diglin_Ricento_Adminhtml</ricento>
+					</modules>
+				</args>
+			</adminhtml>
         </routers>
     </admin>
 

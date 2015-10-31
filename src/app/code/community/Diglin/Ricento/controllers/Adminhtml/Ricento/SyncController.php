@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_SyncController
+ * Class Diglin_Ricento_Adminhtml_Ricento_SyncController
  */
-class Diglin_Ricento_Adminhtml_SyncController extends Mage_Adminhtml_Controller_Action
+class Diglin_Ricento_Adminhtml_Ricento_SyncController extends Mage_Adminhtml_Controller_Action
 {
     protected function _isAllowed()
     {
