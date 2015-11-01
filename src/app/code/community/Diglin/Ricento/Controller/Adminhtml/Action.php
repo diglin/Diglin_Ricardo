@@ -212,10 +212,11 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
 
             $hashImage = array();
             foreach ($images as $image) {
-                if (isset($image['filepath']) && !isset($hashImage[$image['filepath']])) {
-                    $hashImage[$image['filepath']] = true;
+                $filename = $image['filepath'];
+                if (!empty($filename) && !isset($hashImage[$filename])) {
+                    $hashImage[$filename] = true;
                     try {
-                        Mage::helper('diglin_ricento/image')->prepareRicardoPicture($image['filepath']);
+                        Mage::helper('diglin_ricento/image')->prepareRicardoPicture($filename);
                     } catch (Exception $e) {
                         Mage::logException($e);
                     }
