@@ -45,6 +45,6 @@ class Diglin_Ricento_Block_Adminhtml_Products_Category_Mapping extends Mage_Admi
      */
     public function getSuggestUrl()
     {
-        return $this->getUrl('*/products_category/suggest');
+        return $this->getUrl('*/ricento_products_category/suggest');
     }
 }

@@ -44,7 +44,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Item_Edit extends Mage_Adm
      */
     public function getBackUrl()
     {
-        return $this->getUrl('*/products_listing/edit', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/edit', array('id' => $this->getListingId()));
     }
 
     /**

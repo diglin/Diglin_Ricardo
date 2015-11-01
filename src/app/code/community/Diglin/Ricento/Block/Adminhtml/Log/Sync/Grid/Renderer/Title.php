@@ -16,6 +16,6 @@ class Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid_Renderer_Title extends Mage_A
      */
     public function render(Varien_Object $row)
     {
-        return '<a target="_blank" href="' . $this->getUrl('ricento/products_listing/edit', array('id' => $row->getProductsListingId())) .'">' . $row->getTitle() . '</a>';
+        return '<a target="_blank" href="' . $this->getUrl('*/ricento_products_listing/edit', array('id' => $row->getProductsListingId())) .'">' . $row->getTitle() . '</a>';
     }
 }

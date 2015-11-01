@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_LogController
+ * Class Diglin_Ricento_Adminhtml_Ricento_LogController
  */
-class Diglin_Ricento_Adminhtml_LogController extends Diglin_Ricento_Controller_Adminhtml_Action
+class Diglin_Ricento_Adminhtml_Ricento_LogController extends Diglin_Ricento_Controller_Adminhtml_Action
 {
     protected function _isAllowed()
     {

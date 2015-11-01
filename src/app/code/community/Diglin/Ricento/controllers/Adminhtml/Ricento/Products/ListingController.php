@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_Products_ListingController
+ * Class Diglin_Ricento_Adminhtml_Ricento_Products_ListingController
  */
-class Diglin_Ricento_Adminhtml_Products_ListingController extends Diglin_Ricento_Controller_Adminhtml_Products_Listing
+class Diglin_Ricento_Adminhtml_Ricento_Products_ListingController extends Diglin_Ricento_Controller_Adminhtml_Products_Listing
 {
     /**
      * @var string

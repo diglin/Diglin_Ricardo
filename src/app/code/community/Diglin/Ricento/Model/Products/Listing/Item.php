@@ -23,7 +23,6 @@ use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\GetArticleFeeParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\BaseInsertArticleWithTrackingParameter;
-use SebastianBergmann\Exporter\Exception;
 
 /**
  * Products_Listing_Item Model

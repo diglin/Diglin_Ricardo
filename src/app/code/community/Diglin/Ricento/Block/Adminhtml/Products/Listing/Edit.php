@@ -88,7 +88,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getAddProductsPopupUrl()
     {
-        return $this->getUrl('ricento/products_listing/addProductsPopup', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/addProductsPopup', array('id' => $this->getListingId()));
     }
 
     /**
@@ -98,7 +98,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getShowCategoryTree()
     {
-        return $this->getUrl('ricento/products_category/showcategoriestree', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_category/showcategoriestree', array('id' => $this->getListingId()));
     }
 
     /**
@@ -108,7 +108,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getStopListingUrl()
     {
-        return $this->getUrl('ricento/products_listing/stop', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/stop', array('id' => $this->getListingId()));
     }
 
     /**
@@ -118,7 +118,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getCheckAndListUrl()
     {
-        return $this->getUrl('ricento/products_listing/checkAndList', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/checkAndList', array('id' => $this->getListingId()));
     }
 
     /**
@@ -128,7 +128,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getConfirmationUrl()
     {
-        return $this->getUrl('ricento/products_listing/confirmation', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/confirmation', array('id' => $this->getListingId()));
     }
 
     /**
@@ -138,7 +138,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit extends Mage_Adminhtm
      */
     public function getListUrl()
     {
-        return $this->getUrl('ricento/products_listing/list', array('id' => $this->getListingId()));
+        return $this->getUrl('*/ricento_products_listing/list', array('id' => $this->getListingId()));
     }
 
     /**

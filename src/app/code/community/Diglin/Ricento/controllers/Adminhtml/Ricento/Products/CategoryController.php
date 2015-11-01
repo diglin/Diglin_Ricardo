@@ -14,9 +14,9 @@ use \Diglin\Ricardo\Exceptions\SearchException;
 use \Diglin\Ricardo\Enums\SearchErrors;
 
 /**
- * Class Diglin_Ricento_Adminhtml_Products_CategoryController
+ * Class Diglin_Ricento_Adminhtml_Ricento_Products_CategoryController
  */
-class Diglin_Ricento_Adminhtml_Products_CategoryController extends Diglin_Ricento_Controller_Adminhtml_Action
+class Diglin_Ricento_Adminhtml_Ricento_Products_CategoryController extends Diglin_Ricento_Controller_Adminhtml_Action
 {
     public function mappingAction()
     {

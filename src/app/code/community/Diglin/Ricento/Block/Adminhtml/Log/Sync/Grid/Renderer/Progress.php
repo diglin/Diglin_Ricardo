@@ -23,8 +23,8 @@ class Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid_Renderer_Progress extends Mag
         $block
             ->setRunProgress(false)
             ->setTemplate('ricento/js/sync/progress.phtml')
-            ->setProgressPopupUrl($this->getUrl('ricento/sync/jobMessagePopup', array('jobid' => $row->getId())))
-            ->setProgressAjaxUrl($this->getUrl('ricento/sync/progressAjax', array('jobid' => $row->getId())))
+            ->setProgressPopupUrl($this->getUrl('*/ricento_sync/jobMessagePopup', array('jobid' => $row->getId())))
+            ->setProgressAjaxUrl($this->getUrl('*/ricento_sync/progressAjax', array('jobid' => $row->getId())))
             ->setPrefix($row->getId());
 
         if ($row->getId()) {
@@ -43,7 +43,7 @@ class Diglin_Ricento_Block_Adminhtml_Log_Sync_Grid_Renderer_Progress extends Mag
         if ($jobProgress->getJobType() == Diglin_Ricento_Model_Sync_Job::TYPE_CHECK_LIST
             && $jobProgress->getProgress() == Diglin_Ricento_Model_Sync_Job::PROGRESS_PENDING) {
             // Run the check list without using Cron
-            $html = '<script>new Ajax.Request(\''. $this->getUrl('ricento/products_listing/checkAjax') .'\');</script>';
+            $html = '<script>new Ajax.Request(\''. $this->getUrl('*/ricento_products_listing/checkAjax') .'\');</script>';
             $block->setAdditionalHtml($html);
         }
 

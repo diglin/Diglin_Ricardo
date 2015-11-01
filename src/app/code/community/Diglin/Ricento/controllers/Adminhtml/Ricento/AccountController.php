@@ -10,9 +10,9 @@
  */
 
 /**
- * Class Diglin_Ricento_Adminhtml_AccountController
+ * Class Diglin_Ricento_Adminhtml_Ricento_AccountController
  */
-class Diglin_Ricento_Adminhtml_AccountController extends Mage_Adminhtml_Controller_Action
+class Diglin_Ricento_Adminhtml_Ricento_AccountController extends Mage_Adminhtml_Controller_Action
 {
     public function signupAction()
     {

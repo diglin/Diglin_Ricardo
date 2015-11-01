@@ -10,7 +10,10 @@
  */
 use Diglin\Ricardo\Services\ServiceAbstract;
 
-class Diglin_Ricento_Adminhtml_ApiController extends Mage_Adminhtml_Controller_Action
+/**
+ * Class Diglin_Ricento_Adminhtml_Ricento_ApiController
+ */
+class Diglin_Ricento_Adminhtml_Ricento_ApiController extends Mage_Adminhtml_Controller_Action
 {
     protected function _isAllowed()
     {
