@@ -139,7 +139,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Grid extends Mage_Adminhtm
                     array(
                         'caption' => $helper->__('View Logs'),
                         'url'     => array(
-                            'base'=>'*/log/listing',
+                            'base'=>'*/ricento_log/listing',
                             'params'=>array('store'=>$this->getRequest()->getParam('store'))
                         ),
                         'field'   => 'id'

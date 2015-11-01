@@ -219,7 +219,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
                         'field'   => 'item',
                         'popup'   => true,
                         'url'     => array(
-                            'base'=>'*/products_listing_item/preview',
+                            'base'=>'*/ricento_products_listing_item/preview',
                             'params' => array('id' => $this->getListing()->getId())
                         )
                     ),
@@ -227,7 +227,7 @@ class Diglin_Ricento_Block_Adminhtml_Products_Listing_Edit_Tabs_Products
                         'caption' => $this->__('Configure'),
                         'field'   => 'item',
                         'url'     => array(
-                            'base'=>'*/products_listing_item/configure',
+                            'base'=>'*/ricento_products_listing_item/configure',
                             'params' => array('id' => $this->getListing()->getId())
                         )
                     ),

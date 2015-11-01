@@ -73,7 +73,7 @@ class Diglin_Ricento_Block_Adminhtml_Dashboard_Account extends Mage_Adminhtml_Bl
             'actions' => array(
                 array(
                     'caption' => $this->__('Unlink'),
-                    'url'     => array('base' => '*/api/unlinkToken'),
+                    'url'     => array('base' => '*/ricento_api/unlinkToken'),
                     'confirm' => $this->__('Are you sure?'),
                     'field'   => 'entity_id',
                     'class'   => 'delete'
