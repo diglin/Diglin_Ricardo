@@ -347,7 +347,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
      */
     protected function _getLogListingUrl()
     {
-        return '{{adminhtml url="ricento/log/listing/" _query_id=' . $this->_productsListingId . ' _query_job_id=' . $this->_currentJob->getId() . '}}';
+        return '{{adminhtml url="*/ricento_log/listing/" _query_id=' . $this->_productsListingId . ' _query_job_id=' . $this->_currentJob->getId() . '}}';
     }
 
     /**
@@ -357,7 +357,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
      */
     protected function _getProductListingEditUrl()
     {
-        return '{{adminhtml url="ricento/products_listing/edit/" _query_id=' . $this->_productsListingId . '}}';
+        return '{{adminhtml url="*/ricento_products_listing/edit/" _query_id=' . $this->_productsListingId . '}}';
     }
 
     /**
@@ -367,7 +367,7 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
      */
     protected function _getListUrl()
     {
-        return '{{adminhtml url="ricento/products_listing/list/" _query_id=' . $this->_productsListingId . '}}';
+        return '{{adminhtml url="*/ricento_products_listing/list/" _query_id=' . $this->_productsListingId . '}}';
     }
 
     /**

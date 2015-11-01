@@ -42,8 +42,7 @@ class Diglin_Ricento_Model_Filter extends Mage_Core_Model_Email_Template_Filter
             $path = '';
             $params['_direct'] = $params['direct_url'];
             unset($params['direct_url']);
-        }
-        else {
+        } else {
             $path = isset($params['url']) ? $params['url'] : '';
             unset($params['url']);
         }
