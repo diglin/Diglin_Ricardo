@@ -1,3 +1,11 @@
+## Version 1.3.3
+- ENHANCEMENT: compatibility with Magento 1.9.2.2 and patch 6788
+- ENHANCEMENT: cleanup old products in reactivation phase from the temporary file in var/tmp (workaround)
+- ENHANCEMENT: allow to duplicate a ricardo order and keep the related information
+- ENHANCEMENT: resize images pictures to 1800px height or width before to publish a product list when products are imported
+- ENHANCEMENT: allow fees calculation even for products not mapped to a ricardo category
+- ENHANCEMENT: prevent error message to be displayed for products having an empty string in DB for media gallery (weird but it happened in some installation)
+
 ## Version 1.3.2
 - FIX: issue with free delivery (ERROR 91 from ricardo API)
 
