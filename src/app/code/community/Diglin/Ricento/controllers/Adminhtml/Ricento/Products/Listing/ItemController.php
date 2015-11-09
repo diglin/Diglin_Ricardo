@@ -74,7 +74,7 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_Listing_ItemController extends D
 
         if ($this->_initItems()->count() == 0) {
             $this->_getSession()->addError($this->__('No products selected.'));
-            $this->_redirect('*/products_listing/edit', array('id' => $this->_getListing()->getId()));
+            $this->_redirect('*/ricento_products_listing/edit', array('id' => $this->_getListing()->getId()));
             return;
         }
 
@@ -183,7 +183,7 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_Listing_ItemController extends D
      */
     protected function _getIndexUrl()
     {
-        return $this->getUrl('*/products_listing/edit', array('id' => $this->getRequest()->getParam('id')));
+        return $this->getUrl('*/ricento_products_listing/edit', array('id' => $this->getRequest()->getParam('id')));
     }
 
     /**
@@ -193,13 +193,13 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_Listing_ItemController extends D
     {
         if (!$this->_initListing()) {
             $this->_getSession()->addError('Products Listing not found.');
-            $this->_redirect('*/products_listing/index');
+            $this->_redirect('*/ricento_products_listing/index');
             return;
         }
 
         if ($this->_initItems()->count() == 0) {
             $this->_getSession()->addError($this->__('No products selected.'));
-            $this->_redirect('*/products_listing/edit', array('id' => $this->_getListing()->getId()));
+            $this->_redirect('*/ricento_products_listing/edit', array('id' => $this->_getListing()->getId()));
             return;
         }
 

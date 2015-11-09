@@ -104,6 +104,6 @@ class Diglin_Ricento_Adminhtml_Ricento_ApiController extends Mage_Adminhtml_Cont
             }
         }
 
-        $this->_redirect('ricento/dashboard');
+        $this->_redirect('*/ricento_dashboard');
     }
 }

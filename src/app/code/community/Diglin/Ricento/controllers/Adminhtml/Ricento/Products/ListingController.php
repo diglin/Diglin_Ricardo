@@ -369,7 +369,7 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_ListingController extends Diglin
 
             if ($collection->count() > 0) {
                 $this->_getSession()->addNotice($this->__('A similar job is already running. This job won\'t be executed.'));
-                $this->_redirect('*/products_listing/edit', array('id' => $productListing->getId()));
+                $this->_redirect('*/ricento_products_listing/edit', array('id' => $productListing->getId()));
                 return;
             }
 
@@ -392,7 +392,7 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_ListingController extends Diglin
                 ->save();
 
             $this->_getSession()->addSuccess($this->_successMessage);
-            $this->_redirect('*/log/sync', array('id' => $job->getId()));
+            $this->_redirect('*/ricento_log/sync', array('id' => $job->getId()));
             return;
         } catch (Diglin_Ricento_Exception $e) {
             Mage::logException($e);

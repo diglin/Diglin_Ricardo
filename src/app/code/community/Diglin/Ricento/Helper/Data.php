@@ -210,7 +210,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function getRicardoSignupApiUrl($intern = true)
     {
         if ($intern) {
-            return Mage::helper('adminhtml')->getUrl('ricento/account/signup');
+            return Mage::helper('adminhtml')->getUrl('*/ricento_account/signup');
         }
         return Mage::getStoreConfig(self::CFG_RICARDO_SIGNUP_API_URL);
     }
@@ -320,7 +320,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getPartnerUrl($websiteId = 0)
     {
-        return Mage::helper('adminhtml')->getUrl('ricento/api/confirmation', array('website' => (int) $websiteId));
+        return Mage::helper('adminhtml')->getUrl('*/ricento_api/confirmation', array('website' => (int) $websiteId));
     }
 
     /**
