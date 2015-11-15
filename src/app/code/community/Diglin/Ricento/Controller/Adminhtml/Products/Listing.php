@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+mb_internal_encoding('UTF-8');
+
 /**
  * Class Diglin_Ricento_Controller_Adminhtml_Products_Listing
  *
