@@ -520,4 +520,23 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
 
         return $this->_currency;
     }
+
+    /**
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->_limit;
+    }
+
+    /**
+     * @param int $limit
+     * @return $this
+     */
+    public function setLimit($limit)
+    {
+        $this->_limit = (int) $limit;
+
+        return $this;
+    }
 }

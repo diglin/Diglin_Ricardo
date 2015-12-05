@@ -51,6 +51,9 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
         return Mage::registry('products_listing');
     }
 
+    /**
+     * @return bool
+     */
     protected function _isApiReady()
     {
         $helper = Mage::helper('diglin_ricento');

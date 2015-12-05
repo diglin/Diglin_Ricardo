@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use Diglin\Ricardo\Enums\Customer\TransitionStatus;
+use Diglin\Ricardo\Managers\SellerAccount\Parameter\GetInTransitionArticlesParameter;
 use \Diglin\Ricardo\Managers\SellerAccount\Parameter\OpenArticlesParameter;
 
 /**
@@ -154,6 +156,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
                     /**
                      * Close Articles when:
+                     *
                      * - sales option "until sold" is enabled + qty_inventory < 1
                      * - number of reactivation has been reached (date published * number_reaction * duration in days) - not implemented here
                      * - all is sold
@@ -163,43 +166,47 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                      * are not visible in getOpenArticles
                      */
 
-                    $stopIt = false;
-                    if ($item->getQtyInventory() <= 0) {
-                        $stopIt = true;
-                    }
+//                    $stopIt = false;
+//                    if ($item->getQtyInventory() <= 0) { // @todo remove this condition as we can better know if the article is still available on ricardo side
+//                        $stopIt = true;
+//                    }
 
-                    if (!$stopIt) {
+//                    if (!$stopIt) {
                         try {
                             // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
-                            $openArticlesParameter = new OpenArticlesParameter();
-                            $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
-
-                            $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                            $inTransitionArticleParameter = new GetInTransitionArticlesParameter();
+                            $inTransitionArticleParameter
+                                ->setTransitionStatusFilter(TransitionStatus::INREACTIVATION)
+                                ->setInternalReferenceFilter($item->getInternalReference());
+                            $inTransitionArticlesResult = $sellerAccountService->getTransitionArticles($inTransitionArticleParameter);
                         } catch (Exception $e) {
                             $this->_handleException($e);
                             $e = null;
                             continue;
                             // keep going for the next item - no break
                         }
-                    }
+//                    }
 
                     // We do not stop anything if the article ID has just been changed and the product is still open
-                    if (!$stopIt && isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
-                        $articleId = $openArticleResult['OpenArticles'][0]['ArticleId'];
+                    if (isset($inTransitionArticlesResult['TotalLines']) && $inTransitionArticlesResult['TotalLines'] > 0) {
+                        $articleId = $inTransitionArticlesResult['InTransitionArticles'][0]['ArticleId'];
+                        $qtyAvailable = $inTransitionArticlesResult['InTransitionArticles'][0]['AvailableQuantity'];
                         if ($item->getRicardoArticleId() != $articleId) {
-                            $item
-                                ->setRicardoArticleId($articleId)
-                                ->save();
+                            $item->setRicardoArticleId($articleId);
                         }
-                        $this->temporizeReactivationPhase($item, true);
+                        $item
+                            ->setQtyInventory($qtyAvailable)
+                            ->save();
+
+//                        $this->temporizeReactivationPhase($item, true);
                     } else {
                         /**
                          * Wait before to stop in case the product is in reactivation phase on ricardo side
                          * GetOpenArticle may returned something after a period of time
                          */
-                        if ($this->temporizeReactivationPhase($item)) {
-                            continue;
-                        }
+//                        if ($this->temporizeReactivationPhase($item)) {
+//                            continue;
+//                        }
 
                         $item
                             ->setRicardoArticleId(null)
@@ -262,6 +269,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
     /**
      * Workaround to "sleep" a product which can be in reactivation phase before to stop it definitely if really needed
      *
+     * @deprecated after 1.3.4.1
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @return bool
      */

@@ -215,11 +215,11 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
      * @return bool
      * @throws Exception
      */
-    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null)
+    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null, $minimumEndDate = 259200, $maximumEndDate = null)
     {
         $soldArticlesReturn = array();
 
-        foreach ($this->_getSoldArticlesList($articleIds) as $soldArticle) {
+        foreach ($this->getSoldArticlesList($articleIds, $minimumEndDate, $maximumEndDate) as $soldArticle) {
 
             $rawData = $soldArticle;
             $soldArticle = $this->_getHelper()->extractData($soldArticle);

@@ -299,7 +299,7 @@ abstract class Diglin_Ricento_Model_Api_Services_Abstract extends Varien_Object
                     ->setCredentialTokenExpirationDate(strtotime($apiToken->getExpirationDate()))
                     ->setCredentialTokenSessionDuration($apiToken->getSessionDuration())
                     ->setCredentialTokenSessionStart(Mage::helper('diglin_ricento/api')
-                        ->calculateSessionStart($apiToken->getSessionDuration(), $apiToken->getSessionExpirationDate()));
+                    ->calculateSessionStart($apiToken->getSessionDuration(), $apiToken->getSessionExpirationDate()));
             }
         }
         return $this;
