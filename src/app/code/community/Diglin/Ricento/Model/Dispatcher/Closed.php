@@ -166,26 +166,19 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                      * are not visible in getOpenArticles
                      */
 
-//                    $stopIt = false;
-//                    if ($item->getQtyInventory() <= 0) { // @todo remove this condition as we can better know if the article is still available on ricardo side
-//                        $stopIt = true;
-//                    }
-
-//                    if (!$stopIt) {
-                        try {
-                            // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
-                            $inTransitionArticleParameter = new GetInTransitionArticlesParameter();
-                            $inTransitionArticleParameter
-                                ->setTransitionStatusFilter(TransitionStatus::INREACTIVATION)
-                                ->setInternalReferenceFilter($item->getInternalReference());
-                            $inTransitionArticlesResult = $sellerAccountService->getTransitionArticles($inTransitionArticleParameter);
-                        } catch (Exception $e) {
-                            $this->_handleException($e);
-                            $e = null;
-                            continue;
-                            // keep going for the next item - no break
-                        }
-//                    }
+                    try {
+                        // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
+                        $inTransitionArticleParameter = new GetInTransitionArticlesParameter();
+                        $inTransitionArticleParameter
+                            ->setTransitionStatusFilter(TransitionStatus::INREACTIVATION)
+                            ->setInternalReferenceFilter($item->getInternalReference());
+                        $inTransitionArticlesResult = $sellerAccountService->getTransitionArticles($inTransitionArticleParameter);
+                    } catch (Exception $e) {
+                        $this->_handleException($e);
+                        $e = null;
+                        continue;
+                        // keep going for the next item - no break
+                    }
 
                     // We do not stop anything if the article ID has just been changed and the product is still open
                     if (isset($inTransitionArticlesResult['TotalLines']) && $inTransitionArticlesResult['TotalLines'] > 0) {
@@ -198,16 +191,8 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                             ->setQtyInventory($qtyAvailable)
                             ->save();
 
-//                        $this->temporizeReactivationPhase($item, true);
+                        unset($inTransitionArticlesResult);
                     } else {
-                        /**
-                         * Wait before to stop in case the product is in reactivation phase on ricardo side
-                         * GetOpenArticle may returned something after a period of time
-                         */
-//                        if ($this->temporizeReactivationPhase($item)) {
-//                            continue;
-//                        }
-
                         $item
                             ->setRicardoArticleId(null)
                             ->setQtyInventory(null)
