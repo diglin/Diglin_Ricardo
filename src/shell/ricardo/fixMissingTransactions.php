@@ -15,7 +15,7 @@ $autoload = new Diglin_Ricento_Model_SplAutoloader(null, realpath(dirname(__DIR_
 $autoload->register();
 
 $websiteId = 1;
-$articleIds = array('780416698', '766926356');
+$articleIds = array('780416698', '766926356'); // @todo set empty array if you don't want specific article to import
 $minimumEndDate = 3600*24*30; // 1 month old
 
 $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
@@ -49,9 +49,8 @@ foreach ($soldArticles as $soldArticle) {
 
         if (!in_array($item->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))) {
             $item->setStatus(Diglin_Ricento_Helper_Data::STATUS_LISTED); // Used temporary to allow to save the transaction but status not saved
-
-            $result[] = $transaction->getSoldArticles(array($soldArticle['ArticleId']), $item, $minimumEndDate);
         }
+        $result[] = $transaction->getSoldArticles(array($soldArticle['ArticleId']), $item, $minimumEndDate);
         $i++;
 
     }

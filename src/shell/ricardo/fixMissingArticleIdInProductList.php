@@ -22,7 +22,7 @@ $sellerAccount = new Diglin_Ricento_Model_Api_Services_Selleraccount();
 $sellerAccount->setCanUseCache(false);
 
 $openParameter = new OpenArticlesParameter();
-$openParameter->setPageSize(400);
+$openParameter->setPageSize(400); // Make it configurable otherwise we may miss articles
 $openArticles = $sellerAccount->getOpenArticles($openParameter);
 
 if (!isset($openArticles['TotalLines']) || $openArticles['TotalLines'] <= 0) {
@@ -58,13 +58,11 @@ foreach ($openArticles['OpenArticles'] as $openArticle) {
                 $item->save();
                 echo Mage::helper('diglin_ricento')->__('Ricardo Article ID %s saved in Item ID %s', $item->getRicardoArticleId(), $item->getId()) . PHP_EOL;
             }
-
         } else {
             echo Mage::helper('diglin_ricento')->__('ricardo Article ID %s skipped because ID is same as previously.', $item->getRicardoArticleId()) . PHP_EOL;
         }
 
         $i++;
-
     }
 }
 echo Mage::helper('diglin_ricento')->__('Total tested %d items', $i);
