@@ -103,14 +103,15 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         $article = null;
         $soldArticles = array();
 
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
-        $itemCollection->addFieldToFilter('is_planned', 0);
-
-        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem = $itemCollection->getLastItem();
+//        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
+//        $itemCollection->addFieldToFilter('is_planned', 0);
+//
+//        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
+//        $lastItem = $itemCollection->getLastItem();
 
         try {
-            $soldArticles = $this->getSoldArticles($ricardoArticleIds);
+//            $soldArticles = $this->getSoldArticles($ricardoArticleIds);
+            $soldArticles = $this->getSoldArticles();
         } catch (Exception $e) {
             $this->_handleException($e, Mage::getSingleton('diglin_ricento/api_services_selleraccount'));
             $e = null;
@@ -139,10 +140,10 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         /**
          * Save the current information of the process to allow live display via ajax call
          */
-        $this->_totalProceed += count($ricardoArticleIds);
+//        $this->_totalProceed += count($soldArticles);
         $this->_currentJobListing->saveCurrentJob(array(
-            'total_proceed' => $this->_totalProceed,
-            'last_item_id' => $lastItem->getId()
+            'total_proceed' => $this->_currentJobListing->getTotalCount(),
+            'last_item_id' => 0 // $lastItem->getId()
         ));
 
         /**
@@ -155,16 +156,6 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         unset($itemCollection);
 
         return $this;
-    }
-
-    /**
-     * @deprecated
-     * @param array $articleIds
-     * @return array
-     */
-    private function _getSoldArticlesList(array $articleIds = array())
-    {
-        return $this->getSoldArticlesList($articleIds);
     }
 
     /**
@@ -254,7 +245,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
                     $productItem->setLoadFallbackOptions(true);
                 }
 
-                if (!$productItem->getId() || (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))) {
+                if (!$productItem->getId() /*|| (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))*/) {
                     continue;
                 }
 
