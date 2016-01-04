@@ -120,11 +120,12 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         if (!$totalItems) {
             $this->_currentJob->setJobMessage(array($this->_getNoItemMessage()));
             $this->_progressStatus = Diglin_Ricento_Model_Sync_Job::PROGRESS_COMPLETED;
+
             return $this;
         }
 
-        $ricardoArticleIds  = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem           = $itemCollection->getLastItem();
+        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
+        $lastItem = $itemCollection->getLastItem();
         $openArticlesResult = $stoppedArticles = array();
 
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
@@ -133,7 +134,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         try {
             $openArticlesParameter = new OpenArticlesParameter();
             $openArticlesParameter
-                ->setPageSize($this->_limit) // if not defined, default is 10, currently is 200
+                ->setPageSize($this->_limit)// if not defined, default is 10, currently is 200
                 ->setArticleIdsFilter($ricardoArticleIds);
 
             $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
@@ -180,6 +181,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                         // keep going for the next item - no break
                     }
 
+                    $skip = false;
                     // We do not stop anything if the article ID has just been changed and the product is still open
                     if (isset($inTransitionArticlesResult['TotalLines']) && $inTransitionArticlesResult['TotalLines'] > 0) {
                         $articleId = $inTransitionArticlesResult['InTransitionArticles'][0]['ArticleId'];
@@ -191,24 +193,84 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                             ->setQtyInventory($qtyAvailable)
                             ->save();
 
+                        $message = json_encode(array(
+                            'item_id'             => $item->getId(),
+                            'previous_article_id' => $item->getRicardoArticleId(),
+                            'ricardo_article_id'  => $articleId,
+                            'mode'                => 'inReactivation'
+                        ));
+
+                        Mage::log($message, Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+
+                        $skip = true;
                         unset($inTransitionArticlesResult);
-                    } else {
+                    }
+
+                    /**
+                     * @todo Temporary code for testing purpose and be sure it works, then needed to be factorized.
+                     * Maybe again open, we missed it
+                     */
+                    if (!$skip) {
+                        try {
+                            $openArticlesParameter = new OpenArticlesParameter();
+                            $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
+
+                            $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                        } catch (Exception $e) {
+                            $this->_handleException($e);
+                            $e = null;
+                            // keep going for the next item - no break
+                        }
+
+                        if (isset($openArticlesResult['TotalLines']) && $openArticlesResult['TotalLines'] > 0) {
+                            $articleId = $openArticlesResult['OpenArticles'][0]['ArticleId'];
+                            $qtyAvailable = $openArticlesResult['OpenArticles'][0]['AvailableQuantity'];
+
+                            if ($item->getRicardoArticleId() != $articleId) {
+                                $item->setRicardoArticleId($articleId);
+                            }
+
+                            if ($qtyAvailable) {
+                                $item->setQtyInventory($qtyAvailable);
+                            }
+
+                            $item->save();
+
+                            $message = json_encode(array(
+                                'item_id'             => $item->getId(),
+                                'previous_article_id' => $item->getRicardoArticleId(),
+                                'ricardo_article_id'  => $articleId,
+                                'mode'                => 'openArticle'
+                            ));
+
+                            Mage::log($message, Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+
+                            $skip = true;
+                            unset($openArticlesResult);
+                        }
+                    }
+
+                    if (!$skip) {
+
+                        $additionalData = json_encode(array('previous_ricardo_article_id' => $item->getRicardoArticleId()));
+
                         $item
                             ->setRicardoArticleId(null)
                             ->setQtyInventory(null)
                             ->setIsPlanned(null)
+                            ->setAdditionalData($additionalData)
                             ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
                             ->save();
 
                         $this->_getListingLog()->saveLog(array(
-                            'job_id' => $this->_currentJob->getId(),
-                            'product_id' => $item->getProductId(),
-                            'product_title' => $item->getProductTitle(),
+                            'job_id'              => $this->_currentJob->getId(),
+                            'product_id'          => $item->getProductId(),
+                            'product_title'       => $item->getProductTitle(),
                             'products_listing_id' => $this->_productsListingId,
-                            'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
-                            'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
-                            'log_type' => $this->_logType,
-                            'created_at' => Mage::getSingleton('core/date')->gmtDate()
+                            'message'             => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
+                            'log_status'          => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
+                            'log_type'            => $this->_logType,
+                            'created_at'          => Mage::getSingleton('core/date')->gmtDate()
                         ));
                     }
                 }
@@ -221,7 +283,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         $this->_totalProceed = $totalItems;
         $this->_currentJobListing->saveCurrentJob(array(
             'total_proceed' => $this->_totalProceed,
-            'last_item_id' => $lastItem->getId()
+            'last_item_id'  => $lastItem->getId()
         ));
 
         /**
@@ -240,7 +302,8 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
      * @param $var
      * @return bool
      */
-    public function pullArticleToClose($var)
+    public
+    function pullArticleToClose($var)
     {
         $return = true;
         foreach ($this->_openRicardoArticleIds as $articleId) {
@@ -248,6 +311,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                 return false;
             }
         }
+
         return $return;
     }
 
@@ -258,7 +322,8 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
      * @param Diglin_Ricento_Model_Products_Listing_Item $item
      * @return bool
      */
-    public function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item, $clean = false)
+    public
+    function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item, $clean = false)
     {
         $temporizeReactivationPhase = true;
         $found = false;
@@ -270,7 +335,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
             chmod($reactivationFile, 0777);
         }
 
-        $reactivationElements = (array) json_decode(file_get_contents($reactivationFile), true);
+        $reactivationElements = (array)json_decode(file_get_contents($reactivationFile), true);
 
         foreach ($reactivationElements as $key => $reactivationElement) {
             if ($reactivationElement['internal_reference'] == $item->getInternalReference()) {
@@ -288,7 +353,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
         if (!$found) {
             $reactivationElements[] = array(
-                'internal_reference' => $item->getInternalReference(),
+                'internal_reference'          => $item->getInternalReference(),
                 'temporary_reactivation_time' => time()
             );
         }
