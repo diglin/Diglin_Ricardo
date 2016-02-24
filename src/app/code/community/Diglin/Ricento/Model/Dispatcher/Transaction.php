@@ -103,14 +103,15 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         $article = null;
         $soldArticles = array();
 
-        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
-        $itemCollection->addFieldToFilter('is_planned', 0);
-
-        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem = $itemCollection->getLastItem();
+//        $itemCollection = $this->_getItemCollection(array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD), $this->_currentJobListing->getLastItemId());
+//        $itemCollection->addFieldToFilter('is_planned', 0);
+//
+//        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
+//        $lastItem = $itemCollection->getLastItem();
 
         try {
-            $soldArticles = $this->getSoldArticles($ricardoArticleIds);
+//            $soldArticles = $this->getSoldArticles($ricardoArticleIds);
+            $soldArticles = $this->getSoldArticles();
         } catch (Exception $e) {
             $this->_handleException($e, Mage::getSingleton('diglin_ricento/api_services_selleraccount'));
             $e = null;
@@ -139,10 +140,10 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         /**
          * Save the current information of the process to allow live display via ajax call
          */
-        $this->_totalProceed += count($ricardoArticleIds);
+//        $this->_totalProceed += count($soldArticles);
         $this->_currentJobListing->saveCurrentJob(array(
-            'total_proceed' => $this->_totalProceed,
-            'last_item_id' => $lastItem->getId()
+            'total_proceed' => $this->_currentJobListing->getTotalCount(),
+            'last_item_id' => 0 // $lastItem->getId()
         ));
 
         /**
@@ -155,16 +156,6 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         unset($itemCollection);
 
         return $this;
-    }
-
-    /**
-     * @deprecated
-     * @param array $articleIds
-     * @return array
-     */
-    private function _getSoldArticlesList(array $articleIds = array())
-    {
-        return $this->getSoldArticlesList($articleIds);
     }
 
     /**
@@ -188,7 +179,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
          * we prevent to have conflict with several sold articles having similar internal reference
          */
         $soldArticlesParameter
-            ->setPageSize($this->_limit) // if not defined, default is 10
+            ->setPageSize($this->_limit) // if not defined, default is 10 via the API, here is 200
             ->setExcludedTransactionIdsFilter($transactionCollection->getColumnValues('transaction_id'))
             ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - $minimumEndDate));
 
@@ -215,11 +206,11 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
      * @return bool
      * @throws Exception
      */
-    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null)
+    public function getSoldArticles($articleIds = array(), Diglin_Ricento_Model_Products_Listing_Item $productItem = null, $minimumEndDate = 259200, $maximumEndDate = null)
     {
         $soldArticlesReturn = array();
 
-        foreach ($this->_getSoldArticlesList($articleIds) as $soldArticle) {
+        foreach ($this->getSoldArticlesList($articleIds, $minimumEndDate, $maximumEndDate) as $soldArticle) {
 
             $rawData = $soldArticle;
             $soldArticle = $this->_getHelper()->extractData($soldArticle);
@@ -254,7 +245,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
                     $productItem->setLoadFallbackOptions(true);
                 }
 
-                if (!$productItem->getId() || (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))) {
+                if (!$productItem->getId() /*|| (!in_array($productItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))*/) {
                     continue;
                 }
 
@@ -382,7 +373,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         if (!$address || ($address->getCity() != $city && $address->getPostcode() != $postCode && $address->getStreet() != $street)) {
 
             /**
-             * Ricardo API doesn't provide the region and Magento 1.6 doesn't allow to make region optional
+             * Ricardo API doesn't provide the region and Magento <= 1.6 doesn't allow to make region optional
              * We use the first region found for the current country but it's far to be good
              * @todo add a "other" region into each country having required region
              */

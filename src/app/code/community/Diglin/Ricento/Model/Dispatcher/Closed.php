@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use Diglin\Ricardo\Enums\Customer\TransitionStatus;
+use Diglin\Ricardo\Managers\SellerAccount\Parameter\GetInTransitionArticlesParameter;
 use \Diglin\Ricardo\Managers\SellerAccount\Parameter\OpenArticlesParameter;
 
 /**
@@ -118,11 +120,12 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         if (!$totalItems) {
             $this->_currentJob->setJobMessage(array($this->_getNoItemMessage()));
             $this->_progressStatus = Diglin_Ricento_Model_Sync_Job::PROGRESS_COMPLETED;
+
             return $this;
         }
 
-        $ricardoArticleIds  = $itemCollection->getColumnValues('ricardo_article_id');
-        $lastItem           = $itemCollection->getLastItem();
+        $ricardoArticleIds = $itemCollection->getColumnValues('ricardo_article_id');
+        $lastItem = $itemCollection->getLastItem();
         $openArticlesResult = $stoppedArticles = array();
 
         $sellerAccountService = Mage::getSingleton('diglin_ricento/api_services_selleraccount')->setCanUseCache(false);
@@ -131,7 +134,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         try {
             $openArticlesParameter = new OpenArticlesParameter();
             $openArticlesParameter
-                ->setPageSize($this->_limit) // if not defined, default is 10, currently is 200
+                ->setPageSize($this->_limit)// if not defined, default is 10, currently is 200
                 ->setArticleIdsFilter($ricardoArticleIds);
 
             $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
@@ -154,6 +157,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
                     /**
                      * Close Articles when:
+                     *
                      * - sales option "until sold" is enabled + qty_inventory < 1
                      * - number of reactivation has been reached (date published * number_reaction * duration in days) - not implemented here
                      * - all is sold
@@ -163,60 +167,111 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                      * are not visible in getOpenArticles
                      */
 
-                    $stopIt = false;
-                    if ($item->getQtyInventory() <= 0) {
-                        $stopIt = true;
+                    try {
+                        // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
+                        $inTransitionArticleParameter = new GetInTransitionArticlesParameter();
+                        $inTransitionArticleParameter
+                            ->setTransitionStatusFilter(TransitionStatus::INREACTIVATION)
+                            ->setInternalReferenceFilter($item->getInternalReference());
+                        $inTransitionArticlesResult = $sellerAccountService->getTransitionArticles($inTransitionArticleParameter);
+                    } catch (Exception $e) {
+                        $this->_handleException($e);
+                        $e = null;
+                        continue;
+                        // keep going for the next item - no break
                     }
 
-                    if (!$stopIt) {
+                    $skip = false;
+                    // We do not stop anything if the article ID has just been changed and the product is still open
+                    if (isset($inTransitionArticlesResult['TotalLines']) && $inTransitionArticlesResult['TotalLines'] > 0) {
+                        $articleId = $inTransitionArticlesResult['InTransitionArticles'][0]['ArticleId'];
+                        $qtyAvailable = $inTransitionArticlesResult['InTransitionArticles'][0]['AvailableQuantity'];
+                        if ($item->getRicardoArticleId() != $articleId) {
+                            $item->setRicardoArticleId($articleId);
+                        }
+                        $item
+                            ->setQtyInventory($qtyAvailable)
+                            ->save();
+
+                        $message = json_encode(array(
+                            'item_id'             => $item->getId(),
+                            'previous_article_id' => $item->getRicardoArticleId(),
+                            'ricardo_article_id'  => $articleId,
+                            'mode'                => 'inReactivation'
+                        ));
+
+                        Mage::log($message, Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+
+                        $skip = true;
+                        unset($inTransitionArticlesResult);
+                    }
+
+                    /**
+                     * @todo Temporary code for testing purpose and be sure it works, then needed to be factorized.
+                     *
+                     * Maybe we missed again opened articles
+                     */
+                    if (!$skip) {
                         try {
-                            // Check if the article is really stopped - Article Id may change if product has been sold but reactivated
                             $openArticlesParameter = new OpenArticlesParameter();
                             $openArticlesParameter->setInternalReferenceFilter($item->getInternalReference());
 
-                            $openArticleResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
+                            $openArticlesResult = $sellerAccountService->getOpenArticles($openArticlesParameter);
                         } catch (Exception $e) {
                             $this->_handleException($e);
                             $e = null;
-                            continue;
                             // keep going for the next item - no break
+                        }
+
+                        if (isset($openArticlesResult['TotalLines']) && $openArticlesResult['TotalLines'] > 0) {
+                            $articleId = $openArticlesResult['OpenArticles'][0]['ArticleId'];
+                            $qtyAvailable = $openArticlesResult['OpenArticles'][0]['AvailableQuantity'];
+
+                            if ($item->getRicardoArticleId() != $articleId) {
+                                $item->setRicardoArticleId($articleId);
+                            }
+
+                            if ($qtyAvailable) {
+                                $item->setQtyInventory($qtyAvailable);
+                            }
+
+                            $item->save();
+
+                            $message = json_encode(array(
+                                'item_id'             => $item->getId(),
+                                'previous_article_id' => $item->getRicardoArticleId(),
+                                'ricardo_article_id'  => $articleId,
+                                'mode'                => 'openArticle'
+                            ));
+
+                            Mage::log($message, Zend_Log::DEBUG, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+
+                            $skip = true;
+                            unset($openArticlesResult);
                         }
                     }
 
-                    // We do not stop anything if the article ID has just been changed and the product is still open
-                    if (!$stopIt && isset($openArticleResult['TotalLines']) && $openArticleResult['TotalLines'] > 0) {
-                        $articleId = $openArticleResult['OpenArticles'][0]['ArticleId'];
-                        if ($item->getRicardoArticleId() != $articleId) {
-                            $item
-                                ->setRicardoArticleId($articleId)
-                                ->save();
-                        }
-                        $this->temporizeReactivationPhase($item, true);
-                    } else {
-                        /**
-                         * Wait before to stop in case the product is in reactivation phase on ricardo side
-                         * GetOpenArticle may returned something after a period of time
-                         */
-                        if ($this->temporizeReactivationPhase($item)) {
-                            continue;
-                        }
+                    if (!$skip) {
+
+                        $additionalData = json_encode(array('previous_ricardo_article_id' => $item->getRicardoArticleId()));
 
                         $item
                             ->setRicardoArticleId(null)
                             ->setQtyInventory(null)
                             ->setIsPlanned(null)
+                            ->setAdditionalData($additionalData)
                             ->setStatus(Diglin_Ricento_Helper_Data::STATUS_STOPPED)
                             ->save();
 
                         $this->_getListingLog()->saveLog(array(
-                            'job_id' => $this->_currentJob->getId(),
-                            'product_id' => $item->getProductId(),
-                            'product_title' => $item->getProductTitle(),
+                            'job_id'              => $this->_currentJob->getId(),
+                            'product_id'          => $item->getProductId(),
+                            'product_title'       => $item->getProductTitle(),
                             'products_listing_id' => $this->_productsListingId,
-                            'message' => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
-                            'log_status' => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
-                            'log_type' => $this->_logType,
-                            'created_at' => Mage::getSingleton('core/date')->gmtDate()
+                            'message'             => $this->_jsonEncode(array('success' => $this->_getHelper()->__('The product has been stopped'))),
+                            'log_status'          => Diglin_Ricento_Model_Products_Listing_Log::STATUS_SUCCESS,
+                            'log_type'            => $this->_logType,
+                            'created_at'          => Mage::getSingleton('core/date')->gmtDate()
                         ));
                     }
                 }
@@ -229,7 +284,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         $this->_totalProceed = $totalItems;
         $this->_currentJobListing->saveCurrentJob(array(
             'total_proceed' => $this->_totalProceed,
-            'last_item_id' => $lastItem->getId()
+            'last_item_id'  => $lastItem->getId()
         ));
 
         /**
@@ -256,52 +311,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                 return false;
             }
         }
+
         return $return;
-    }
-
-    /**
-     * Workaround to "sleep" a product which can be in reactivation phase before to stop it definitely if really needed
-     *
-     * @param Diglin_Ricento_Model_Products_Listing_Item $item
-     * @return bool
-     */
-    public function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item, $clean = false)
-    {
-        $temporizeReactivationPhase = true;
-        $found = false;
-
-        $reactivationFile = Mage::getBaseDir('tmp') . DS . 'ricardo_reactivation.json';
-
-        if (!file_exists($reactivationFile)) {
-            file_put_contents($reactivationFile, '');
-            chmod($reactivationFile, 0777);
-        }
-
-        $reactivationElements = (array) json_decode(file_get_contents($reactivationFile), true);
-
-        foreach ($reactivationElements as $key => $reactivationElement) {
-            if ($reactivationElement['internal_reference'] == $item->getInternalReference()) {
-                $found = true;
-
-                if ($reactivationElement['temporary_reactivation_time'] + self::SLEEP_REACTIVATION_TIME < time()) {
-                    $temporizeReactivationPhase = false;
-                }
-
-                if ($found && (!$temporizeReactivationPhase || $clean)) {
-                    unset($reactivationElements[$key]);
-                }
-            }
-        }
-
-        if (!$found) {
-            $reactivationElements[] = array(
-                'internal_reference' => $item->getInternalReference(),
-                'temporary_reactivation_time' => time()
-            );
-        }
-
-        file_put_contents($reactivationFile, json_encode($reactivationElements));
-
-        return $temporizeReactivationPhase;
     }
 }

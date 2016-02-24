@@ -9,6 +9,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+mb_internal_encoding('UTF-8');
+
 use \Diglin\Ricardo\Managers\SellerAccount\Parameter\UnsoldArticlesParameter;
 
 /**
@@ -517,5 +519,24 @@ abstract class Diglin_Ricento_Model_Dispatcher_Abstract
         }
 
         return $this->_currency;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->_limit;
+    }
+
+    /**
+     * @param int $limit
+     * @return $this
+     */
+    public function setLimit($limit)
+    {
+        $this->_limit = (int) $limit;
+
+        return $this;
     }
 }

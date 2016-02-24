@@ -211,6 +211,7 @@ class Diglin_Ricento_Adminhtml_Ricento_Products_ListingController extends Diglin
             }
         }
 
+
         $this->_redirectUrl($this->_getEditUrl());
 
         // To block chaining, we return the error
