@@ -1,5 +1,5 @@
 <_>
-   <form_key>5UvMi9gTRExTvFCs</form_key>
+   <form_key>66PU86ExWjQBNedk</form_key>
    <name>diglin_ricento</name>
    <channel>community</channel>
    <version_ids>
@@ -39,9 +39,14 @@
 				&lt;p&gt;&lt;a href=&quot;http://www.diglin.com&quot;&gt;Diglin&lt;/a&gt; is the Swiss eCommerce Agency per excellence, realizing your eCommerce project with success. It will accompany along the whole life of your eCommerce project at any levels: conception, realization, design, marketing, logistic, data treatment and management, resource optimization, cost efficiency, increase in turnover, etc. Diglin concentrates its activities mainly with the solutions Magento (eCommerce), OroCRM (CRM) and Akeneo (PIM) and work with its partners highly qualified to provide you the best solutions regarding your needs. &lt;/p&gt;</description>
    <license>OSL v3.0</license>
    <license_uri>http://opensource.org/licenses/osl-3.0</license_uri>
-   <version>1.3.4.1</version>
+   <version>1.3.5</version>
    <stability>stable</stability>
-   <notes>## Version 1.3.4
+   <notes>## Version 1.3.5
+- ENHANCEMENT: add shell script to retrieve missing transactions or update ricardo article ids on magento side (WARNING: edit the script before to proceed)
+- ENHANCEMENT: Import all orders of any Magento products published on ricardo side (no dependency anymore with ricardo article IDs)
+- FIX: issue with article closed on Magento side although still activate on ricardo.ch side (when using auto renewal)
+
+## Version 1.3.4
 - ENHANCEMENT: compatibility with Magento 1.9.2.2 and patch 6788
 - ENHANCEMENT: cleanup old products in reactivation phase from the temporary file in var/tmp (workaround)
 - ENHANCEMENT: allow to duplicate a ricardo order and keep the related information
@@ -285,7 +290,7 @@
             <max/>
          </max>
          <files>
-            <files>                                 </files>
+            <files>                                  </files>
          </files>
       </package>
       <extension>
