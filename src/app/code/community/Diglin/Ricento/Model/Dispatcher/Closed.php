@@ -208,7 +208,8 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
 
                     /**
                      * @todo Temporary code for testing purpose and be sure it works, then needed to be factorized.
-                     * Maybe again open, we missed it
+                     *
+                     * Maybe we missed again opened articles
                      */
                     if (!$skip) {
                         try {
@@ -302,8 +303,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
      * @param $var
      * @return bool
      */
-    public
-    function pullArticleToClose($var)
+    public function pullArticleToClose($var)
     {
         $return = true;
         foreach ($this->_openRicardoArticleIds as $articleId) {
@@ -313,53 +313,5 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
         }
 
         return $return;
-    }
-
-    /**
-     * Workaround to "sleep" a product which can be in reactivation phase before to stop it definitely if really needed
-     *
-     * @deprecated after 1.3.4.1
-     * @param Diglin_Ricento_Model_Products_Listing_Item $item
-     * @return bool
-     */
-    public
-    function temporizeReactivationPhase(Diglin_Ricento_Model_Products_Listing_Item $item, $clean = false)
-    {
-        $temporizeReactivationPhase = true;
-        $found = false;
-
-        $reactivationFile = Mage::getBaseDir('tmp') . DS . 'ricardo_reactivation.json';
-
-        if (!file_exists($reactivationFile)) {
-            file_put_contents($reactivationFile, '');
-            chmod($reactivationFile, 0777);
-        }
-
-        $reactivationElements = (array)json_decode(file_get_contents($reactivationFile), true);
-
-        foreach ($reactivationElements as $key => $reactivationElement) {
-            if ($reactivationElement['internal_reference'] == $item->getInternalReference()) {
-                $found = true;
-
-                if ($reactivationElement['temporary_reactivation_time'] + self::SLEEP_REACTIVATION_TIME < time()) {
-                    $temporizeReactivationPhase = false;
-                }
-
-                if ($found && (!$temporizeReactivationPhase || $clean)) {
-                    unset($reactivationElements[$key]);
-                }
-            }
-        }
-
-        if (!$found) {
-            $reactivationElements[] = array(
-                'internal_reference'          => $item->getInternalReference(),
-                'temporary_reactivation_time' => time()
-            );
-        }
-
-        file_put_contents($reactivationFile, json_encode($reactivationElements));
-
-        return $temporizeReactivationPhase;
     }
 }

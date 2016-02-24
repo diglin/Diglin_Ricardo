@@ -179,7 +179,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
          * we prevent to have conflict with several sold articles having similar internal reference
          */
         $soldArticlesParameter
-            ->setPageSize($this->_limit) // if not defined, default is 10
+            ->setPageSize($this->_limit) // if not defined, default is 10 via the API, here is 200
             ->setExcludedTransactionIdsFilter($transactionCollection->getColumnValues('transaction_id'))
             ->setMinimumEndDate($this->_getHelper()->getJsonDate(time() - $minimumEndDate));
 
@@ -373,7 +373,7 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
         if (!$address || ($address->getCity() != $city && $address->getPostcode() != $postCode && $address->getStreet() != $street)) {
 
             /**
-             * Ricardo API doesn't provide the region and Magento 1.6 doesn't allow to make region optional
+             * Ricardo API doesn't provide the region and Magento <= 1.6 doesn't allow to make region optional
              * We use the first region found for the current country but it's far to be good
              * @todo add a "other" region into each country having required region
              */
