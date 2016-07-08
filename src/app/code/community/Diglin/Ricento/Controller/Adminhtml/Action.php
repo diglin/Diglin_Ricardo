@@ -207,11 +207,12 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
             ->addFieldToFilter('status', array('nin' => $statuses))
             ->addFieldToFilter('products_listing_id', $productListingId);
 
+        $hashImage = array();
+
         foreach ($collectionListingItemChildren->getItems() as $item) {
             // Warm picture cache to prevent memory consumption while listing items
             $images = (array) $item->getProduct()->getImages($item->getBaseProductId());
 
-            $hashImage = array();
             foreach ($images as $image) {
                 $filename = $image['filepath'];
                 if (!empty($filename) && !isset($hashImage[$filename])) {
