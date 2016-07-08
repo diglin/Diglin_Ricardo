@@ -24,7 +24,8 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
     {
         parent::init($product, $attributeName, $imageFile);
 
-        if ($attributeName == 'image' && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::YES) {
+        if ($attributeName == 'image'
+            && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::YES) {
             $this->setWatermark(
                 'ricento/' . Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK)
             );
@@ -37,7 +38,8 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
             $this->setWatermarkSize(
                 Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_SIZE)
             );
-        } else if ($attributeName == 'image' && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::NO) {
+        } else if ($attributeName == 'image'
+            && Mage::getStoreConfig(Diglin_Ricento_Helper_Data::CFG_WATERMARK_ENABLED) == Diglin_Ricento_Model_Config_Source_Watermark::NO) {
             $this->setWatermark(null);
         }
 
@@ -72,14 +74,16 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
                 $model->setBaseFile($this->getProduct()->getData($model->getDestinationSubdir()));
             }
 
-            if ($this->_getModel()->getImageProcessor()->getOriginalWidth() > 1800
-                || $this->_getModel()->getImageProcessor()->getOriginalHeight() > 1800) {
-                $this->resize(1800, 1800);
-            }
-
             if ($model->isCached()) {
                 return $model->getNewFile();
             } else {
+                $processor = new Diglin_Ricento_Model_Image($this->_getModel()->getBaseFile());
+                $this->_getModel()->setImageProcessor($processor);
+
+                if ($processor->getOriginalWidth() > 1800 || $processor->getOriginalHeight() > 1800) {
+                    $this->resize(1800, 1800);
+                }
+
                 if ($this->_scheduleRotate) {
                     $model->rotate($this->getAngle());
                 }
@@ -101,6 +105,12 @@ class Diglin_Ricento_Helper_Image extends Mage_Catalog_Helper_Image
                 $file = Mage::getDesign()->getSkinUrl($this->getPlaceholder());
             }
         }
+
+        // Free memory
+        if (isset($processor)) {
+            $processor->destruct();
+        }
+
         return $file;
     }
 
