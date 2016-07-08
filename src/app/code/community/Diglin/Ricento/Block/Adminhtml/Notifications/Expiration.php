@@ -145,6 +145,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Expiration extends Diglin_Ric
     public function getDelayExpirationDays($website = 0)
     {
         $expirationDate = Mage::getSingleton('core/date')->timestamp($this->getApiHelper()->getExpirationDate($website));
-        return round(($expirationDate - time()) / (24 * 3600), 0, PHP_ROUND_HALF_UP) + 0;
+        $delay = round(($expirationDate - time()) / (24 * 3600), 0, PHP_ROUND_HALF_UP) + 0;
+        return ($delay < 0) ? 0 : $delay;
     }
 }
