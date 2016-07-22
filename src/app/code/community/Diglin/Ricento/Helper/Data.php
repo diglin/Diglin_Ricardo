@@ -111,8 +111,8 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Order Status
      */
-    const ORDER_STATUS_PENDING      = 'pending_ricento';
-    const ORDER_STATUS_CANCEL       = 'canceled_ricento';
+    const ORDER_STATUS_PENDING      = 'ricardo_payment_pending';
+    const ORDER_STATUS_CANCEL       = 'ricardo_payment_canceled';
 
     /**
      * Stock Management

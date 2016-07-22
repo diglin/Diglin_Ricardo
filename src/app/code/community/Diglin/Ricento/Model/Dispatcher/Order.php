@@ -150,14 +150,15 @@ class Diglin_Ricento_Model_Dispatcher_Order extends Diglin_Ricento_Model_Dispatc
                         ->setSendConfirmation(Mage::getStoreConfigFlag(Diglin_Ricento_Helper_Data::CFG_ORDER_CREATION_EMAIL, $store->getId()));
 
                     $order = $orderCreateModel->createOrder();
-                    $order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, Diglin_Ricento_Helper_Data::ORDER_STATUS_PENDING, $this->_getHelper()->__('Payment is pending'), false);
+                    $order->setState(Mage_Sales_Model_Order::STATE_NEW, Diglin_Ricento_Helper_Data::ORDER_STATUS_PENDING, $this->_getHelper()->__('Payment is pending'), false);
+                    $order->save();
 
                     // @fixme getIsTransactionCompleted or getIsTransactionCancelled has no value from ricardo.ch side at the moment, wait API update
 //                    $rawData = $this->_getHelper()->extractData(Mage::helper('core')->jsonDecode($transaction->getRawData()));
 //                    if ($rawData->getTransaction()->getIsTransactionCompleted()) {
 //                        $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $this->_getHelper()->__('Payment has been completed on ricardo.ch side'), false);
 //                    }
-//
+
 //                    if ($rawData->getTransaction()->getIsTransactionCancelled()) {
 //                        $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, Diglin_Ricento_Helper_Data::ORDER_STATUS_CANCEL, $this->_getHelper()->__('Order canceled on ricardo.ch side'), false);
 //                    }
