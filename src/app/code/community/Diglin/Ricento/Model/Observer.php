@@ -32,6 +32,7 @@ class Diglin_Ricento_Model_Observer
         if ($node && is_array($node->asArray())) {
             $namespaces = array_keys($node->asArray());
         }
+
         return $namespaces;
     }
 
@@ -58,52 +59,125 @@ class Diglin_Ricento_Model_Observer
         }
 
         self::$shouldAdd = false;
+
+        return $this;
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function checkoutSubmitAllAfter(Varien_Event_Observer $observer)
+    {
+        try {
+            $quote = $observer->getEvent()->getQuote();
+            if (!$quote->getRicardoInventoryProcessed()) {
+                $this->_decreaseInventory($observer);
+            }
+        } catch (Exception $e) {
+            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+            Mage::helper('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function salesModelServiceQuoteSubmitBefore(Varien_Event_Observer $observer)
+    {
+        try {
+            $quote = $observer->getEvent()->getQuote();
+            if (!$quote->getRicardoInventoryProcessed()) {
+                $this->_decreaseInventory($observer);
+            }
+        } catch (Exception $e) {
+            Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
+            Mage::helper('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
+        }
+
         return $this;
     }
 
     /**
      * Decrease the inventory on ricardo.ch when an order is passed outside of ricardo.ch
-     *
-     * @todo to finish
+     * Only affect direct sales products
      *
      * Event
-     * - sales_order_item_save_commit_after
+     * - checkout_submit_all_after
+     * - sales_model_service_quote_submit_before
      *
      * @param Varien_Event_Observer $observer
      * @return $this
      */
-    public function decreaseInventory(Varien_Event_Observer $observer)
+    protected function _decreaseInventory(Varien_Event_Observer $observer)
     {
-        /* @var $item Mage_Sales_Model_Order_Item */
-//        $item = $observer->getEvent()->getItem();
-//
-//        if (!Mage::helper('diglin_ricento')->getDecreaseInventory() || $item->getOrder()->getIsRicardo()) {
-//            return;
-//        }
-//
-//        $collection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection')
-//            ->addFieldToFilter('product_id', $item->getProductId())
-//            ->addFieldToFilter('status', Diglin_Ricento_Helper_Data::STATUS_LISTED)
-//            ->addFieldToFilter('ricardo_article_id', new Zend_Db_Expr('not null'))
-//            ->addFieldToFilter('is_planned', 0);
-//
-//        $sell = Mage::getSingleton('diglin_ricento/api_services_sell');
-//
-//        foreach ($collection->getItems() as $productItem) {
-//            /**
-//             * We cannot decrease below 1
-//             */
-//            $newQuantity = $productItem->getQtyInventory() - $item->getQtyOrdered();
-//            if (!($newQuantity)) {
-//
-//                $productItem->setQtyInventory($newQuantity);
-//
-//                $sell->updateArticle($productItem);
-//
-//                $productItem->save();
-//            }
-//        }
-//        return $this;
+        /**
+         * @todo WORK IN PROGRESS
+         */
+
+        /* @var $quote Mage_Sales_Model_Quote */
+        $quote = $observer->getEvent()->getQuote();
+
+        if (!Mage::helper('diglin_ricento')->getDecreaseInventory() || $quote->getIsRicardo() || $quote->getRicardoInventoryProcessed()) {
+            return $this;
+        }
+
+        /* @var $item Mage_Sales_Model_Quote_Item */
+        foreach ($quote->getAllItems() as $item) {
+
+            $collection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection')
+                ->addFieldToFilter('product_id', $item->getProductId())
+                ->addFieldToFilter('status', ['in' => [Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD]])
+                ->addFieldToFilter('ricardo_article_id', new Zend_Db_Expr('not null'))
+                ->addFieldToFilter('is_planned', 0);
+
+            $sell = Mage::getSingleton('diglin_ricento/api_services_sell');
+
+            foreach ($collection->getItems() as $productItem) {
+
+                $productList = $productItem->getProductsListing();
+                $salesOptions = $productList->getSalesOptions();
+
+                if ($salesOptions->getSalesType() != Diglin_Ricento_Model_Config_Source_Sales_Type::BUYNOW) {
+                    continue;
+                }
+
+                /**
+                 * We cannot decrease below 1
+                 *
+                 * @todo should we take also in consideration the stock inventory management values. e.g. prevent stopping if a product is still in stock.
+                 */
+                $newQuantity = $productItem->getQtyInventory() - $item->getTotalQty();
+                if ($newQuantity > 0) {
+
+                    $productItem->setQtyInventory($newQuantity);
+
+                    $sell->updateArticleBuyNowQuantity($productItem);
+
+                    $productItem->save();
+
+                } else if ($newQuantity <= 0) {
+
+                    $isInStock = Mage::getSingleton('cataloginventory/stock_item')->loadByProduct($item->getProductId())->getIsInStock();
+
+                    if (!$isInStock) {
+                        $dispatcher = Mage::getSingleton('diglin_ricento/dispatcher');
+
+                        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_SYNCLIST)->proceed();
+                        $dispatcher->dispatch(Diglin_Ricento_Model_Sync_Job::TYPE_TRANSACTION)->proceed();
+
+                        $sell->stopArticle($productItem);
+                    }
+                }
+            }
+        }
+
+        $quote->setRicardoInventoryProcessed(true);
+
+        return $this;
     }
 
     /**
@@ -121,6 +195,7 @@ class Diglin_Ricento_Model_Observer
             $block->getForm()->getElement('ricardo_username')->setDisabled(true);
             $block->getForm()->getElement('ricardo_id')->setDisabled(true);
         }
+
         return $this;
     }
 
@@ -156,35 +231,13 @@ class Diglin_Ricento_Model_Observer
                 $transport->setData(array(
 //                    'bid_ids' => (isset($additionalData->ricardo_bid_ids)) ? $additionalData->ricardo_bid_ids : null,
                     'article_ids' => (isset($additionalData->ricardo_article_ids)) ? $additionalData->ricardo_article_ids : null,
-                    'methods' => $label,
+                    'methods'     => $label,
                     'information' => $information));
             }
         }
+
         return $this;
     }
-
-    /**
-     * Event
-     * - core_block_abstract_to_html_before
-     *
-     * @todo to finish
-     *
-     * @param Varien_Event_Observer $observer
-     * @return $this
-     */
-//    public function addSalesOrderGrid(Varien_Event_Observer $observer)
-//    {
-//        $block = $observer->getEvent()->getBlock();
-//        if ($block instanceof Mage_Adminhtml_Block_Sales_Order_Grid) {
-//            $block->addColumn('ricardo_username', array(
-//                'header' => Mage::helper('diglin_ricento')->__('Ricardo Username'),
-//                'index' => 'ricardo_username',
-//                'after' => 'billing_name'
-//            ));
-//        }
-//
-//        return $this;
-//    }
 
     /**
      * Event
@@ -206,6 +259,7 @@ class Diglin_Ricento_Model_Observer
         if ($quoteItem->getQuote() && $quoteItem->getQuote()->getIsRicardo()) {
             $product->setSkipCheckRequiredOption(true);
         }
+
         return $this;
     }
 
@@ -263,9 +317,9 @@ class Diglin_Ricento_Model_Observer
             $grid->addColumnAfter(
                 'is_ricardo',
                 array(
-                    'header' => Mage::helper('diglin_ricento')->__('Is Ricardo'),
-                    'index' => 'is_ricardo',
-                    'type' => 'options',
+                    'header'  => Mage::helper('diglin_ricento')->__('Is Ricardo'),
+                    'index'   => 'is_ricardo',
+                    'type'    => 'options',
                     'options' => array(
                         '1' => Mage::helper('core')->__('Yes'),
                         '0' => Mage::helper('core')->__('No'),
@@ -283,7 +337,7 @@ class Diglin_Ricento_Model_Observer
                 'ricardo_username',
                 array(
                     'header' => Mage::helper('diglin_ricento')->__('ricardo.ch Username'),
-                    'index' => 'ricardo_username'
+                    'index'  => 'ricardo_username'
                 ),
                 'email'
             );

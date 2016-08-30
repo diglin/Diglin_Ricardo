@@ -16,11 +16,12 @@
             <active>true</active>
             <codePool>community</codePool>
             <depends>
-                <Mage_Payment />
-                <Mage_Shipping />
-                <Mage_Catalog />
-                <Mage_Sales />
-                <Mage_Customer />
+                <Mage_Payment/>
+                <Mage_Shipping/>
+                <Mage_Catalog/>
+                <Mage_Sales/>
+                <Mage_Customer/>
+                <Mage_CatalogInventory/>
             </depends>
         </Diglin_Ricento>
     </modules>
