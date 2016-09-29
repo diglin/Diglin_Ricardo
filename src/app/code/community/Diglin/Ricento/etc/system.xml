@@ -63,17 +63,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </merge_order>
-                        <!-- @todo Implementation to finish when ricardo.ch API is implemented -->
-                        <!--<decrease_inventory module="diglin_ricento" translate="label comment">-->
-                        <!--<label>Decrease Inventory</label>-->
-                        <!--<frontend_type>select</frontend_type>-->
-                        <!--<source_model>adminhtml/system_config_source_yesno</source_model>-->
-                        <!--<comment><![CDATA[If an order is passed on your shop but the product is also listed on ricardo.ch, do you want to decrease the stock on ricardo.ch side? Be aware, it's not possible to increase the quantity if the order is canceled. It's also not possible to decrease if a bid has been done.]]></comment>-->
-                        <!--<sort_order>20</sort_order>-->
-                        <!--<show_in_default>1</show_in_default>-->
-                        <!--<show_in_website>0</show_in_website>-->
-                        <!--<show_in_store>0</show_in_store>-->
-                        <!--</decrease_inventory>-->
+                        <decrease_inventory module="diglin_ricento" translate="label comment">
+                            <label>Decrease Inventory</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Do you want to decrease the stock on ricardo.ch side when an order is placed or when you change the inventory qty of a product? <strong>IMPORTANT</strong>: <ul><li>it's not possible to increase the quantity if the order is canceled.</li><li>The product is stopped if the quantity is below than 1.</li><li>Only product sold on ricardo having direct sales type can be decreased.</li><li>If a product is not stock managed, this feature won't do anything.</li><li>If there is enough quantity in stock compared to the one listed on ricardo, the decrease won't be proceed.</li></ul>]]></comment>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </decrease_inventory>
                         <shipping_calculation module="diglin_ricento" translate="label comment">
                             <label>Shipping Calculation</label>
                             <sort_order>30</sort_order>

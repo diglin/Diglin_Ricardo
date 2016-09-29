@@ -14,6 +14,7 @@ use Diglin\Ricardo\Managers\Sell\Parameter\InsertArticlesParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\DeletePlannedArticlesParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\ClosePlannedArticleParameter;
 use Diglin\Ricardo\Managers\Sell\Parameter\CloseArticlesParameter;
+use Diglin\Ricardo\Managers\Sell\Parameter\UpdateArticleBuyNowQuantityParameter;
 
 use Diglin\Ricardo\Exceptions\ExceptionAbstract;
 use Diglin\Ricardo\Exceptions\GeneralException;
@@ -286,5 +287,33 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
         }
 
         return false;
+    }
+
+    /**
+     * @param Diglin_Ricento_Model_Products_Listing_Item $item
+     * @return array
+     * @throws Diglin_Ricento_Exception
+     * @throws Exception
+     */
+    public function updateArticleBuyNowQuantity(Diglin_Ricento_Model_Products_Listing_Item $item)
+    {
+        $helperApi = Mage::helper('diglin_ricento/api');
+        $result = [];
+
+        $updateParameter = new UpdateArticleBuyNowQuantityParameter();
+        $updateParameter
+            ->setAntiforgeryToken($helperApi->getAntiforgeryToken())
+            ->setQuantity($item->getQtyInventory())
+            ->setArticleId($item->getRicardoArticleId());
+
+        try {
+            $result = parent::updateArticleBuyNowQuantity($updateParameter);
+        } catch (ExceptionAbstract $e) {
+            Mage::logException($e);
+            $this->_updateCredentialToken();
+            $this->_handleSecurityException($e);
+        }
+
+        return $result;
     }
 }

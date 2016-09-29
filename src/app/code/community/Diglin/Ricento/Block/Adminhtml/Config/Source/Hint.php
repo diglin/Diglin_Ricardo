@@ -33,7 +33,7 @@ class Diglin_Ricento_Block_Adminhtml_Config_Source_Hint
         if (!$helper->isConfigured($websiteId)) {
             $buttonSignUp = $this->getLayout()->createBlock('adminhtml/widget_button')->setData(array(
                 'label'     => $this->__('Sign Up to ricardo.ch API'),
-                'onclick'   => "window.open('" . Mage::helper('diglin_ricento')->getRicardoSignupApiUrl() . "', '_blank');",
+                'onclick'   => "window.open('" . Mage::helper('diglin_ricento')->getRicardoSignupApiUrl(false) . "', '_blank');",
                 'class'     => 'go',
                 'type'      => 'button',
                 'id'        => 'ricardo-account',

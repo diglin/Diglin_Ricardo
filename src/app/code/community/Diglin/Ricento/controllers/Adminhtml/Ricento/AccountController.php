@@ -14,6 +14,9 @@
  */
 class Diglin_Ricento_Adminhtml_Ricento_AccountController extends Mage_Adminhtml_Controller_Action
 {
+    /**
+     * @deprecated do not use iframe anymore
+     */
     public function signupAction()
     {
         $block = $this->getLayout()->createBlock('core/template');

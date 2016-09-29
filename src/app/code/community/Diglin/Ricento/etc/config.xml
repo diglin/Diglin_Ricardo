@@ -45,7 +45,7 @@
             </listing>
             <global>
                 <merge_order>1</merge_order>
-                <decrease_inventory>0</decrease_inventory>
+                <decrease_inventory>1</decrease_inventory>
                 <shipping_calculation>cumulative</shipping_calculation>
                 <email_account_creation>0</email_account_creation>
                 <email_order_creation>0</email_order_creation>
@@ -226,16 +226,6 @@
                 </observers>
             </add_spl_autoloader>
 
-            <!--<sales_order_item_save_commit_after>-->
-            <!--<observers>-->
-            <!--<ricento_qty_decrease>-->
-                        <!--<type>singleton</type>-->
-                        <!--<class>diglin_ricento/observer</class>-->
-            <!--<method>decreaseInventory</method>-->
-            <!--</ricento_qty_decrease>-->
-                <!--</observers>-->
-            <!--</sales_order_item_save_commit_after>-->
-
             <payment_info_block_prepare_specific_information>
                 <observers>
                     <ricento_payment_info>
@@ -253,6 +243,24 @@
                     </ricento_quote_item>
                 </observers>
             </sales_quote_item_set_product>
+
+            <checkout_submit_all_after>
+                <observers>
+                    <diglin_ricento>
+                        <class>diglin_ricento/observer</class>
+                        <method>checkoutSubmitAllAfter</method>
+                    </diglin_ricento>
+                </observers>
+            </checkout_submit_all_after>
+
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <diglin_ricento>
+                        <class>diglin_ricento/observer</class>
+                        <method>salesModelServiceQuoteSubmitBefore</method>
+                    </diglin_ricento>
+                </observers>
+            </sales_model_service_quote_submit_before>
         </events>
 
         <ricento>
@@ -411,6 +419,26 @@
                     </ricento_grid>
                 </observers>
             </core_block_abstract_to_html_before>
+
+            <catalog_product_save_after>
+                <observers>
+                    <diglin_ricento>
+                        <type>singleton</type>
+                        <class>Diglin_Ricento_Model_Observer</class>
+                        <method>catalogProductSaveAfter</method>
+                    </diglin_ricento>
+                </observers>
+            </catalog_product_save_after>
+
+            <cataloginventory_stock_item_save_after>
+                <observers>
+                    <diglin_ricento>
+                        <type>singleton</type>
+                        <class>Diglin_Ricento_Model_Observer</class>
+                        <method>cataloginventoryStockItemSaveAfter</method>
+                    </diglin_ricento>
+                </observers>
+            </cataloginventory_stock_item_save_after>
         </events>
     </adminhtml>
 
