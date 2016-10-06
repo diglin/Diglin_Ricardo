@@ -16,7 +16,7 @@ class Diglin_Ricento_Model_Image extends Varien_Image
     public function destruct()
     {
         $adapter = $this->_getAdapter();
-        if ($adapter instanceof Varien_Image_Adapter_Gd2) {
+        if ($adapter instanceof Varien_Image_Adapter_Gd2 && method_exists($adapter, 'destruct')) {
             $adapter->destruct();
         }
 
