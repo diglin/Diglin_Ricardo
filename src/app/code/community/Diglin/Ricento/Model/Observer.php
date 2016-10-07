@@ -128,7 +128,7 @@ class Diglin_Ricento_Model_Observer
 
             $collection = Mage::getResourceModel('diglin_ricento/products_listing_item_collection')
                 ->addFieldToFilter('product_id', $item->getProductId())
-                ->addFieldToFilter('status', ['in' => [Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD]])
+                ->addFieldToFilter('status', array('in' => array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD)))
                 ->addFieldToFilter('ricardo_article_id', array('notnull' => true))
                 ->addFieldToFilter('is_planned', 0);
 
@@ -156,7 +156,7 @@ class Diglin_Ricento_Model_Observer
 
         if ($stockItem->getOrigData('qty') > $stockItem->getQty()
             && $ricardoItem->getId()
-            && in_array($ricardoItem->getStatus(), [Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD])
+            && in_array($ricardoItem->getStatus(), array(Diglin_Ricento_Helper_Data::STATUS_LISTED, Diglin_Ricento_Helper_Data::STATUS_SOLD))
             && !$ricardoItem->getIsPlanned()
             && $ricardoItem->getRicardoArticleId()
         ) {

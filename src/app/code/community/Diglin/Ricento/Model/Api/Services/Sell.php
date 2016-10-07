@@ -298,7 +298,7 @@ class Diglin_Ricento_Model_Api_Services_Sell extends Diglin_Ricento_Model_Api_Se
     public function updateArticleBuyNowQuantity(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
         $helperApi = Mage::helper('diglin_ricento/api');
-        $result = [];
+        $result = array();
 
         $updateParameter = new UpdateArticleBuyNowQuantityParameter();
         $updateParameter
