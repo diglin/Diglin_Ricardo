@@ -144,6 +144,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </merge_descriptions>
+                        <merge_attributes translate="label comment">
+                            <label>Merge "Visible in frontend" Attributes</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Do you want to merge and show into the product description all visible frontend attributes.]]></comment>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </merge_attributes>
                         <nl2br>
                             <label>Replace Carriage Return with br HTML Tag</label>
                             <frontend_type>select</frontend_type>
@@ -154,7 +164,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </nl2br>
-                        <placeholder_allowed>
+                        <placeholder_allowed translate="label comment" module="diglin_ricento">
                             <label>Allow Image Placeholder</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -164,8 +174,18 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </placeholder_allowed>
+                        <configurable_price translate="label comment" module="diglin_ricento">
+                            <label>Use Price from Simple Product</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Price of a configurable product is normally based on the configurable product price and its options. Here you can use directly the price of the simple products linked to the configurable product, options price and base price of the configurable product will be ignored.]]></comment>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </configurable_price>
 
-                        <watermark translate="label" module="catalog">
+                        <watermark translate="label" module="diglin_ricento">
                             <label>Watermark - Watermark with domain name extension (e.g. My-Company.ch) included are forbidden</label>
                             <frontend_model>diglin_ricento/adminhtml_config_source_heading</frontend_model>
                             <sort_order>35</sort_order>
@@ -183,7 +203,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </watermark_enabled>
-                        <watermark_size translate="label comment" module="diglin_ricento">
+                        <watermark_size translate="label comment" module="catalog">
                             <label>Watermark Default Size</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>50</sort_order>

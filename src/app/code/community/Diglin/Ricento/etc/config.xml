@@ -38,10 +38,12 @@
             </adminnotification>
             <listing>
                 <merge_descriptions>0</merge_descriptions>
+                <merge_attributes>0</merge_attributes>
                 <nl2br>0</nl2br>
                 <watermark_enabled>0</watermark_enabled>
                 <watermark_imageOpacity>100</watermark_imageOpacity>
                 <placeholder_allowed>0</placeholder_allowed>
+                <configurable_price>0</configurable_price>
             </listing>
             <global>
                 <merge_order>1</merge_order>

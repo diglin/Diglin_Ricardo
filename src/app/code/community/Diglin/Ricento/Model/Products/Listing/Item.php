@@ -348,6 +348,7 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
     public function getProductPrice($convert = true)
     {
         $priceOptions = array();
+
         if ($this->getParentProductId()) {
             foreach ($this->getAdditionalData()->getOptions() as $option) {
                 if (isset($option['pricing_value'])) {
