@@ -66,8 +66,35 @@ class Diglin_Ricento_Model_Resource_Sync_Job extends Diglin_Ricento_Model_Resour
             ->join(array('jl' => $this->getTable('diglin_ricento/sync_job_listing')),
                 'jl.job_id = sj.job_id', '*')
             ->where('jl.products_listing_id = ?', $productListingId)
-            ->where('job_Type = ? ', $jobType)
+            ->where('job_type = ? ', $jobType)
             ->where('progress = ?', Diglin_Ricento_Model_Sync_Job::PROGRESS_PENDING)
+            ->deleteFromSelect('sj');
+
+        if (!empty($select) && !is_numeric($select)) {
+            $readConnection->query($select);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $jobType
+     * @param $productListingId
+     * @return $this
+     */
+    public function cleanupChunkRunningJob($jobType, $productListingId)
+    {
+        $readConnection = $this->_getReadAdapter();
+
+        $select = $readConnection
+            ->select()
+            ->from(array('sj' => $this->getTable('diglin_ricento/sync_job')), 'job_id')
+            ->join(array('jl' => $this->getTable('diglin_ricento/sync_job_listing')),
+                'jl.job_id = sj.job_id', '*')
+            ->where('jl.products_listing_id = ?', $productListingId)
+            ->where('job_type = ? ', $jobType)
+            ->where('progress = ?', Diglin_Ricento_Model_Sync_Job::PROGRESS_CHUNK_RUNNING)
+            ->where('((TO_DAYS(sj.updated_at) + ?) < TO_DAYS(now()))', 1) // Keep max 1 day
             ->deleteFromSelect('sj');
 
         if (!empty($select) && !is_numeric($select)) {
