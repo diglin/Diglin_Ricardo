@@ -48,7 +48,7 @@ class Diglin_Ricento_Block_Adminhtml_Notifications_Default extends Mage_Adminhtm
     protected function _toHtml()
     {
         try {
-            if (Mage::getSingleton('admin/session')->isAllowed('system/ricento')) {
+            if (Mage::getSingleton('admin/session')->isAllowed('ricento')) {
                 return parent::_toHtml();
             }
         } catch (\Diglin\Ricardo\Exceptions\CurlException $e) {
