@@ -430,8 +430,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
         $returnedDescription = null;
         $mergedDescriptions = array();
         $skip = false;
+        $descriptionSeparator = (Mage::helper('diglin_ricento')->isNl2BrEnabled($storeId)) ? PHP_EOL : '<br/>';
+        $separator = (Mage::helper('diglin_ricento')->isNl2BrEnabled($storeId)) ? '' : PHP_EOL;
 
         foreach ($this->getStoresList($storeId) as $id) {
+
             if (is_null($id)) {
                 continue;
             }
@@ -468,9 +471,9 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             }
 
             if ($canMergeDescriptions && count($mergedDescriptions) && !$skip) {
-                if (!empty($mergedDescriptions['short_description']) && !empty($mergedDescriptions['description'])) {
-                    $returnedDescription = $mergedDescriptions['short_description'] . '<br><br>' . $mergedDescriptions['description'];
-                }
+                ksort($mergedDescriptions);
+                $returnedDescription = implode($descriptionSeparator, $mergedDescriptions);
+
                 if (!empty($returnedDescription)) {
                     $skip = true;
                 }
@@ -481,12 +484,12 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
             }
         }
 
-        foreach ($this->getStoresList($storeId) as $id) {
-            if (is_null($id)) {
-                continue;
-            }
+        if ($canMergeAttributes) {
+            foreach ($this->getStoresList($storeId) as $id) {
+                if (is_null($id)) {
+                    continue;
+                }
 
-            if ($canMergeAttributes) {
                 /* @var $attributeCollection Mage_Catalog_Model_Resource_Product_Attribute_Collection */
                 $attributeCollection = Mage::getResourceModel('catalog/product_attribute_collection');
                 $attributeCollection
@@ -496,10 +499,11 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                     ->setOrder('position', 'asc');
 
                 $attributes = array();
+
                 /* @var $item Mage_Eav_Model_Entity_Attribute */
                 foreach ($attributeCollection->getItems() as $item) {
 
-                    $method = null;
+                    $method = $value = null;
 
                     switch ($item->getBackendType()) {
                         case 'int':
@@ -514,20 +518,25 @@ class Diglin_Ricento_Model_Products_Listing_Item_Product
                     }
 
                     if ($method && method_exists($this, $method)) {
-                        $value = $this->$method($item->getAttributeCode(), $productId, $id);
+                        $result = $this->$method($item->getAttributeCode(), $productId, $id);
 
-                        if (!empty($value) && !isset($hashAttributeKey[$item->getAttributeCode()])) {
-                            $attributes[] = sprintf('<li>%s: %s</li>', $item->getStoreLabel($id), $value[$item->getAttributeCode()]);
+                        if ($method == '_getProductVarchar') {
+                            $value[$item->getAttributeCode()] = $result;
+                        } else {
+                            $value = $result;
+                        }
+
+                        if (!empty($value[$item->getAttributeCode()]) && !isset($hashAttributeKey[$item->getAttributeCode()])) {
+                            $attributes[] = sprintf('<li style="padding:5px"><ul><li style="min-width:15%%;float:left;display: table-cell">%s:</li><li style="display: table-cell">%s</li></ul></li>', $item->getStoreLabel($id), $value[$item->getAttributeCode()]);
                             $hashAttributeKey[$item->getAttributeCode()] = true;
                         }
                     }
-
                 }
 
                 if (count($attributes)) {
-                    $attributesOut = '<br/><br/>';
-                    $attributesOut .= '<ul>';
-                    $attributesOut .= implode(PHP_EOL, $attributes);
+                    $attributesOut = '<br/>';
+                    $attributesOut .= '<ul style="list-style: none;padding:0;">';
+                    $attributesOut .= implode($separator, $attributes);
                     $attributesOut .= '</ul>';
 
                     $returnedDescription .= $attributesOut;

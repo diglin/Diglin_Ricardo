@@ -904,4 +904,13 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfigFlag(self::CFG_CONFIGURABLE_PRICE, $store);
     }
+
+    /**
+     * @param null $store
+     * @return bool
+     */
+    public function isNl2BrEnabled($store = null)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_NL2BR, $store);
+    }
 }
