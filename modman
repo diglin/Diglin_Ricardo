@@ -21,5 +21,7 @@ src/app/locale/de_CH/template/email/ricento app/locale/de_CH/template/email/rice
 src/app/locale/de_DE/Diglin_Ricento.csv app/locale/de_DE/Diglin_Ricento.csv
 src/app/locale/de_DE/template/email/ricento app/locale/de_DE/template/email/ricento
 
+src/shell/ricardo shell/ricardo
+
 # Import the ricardo PHP lib via modman
 @import lib/ricardo

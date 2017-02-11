@@ -19,6 +19,7 @@ use \Diglin\Ricardo\Managers\SellerAccount\Parameter\OpenArticlesParameter;
 class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispatcher_Abstract
 {
     const SLEEP_REACTIVATION_TIME = 900; // 15 min in sec
+
     /**
      * @var int
      */
@@ -63,6 +64,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
              * Check that there is not already running job instead of creating a new one
              */
             Mage::getResourceModel('diglin_ricento/sync_job')->cleanupPendingJob($this->_jobType, $listingId);
+            Mage::getResourceModel('diglin_ricento/sync_job')->cleanupChunkRunningJob($this->_jobType, $listingId);
 
             // pending progress doesn't make sense here as we cleanup before but keep it to be sure everything ok
             $job = Mage::getModel('diglin_ricento/sync_job');
@@ -182,6 +184,7 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
                     }
 
                     $skip = false;
+
                     // We do not stop anything if the article ID has just been changed and the product is still open
                     if (isset($inTransitionArticlesResult['TotalLines']) && $inTransitionArticlesResult['TotalLines'] > 0) {
                         $articleId = $inTransitionArticlesResult['InTransitionArticles'][0]['ArticleId'];
@@ -305,13 +308,12 @@ class Diglin_Ricento_Model_Dispatcher_Closed extends Diglin_Ricento_Model_Dispat
      */
     public function pullArticleToClose($var)
     {
-        $return = true;
         foreach ($this->_openRicardoArticleIds as $articleId) {
             if ($var == $articleId['ArticleId']) {
                 return false;
             }
         }
 
-        return $return;
+        return true;
     }
 }
