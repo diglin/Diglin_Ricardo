@@ -124,6 +124,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </order_grid>
+                        <import_transaction module="diglin_ricento" translate="label comment">
+                            <label>Import ricardo orders</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment><![CDATA[Allow to import and create order from ricardo into Magento]]></comment>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </import_transaction>
                     </fields>
                 </global>
 

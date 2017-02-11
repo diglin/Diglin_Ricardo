@@ -135,7 +135,11 @@ class Diglin_Ricento_Model_Cron
         $helperData = Mage::helper('diglin_ricento');
         $websiteId = Mage::app()->getWebsite()->getId();
 
-        if ($helper->apiTokenCredentialValidation($websiteId) && !$helper->isMerchantNotifiedApiAuthorization($websiteId) && $helperData->canSendEmailNotification()) {
+        if (
+            $helper->apiTokenCredentialValidation($websiteId)
+            && !$helper->isMerchantNotifiedApiAuthorization($websiteId)
+            && $helperData->canSendEmailNotification()
+        ) {
             $helperTools = Mage::helper('diglin_ricento/tools');
             $helperTools->sendMerchantAuthorizationNotification(array(
                 'shop_url' => Mage::helper('adminhtml')->getUrl('adminhtml')

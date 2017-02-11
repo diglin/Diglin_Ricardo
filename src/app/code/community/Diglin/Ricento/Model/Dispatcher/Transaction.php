@@ -33,6 +33,10 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
      */
     public function proceed()
     {
+        if (Mage::helper('diglin_ricento')->canImportTransaction()) {
+            return $this;
+        }
+
         $plResource = Mage::getResourceModel('diglin_ricento/products_listing');
         $readConnection = $plResource->getReadConnection();
         $select = $readConnection
