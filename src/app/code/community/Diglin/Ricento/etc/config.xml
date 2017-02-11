@@ -421,16 +421,6 @@
                 </observers>
             </core_block_abstract_to_html_before>
 
-            <catalog_product_save_after>
-                <observers>
-                    <diglin_ricento>
-                        <type>singleton</type>
-                        <class>Diglin_Ricento_Model_Observer</class>
-                        <method>catalogProductSaveAfter</method>
-                    </diglin_ricento>
-                </observers>
-            </catalog_product_save_after>
-
             <cataloginventory_stock_item_save_after>
                 <observers>
                     <diglin_ricento>
