@@ -74,6 +74,7 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     const CFG_WATERMARK_SIZE                = 'ricento/listing/watermark_size';
     const CFG_IMAGE_PLACEHOLDER             = 'ricento/listing/placeholder_allowed';
     const CFG_CONFIGURABLE_PRICE            = 'ricento/listing/configurable_price';
+    const CFG_CONFIGURABLE_PICTURE          = 'ricento/listing/configurable_picture';
 
     /**
      * Cleanup Job config
@@ -913,6 +914,15 @@ class Diglin_Ricento_Helper_Data extends Mage_Core_Helper_Abstract
     public function useConfigurableSimpleProductPrice($store = null)
     {
         return Mage::getStoreConfigFlag(self::CFG_CONFIGURABLE_PRICE, $store);
+    }
+
+    /**
+     * @param null $store
+     * @return bool
+     */
+    public function useConfigurableSimpleProductPicture($store = null)
+    {
+        return Mage::getStoreConfigFlag(self::CFG_CONFIGURABLE_PICTURE, $store);
     }
 
     /**

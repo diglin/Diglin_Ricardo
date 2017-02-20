@@ -547,7 +547,13 @@ class Diglin_Ricento_Model_Products_Listing_Item extends Mage_Core_Model_Abstrac
      */
     protected function _setInsertArticlePictures(InsertArticleParameter $insertArticleParameter)
     {
-        $images = (array) $this->getProduct()->getImages($this->getBaseProductId());
+        $useConfigurableSimpleProductPicture = Mage::helper('diglin_ricento')->useConfigurableSimpleProductPicture();
+
+        $images = (array) $this->getProduct()
+            ->getImages(
+                ($useConfigurableSimpleProductPicture) ? $this->getProductId() : $this->getBaseProductId()
+            );
+
         $i = 0;
         $hash = array();
 

@@ -209,9 +209,14 @@ abstract class Diglin_Ricento_Controller_Adminhtml_Action extends Mage_Adminhtml
 
         $hashImage = array();
 
+        $useConfigurableSimpleProductPicture = Mage::helper('diglin_ricento')->useConfigurableSimpleProductPicture();
+
         foreach ($collectionListingItemChildren->getItems() as $item) {
             // Warm picture cache to prevent memory consumption while listing items
-            $images = (array) $item->getProduct()->getImages($item->getBaseProductId());
+            $images = (array) $item->getProduct()
+                ->getImages(
+                    ($useConfigurableSimpleProductPicture) ? $item->getProductId() : $item->getBaseProductId()
+                );
 
             foreach ($images as $image) {
                 $filename = $image['filepath'];

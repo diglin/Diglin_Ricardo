@@ -306,7 +306,13 @@ class Diglin_Ricento_Model_Validate_Products_Item extends Zend_Validate_Abstract
      */
     public function validatePicture(Diglin_Ricento_Model_Products_Listing_Item $item)
     {
-        $assignedImages = $item->getProduct()->getImages();
+        $useConfigurableSimpleProductPicture = Mage::helper('diglin_ricento')->useConfigurableSimpleProductPicture();
+
+        $assignedImages = $item->getProduct()
+            ->getImages(
+                ($useConfigurableSimpleProductPicture) ? $item->getProductId() : $item->getBaseProductId()
+            );
+
         if (empty($assignedImages) && ($item->getSalesOptions()->getPromotionSpace() || $item->getSalesOptions()->getPromotionStartPage())) {
             // Errors - No promotion possible if no image in the product
             $this->_errors[] = $this->getHelper()->__('You cannot use the privilege spaces as you do not have any pictures for this product.');
