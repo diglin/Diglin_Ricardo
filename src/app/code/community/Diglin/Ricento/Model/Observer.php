@@ -78,7 +78,7 @@ class Diglin_Ricento_Model_Observer
             }
         } catch (Exception $e) {
             Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
-            Mage::helperer('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
+            Mage::helper('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
         }
 
         return $this;
@@ -97,7 +97,7 @@ class Diglin_Ricento_Model_Observer
             }
         } catch (Exception $e) {
             Mage::log("\n" . $e->__toString(), Zend_Log::ERR, Diglin_Ricento_Helper_Data::LOG_FILE, true);
-            Mage::helperer('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
+            Mage::helper('diglin_ricento/tools')->sendAdminNotification($e->getMessage());
         }
 
         return $this;
@@ -119,7 +119,7 @@ class Diglin_Ricento_Model_Observer
         /* @var $quote Mage_Sales_Model_Quote */
         $quote = $observer->getEvent()->getQuote();
 
-        if (!Mage::helperer('diglin_ricento')->getDecreaseInventory() || $quote->getIsRicardo() || $this->_isInventoryProceed) {
+        if (!Mage::helper('diglin_ricento')->getDecreaseInventory() || $quote->getIsRicardo() || $this->_isInventoryProceed) {
             return $this;
         }
 
@@ -199,7 +199,7 @@ class Diglin_Ricento_Model_Observer
         $transport = $observer->getEvent()->getTransport();
 
         if ($payment->getMethod() == Diglin_Ricento_Model_Sales_Method_Payment::PAYMENT_CODE) {
-            $additionalData = Mage::helperer('core')->jsonDecode($payment->getAdditionalData(), Zend_Json::TYPE_OBJECT);
+            $additionalData = Mage::helper('core')->jsonDecode($payment->getAdditionalData(), Zend_Json::TYPE_OBJECT);
             $methods = explode(',', $additionalData->ricardo_payment_methods);
 
             $label = array();
@@ -208,7 +208,7 @@ class Diglin_Ricento_Model_Observer
                 if (\Diglin\Ricardo\Enums\PaymentMethods::TYPE_BANK_TRANSFER == $method) {
                     $information = Mage::getStoreConfig(Diglin_Ricento_Helper_Data::PAYMENT_BANK_INFO);
                 }
-                $label[] = Mage::helperer('diglin_ricento')->__(\Diglin\Ricardo\Enums\PaymentMethods::getLabel($method));
+                $label[] = Mage::helper('diglin_ricento')->__(\Diglin\Ricardo\Enums\PaymentMethods::getLabel($method));
             }
 
             if (!empty($label)) {
@@ -301,12 +301,12 @@ class Diglin_Ricento_Model_Observer
             $grid->addColumnAfter(
                 'is_ricardo',
                 array(
-                    'header'  => Mage::helperer('diglin_ricento')->__('Is Ricardo'),
+                    'header'  => Mage::helper('diglin_ricento')->__('Is Ricardo'),
                     'index'   => 'is_ricardo',
                     'type'    => 'options',
                     'options' => array(
-                        '1' => Mage::helperer('core')->__('Yes'),
-                        '0' => Mage::helperer('core')->__('No'),
+                        '1' => Mage::helper('core')->__('Yes'),
+                        '0' => Mage::helper('core')->__('No'),
                     ),
                 ),
                 'status'
@@ -320,7 +320,7 @@ class Diglin_Ricento_Model_Observer
             $grid->addColumnAfter(
                 'ricardo_username',
                 array(
-                    'header' => Mage::helperer('diglin_ricento')->__('ricardo.ch Username'),
+                    'header' => Mage::helper('diglin_ricento')->__('ricardo.ch Username'),
                     'index'  => 'ricardo_username'
                 ),
                 'email'

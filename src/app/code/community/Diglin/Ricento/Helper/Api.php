@@ -32,7 +32,7 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
     const CACHE_LIFETIME    = 86400;
 
     /**
-     * Get if the token credential is going to expire or even not exist
+     * Get if the token credential is going to expire or even not exist - Default is 7 days
      *
      * @param int|string|Mage_Core_Model_Website $website
      * @return bool
@@ -52,7 +52,7 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * The API token can be validated X days before expiration
+     * The API token can be validated X days before expiration - Default is 1 day
      *
      * @param int $website
      * @return bool
@@ -60,8 +60,8 @@ class Diglin_Ricento_Helper_Api extends Mage_Core_Helper_Abstract
     public function apiTokenCredentialValidation($website = 0)
     {
         $dayDelay = Mage::helper('diglin_ricento')->getExpirationNotificationValidationDelay();
-
         $expirationDate = $this->getExpirationDate($website);
+
         if (empty($expirationDate) ||
             isset($expirationDate) && time() >= (Mage::getSingleton('core/date')->timestamp($expirationDate) - ($dayDelay * 24 * 3600))
         ) {
