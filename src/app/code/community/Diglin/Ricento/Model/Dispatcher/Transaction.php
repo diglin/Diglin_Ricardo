@@ -474,50 +474,19 @@ class Diglin_Ricento_Model_Dispatcher_Transaction extends Diglin_Ricento_Model_D
      */
     public function getCountryId($countryRicardoId)
     {
-        $countryName = '';
         $countries = Mage::getSingleton('diglin_ricento/api_services_system')
             ->setCurrentWebsite($this->_getListing()->getWebsiteId())
             ->getCountries();
 
+        $code = 'CH';
         foreach ($countries as $country) {
             if ($country['CountryId'] == $countryRicardoId) {
-                $countryName = $country['CountryName'];
+                $code = $country['CountryIsoCode'];
                 break;
             }
         }
 
-        $code = $this->translateCountryNameToCode($countryName);
-        if (!$code) {
-            throw new Exception(Mage::helper('diglin_ricento')->__('Country Code is not available. Please contact the author of this extension or support.'));
-        }
-        $directory = Mage::getModel('directory/country')->loadByCode($code);
-        return $directory->getCountryId();
-    }
-
-    /**
-     * VERY TEMPORARY SOLUTION until ricardo provide an API method to get the correct value
-     * @todo remove it as soon the API has implemented the method to get it
-     *
-     * @param $countryName
-     * @return string
-     */
-    public function translateCountryNameToCode($countryName)
-    {
-        $countryCode = array(
-            'Schweiz' => 'CH',
-            'Suisse' => 'CH',
-            'Liechtenstein' => 'LI', // ok for both lang
-            'Österreich' => 'AT',
-            'Autriche' => 'AT',
-            'Deutschland' => 'DE',
-            'Allemagne' => 'DE',
-            'Frankreich' => 'FR',
-            'France' => 'FR',
-            'Italien' => 'IT',
-            'Italie' => 'IT',
-        );
-
-        return (isset($countryCode[$countryName])) ? $countryCode[$countryName] : false;
+        return Mage::getModel('directory/country')->loadByCode($code)->getCountryId();
     }
 
     /**
