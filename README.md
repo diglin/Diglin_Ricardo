@@ -82,7 +82,7 @@ Do not forget the folder "lib"
 ### Via modman
 
 - Install [modman](https://github.com/colinmollenhour/modman)
-- Use the command from your Magento installation folder: `modman clone https://github.com/diglin/ricento.git`
+- Use the command from your Magento installation folder: `modman clone --copy https://github.com/diglin/ricento.git`
 
 #### Via Composer
 
@@ -116,7 +116,8 @@ Do not forget the folder "lib"
          ]
      },
      "extra":{
-       "magento-root-dir": "./"
+       "magento-root-dir": "./",
+       "magento-deploystrategy": "copy"
      }
  }
  ```
